@@ -3494,7 +3494,7 @@ const LEGAL = {
   confidentialite:`<div class="eyebrow">Tes données</div><h2>Politique de confidentialité</h2><p class="lupd">Dernière mise à jour : 11 novembre 2026</p>
    <div class="lsum"><b>En bref</b><ul><li>Pas de publicité, pas de revente, pas de profilage.</li><li>Nous comptons les pages vues de façon anonyme (sans cookie, sans adresse IP), pour savoir ce qui est utile.</li><li>Pas de compte à créer : ta progression est liée à ton navigateur par un identifiant anonyme.</li><li>Sous 15 ans, un parent doit donner son accord pour créer un passeport.</li><li>Tu peux tout effacer à tout moment.</li></ul></div>
    <h3>Responsable du traitement</h3><p>L'éditeur du site, désigné dans les <a href="#mentions">mentions légales</a>.</p>
-   <h3>Ce que nous gardons</h3><p><b>Ta progression :</b> tes tampons, ta série, tes points et ton passeport sont enregistrés dans ton navigateur et sauvegardés en ligne sous un identifiant anonyme, sans nom ni adresse e-mail. Tes réglages, tes passages surlignés et l'endroit où tu t'es arrêté dans un dossier restent uniquement dans ton navigateur. Les images de citation sont créées sur ton appareil.</p><p><b>Ton passeport :</b> le pseudo que tu choisis, les couleurs de ton emblème, ta tranche d'âge (moins ou plus de 15 ans) et, le cas échéant, l'accord parental. La cause et le pays de cœur sont facultatifs ; ils restent privés et n'apparaissent que sur ta carte, si tu choisis de la partager.</p><p><b>Signalements :</b> si tu signales une erreur, ton message et, si tu la donnes, ton adresse e-mail servent uniquement à vérifier la fiche et à te répondre.</p><p><b>Si tu es connecté :</b> ces éléments sont synchronisés pour te suivre d'un appareil à l'autre.</p><p><b>Ton compte (facultatif) :</b> si tu crées un compte, nous gardons ton adresse e-mail pour t'envoyer tes liens de connexion et t'écrire au sujet de ton compte. Aucun mot de passe n'est créé ni stocké.</p><p><b>Compteur de la semaine :</b> chaque semaine, nous comptons combien de personnes ont validé une notion ou un parcours. Le compteur ne garde aucun nom ni aucun pseudo.</p><p><b>Parrainage :</b> si tu t'inscris avec le lien d'un ami, nous gardons un code court qui lui permet de savoir combien de personnes il a invitées, sans jamais voir qui.</p><p><b>Classes :</b> si tu rejoins la classe d'un enseignant avec le code qu'il t'a donné, il voit ton pseudo, ton emblème, tes tampons, tes points et la date de ta dernière activité. Les autres élèves ne voient rien. Tu peux quitter la classe à tout moment depuis « Espace enseignant », en bas du site.</p>
+   <h3>Ce que nous gardons</h3><p><b>Ta progression :</b> tes tampons, ta série, tes points et ton passeport sont enregistrés dans ton navigateur et sauvegardés en ligne sous un identifiant anonyme, sans nom ni adresse e-mail. Tes réglages, tes passages surlignés et l'endroit où tu t'es arrêté dans un dossier restent uniquement dans ton navigateur. Les images de citation sont créées sur ton appareil.</p><p><b>Ton passeport :</b> le pseudo que tu choisis, les couleurs de ton emblème, ta tranche d'âge (moins ou plus de 15 ans) et, le cas échéant, l'accord parental. La cause et le pays de cœur sont facultatifs ; ils restent privés et n'apparaissent que sur ta carte, si tu choisis de la partager.</p><p><b>Signalements :</b> si tu signales une erreur, ton message et, si tu la donnes, ton adresse e-mail servent uniquement à vérifier la fiche et à te répondre.</p><p><b>Si tu es connecté :</b> ces éléments sont synchronisés pour te suivre d'un appareil à l'autre.</p><p><b>Ton compte (facultatif) :</b> si tu crées un compte, nous gardons ton adresse e-mail pour t'envoyer tes liens de connexion et t'écrire au sujet de ton compte. Aucun mot de passe n'est créé ni stocké.</p><p><b>Compteur de la semaine :</b> chaque semaine, nous comptons combien de personnes ont validé une notion ou un parcours. Le compteur ne garde aucun nom ni aucun pseudo.</p><p><b>Parrainage :</b> si tu t'inscris avec le lien d'un ami, nous gardons un code court qui lui permet de savoir combien de personnes il a invitées, sans jamais voir qui.</p><p><b>Classes :</b> si tu rejoins la classe d'un enseignant avec le code qu'il t'a donné, il voit ton pseudo, ton emblème, tes tampons, tes points et la date de ta dernière activité. Les autres élèves ne voient rien. Tu peux quitter la classe à tout moment depuis « Espace enseignant », en bas du site.</p><p><b>Quiz en direct :</b> si tu joues à un quiz projeté par un enseignant, nous gardons le pseudo que tu tapes, tes réponses et ton score. Ton pseudo et ton score s'affichent au tableau pendant la partie. Tout est effacé au bout d'un jour.</p>
    <h3>Pourquoi</h3><p>Uniquement pour faire fonctionner ton passeport et ta progression (exécution du service), et sur ton consentement pour les éléments facultatifs.</p>
    <h3>Moins de 15 ans</h3><p>En France, un mineur de moins de 15 ans ne peut pas consentir seul au traitement de ses données : l'accord d'un titulaire de l'autorité parentale est requis (article 45 de la loi Informatique et Libertés, article 8 du RGPD). Sankofa le demande à la création du passeport. La personne qui crée le passeport confirme qu'un parent a donné son accord. Sans accord, il reste possible d'utiliser Sankofa sans passeport : la progression reste alors sur l'appareil.</p>
    <h3>Durée</h3><p>Les données locales restent jusqu'à ce que tu les effaces. Les données d'un compte sont supprimées après deux ans d'inactivité.</p>
@@ -3512,7 +3512,7 @@ const LEGAL = {
   confidentialite:`<div class="eyebrow">Your data</div><h2>Privacy policy</h2><p class="lupd">Last updated: 11 November 2026</p>
    <div class="lsum"><b>In short</b><ul><li>No ads, no data sales, no profiling.</li><li>We count page views anonymously (no cookies, no IP address) to learn what is useful.</li><li>No account needed: your progress is tied to your browser by an anonymous identifier.</li><li>Under 15, a parent must agree before you create a passport.</li><li>You can erase everything at any time.</li></ul></div>
    <h3>Data controller</h3><p>The site's publisher, named in the <a href="#mentions">legal notice</a>.</p>
-   <h3>What we keep</h3><p><b>Your progress:</b> your stamps, streak, points and passport are stored in your browser and backed up online under an anonymous identifier, with no name or email address. Your settings, highlighted passages and where you stopped in a dossier stay only in your browser. Quote images are created on your device.</p><p><b>Your passport:</b> the nickname you choose, your emblem colours, your age group (under or over 15) and, where relevant, parental consent. Your cause and country close to your heart are optional; they stay private and only appear on your card if you choose to share it.</p><p><b>Error reports:</b> if you report an error, your message and, if you give it, your email address are used only to check the page and to reply to you.</p><p><b>If you are signed in:</b> these details are synced so they follow you across devices.</p><p><b>Your account (optional):</b> if you create an account, we keep your email address to send you sign-in links and to write to you about your account. No password is created or stored.</p><p><b>Weekly counter:</b> each week, we count how many people completed a lesson or a course. The counter keeps no names or nicknames.</p><p><b>Referrals:</b> if you sign up with a friend's link, we keep a short code that lets them see how many people they invited, never who.</p><p><b>Classes:</b> if you join a teacher's class with the code they gave you, they see your nickname, emblem, stamps, points and the date of your last activity. Other students see nothing. You can leave the class at any time from “Teacher space”, at the bottom of the site.</p>
+   <h3>What we keep</h3><p><b>Your progress:</b> your stamps, streak, points and passport are stored in your browser and backed up online under an anonymous identifier, with no name or email address. Your settings, highlighted passages and where you stopped in a dossier stay only in your browser. Quote images are created on your device.</p><p><b>Your passport:</b> the nickname you choose, your emblem colours, your age group (under or over 15) and, where relevant, parental consent. Your cause and country close to your heart are optional; they stay private and only appear on your card if you choose to share it.</p><p><b>Error reports:</b> if you report an error, your message and, if you give it, your email address are used only to check the page and to reply to you.</p><p><b>If you are signed in:</b> these details are synced so they follow you across devices.</p><p><b>Your account (optional):</b> if you create an account, we keep your email address to send you sign-in links and to write to you about your account. No password is created or stored.</p><p><b>Weekly counter:</b> each week, we count how many people completed a lesson or a course. The counter keeps no names or nicknames.</p><p><b>Referrals:</b> if you sign up with a friend's link, we keep a short code that lets them see how many people they invited, never who.</p><p><b>Classes:</b> if you join a teacher's class with the code they gave you, they see your nickname, emblem, stamps, points and the date of your last activity. Other students see nothing. You can leave the class at any time from “Teacher space”, at the bottom of the site.</p><p><b>Live quizzes:</b> if you play a quiz projected by a teacher, we keep the nickname you type, your answers and your score. Your nickname and score appear on the board during the game. Everything is deleted after one day.</p>
    <h3>Why</h3><p>Only to run your passport and progress (performance of the service), and with your consent for the optional details.</p>
    <h3>Under 15</h3><p>In France, a minor under 15 cannot consent alone to the processing of their data: the consent of a person with parental authority is required (article 45 of the French Data Protection Act, article 8 of the GDPR). Sankofa asks for it when you create a passport. The person creating the passport confirms that a parent has agreed. Without consent, you can still use Sankofa without a passport: your progress then stays on your device.</p>
    <h3>Retention</h3><p>Local data stays until you erase it. Account data is deleted after two years of inactivity.</p>
@@ -7793,10 +7793,11 @@ Object.assign(EN, {
     const head = `<div class="eyebrow">${t("Espace enseignant")}</div><h2 id="clT">${t("Ta classe sur Sankofa.")}</h2>
       <p class="cllead">${t("Crée une classe, donne le code à tes élèves, et vois ce que chacun a appris : tampons, points, dernière activité. Les élèves ne voient jamais les résultats des autres.")}</p>`;
     if(!state.account){
-      box.innerHTML = head + `<div class="clcard"><p>${t("Il faut un compte, pour l'enseignant comme pour les élèves.")}</p>
+      box.innerHTML = head + `<div class="clcard"><p>${t("Pour créer une classe ou en rejoindre une, il faut un compte. Le quiz en direct, lui, se joue sans compte.")}</p>
         <div class="clrow"><button class="cta" id="clUp">${t("Créer un compte")}</button><button class="cta ghost" id="clIn2">${t("Se connecter")}</button></div></div>`;
       const go = tab=>{ $("#modal").classList.remove("show"); authTab = tab; openSheet("account"); };
-      $("#clUp").onclick = ()=>go("up"); $("#clIn2").onclick = ()=>go("in"); return;
+      $("#clUp").onclick = ()=>go("up"); $("#clIn2").onclick = ()=>go("in");
+      if(window.skfLiveHook) skfLiveHook(box, false); return;
     }
     const d = CL.data || {teach:[], joined:[]};
     const joined = (d.joined || []).map(c=>`<li><b>${esc(c.name)}</b><span class="mono">${esc(c.code)}</span><button class="linkbtn" data-leave="${esc(c.code)}">${t("Quitter")}</button></li>`).join("");
@@ -7805,7 +7806,7 @@ Object.assign(EN, {
       const link = SITE_URL + "/?classe=" + c.code;
       return `<div class="clclass"><button class="clhead" data-tog="${esc(c.code)}" aria-expanded="${open}"><span><b>${esc(c.name)}</b><em>${st.length} ${st.length > 1 ? t("élèves") : t("élève")}</em></span><span class="clcode mono">${esc(c.code)}</span></button>
         ${open ? `<div class="clbody">
-          <div class="clshare"><span>${t("Code à donner aux élèves")}</span><b class="mono">${esc(c.code)}</b><button class="cta ghost" data-copy="${esc(link)}">${t("Copier le lien")}</button></div>
+          <div class="clshare"><span>${t("Code à donner aux élèves")}</span><b class="mono">${esc(c.code)}</b><button class="cta ghost" data-copy="${esc(link)}">${t("Copier le lien")}</button><button class="cta ghost" data-qr="${esc(c.code)}" data-qrname="${esc(c.name)}">${t("Afficher le QR code")}</button></div>
           ${st.length ? `<ol class="clst">${st.map(s=>{ const n = Object.keys(s.stamps || {}).length; return `<li>${avatarSVG({fg:s.fg, bg:s.bg, egg:s.egg}, 28)}<span class="cln">${esc(s.name)}</span><span class="cls">${n} ${n > 1 ? t("tampons") : t("tampon")} · ${s.xp} XP</span><span class="cla">${esc(ago(s.last))}</span><button class="clx" data-rm="${esc(c.code)}|${esc(s.uid)}" aria-label="${t("Retirer de la classe")}" title="${t("Retirer de la classe")}">×</button></li>`; }).join("")}</ol>
             <p class="clsmall">${t("Pays tamponnés par la classe :")} ${esc(classStamps(st))}</p>`
           : `<p class="clsmall">${t("Personne pour l'instant. Donne le code ou le lien à tes élèves : ils le saisissent dans « Espace enseignant », en bas du site.")}</p>`}
@@ -7818,6 +7819,8 @@ Object.assign(EN, {
       <div class="clcard"><div class="cltitle">${t("Mes classes")}</div>${teach || `<p class="clsmall">${t("Tu n'as pas encore de classe.")}</p>`}
         <form class="clrow" id="clNew"><input id="clName" class="clinput" maxlength="60" placeholder="${t("Ex. 3e B · Histoire-géo")}"><button class="cta ghost" type="submit">${t("Créer une classe")}</button></form></div>
       <p class="ferr" id="clErr" role="alert"></p>`;
+    if(window.skfLiveHook) skfLiveHook(box, true);
+    box.querySelectorAll("[data-qr]").forEach(b=>b.onclick = ()=>{ if(window.skfQR) skfQR(SITE_URL + "/?classe=" + b.dataset.qr, b.dataset.qr, b.dataset.qrname); });
     const err = m=>{ const e = $("#clErr"); e.textContent = m; e.classList.toggle("show", !!m); };
     const reload = async ()=>{ try{ CL.data = await SB.rpc("sankofa_class_mine"); }catch(e){} paintClasses(); };
     $("#clJoin").onsubmit = async e=>{ e.preventDefault(); const code = $("#clCode").value.trim().toUpperCase(); if(code.length !== 6) return err(t("Le code fait 6 caractères."));
@@ -7852,7 +7855,7 @@ Object.assign(EN, {
  "Ajoute Sankofa à ton écran d'accueil":"Add Sankofa to your home screen","Ton passeport à portée de main, en un geste.":"Your passport one tap away.","Comment faire":"Show me how",
  "Espace enseignant":"Teacher space","Ta classe sur Sankofa.":"Your class on Sankofa.",
  "Crée une classe, donne le code à tes élèves, et vois ce que chacun a appris : tampons, points, dernière activité. Les élèves ne voient jamais les résultats des autres.":"Create a class, give the code to your students, and see what each one has learned: stamps, points, last activity. Students never see each other's results.",
- "Il faut un compte, pour l'enseignant comme pour les élèves.":"An account is needed, for the teacher and for students.",
+ "Pour créer une classe ou en rejoindre une, il faut un compte. Le quiz en direct, lui, se joue sans compte.":"You need an account to create or join a class. The live quiz can be played without one.",
  "Quitter":"Leave","élèves":"students","élève":"student","Code à donner aux élèves":"Code for your students","Copier le lien":"Copy link",
  "tampons":"stamps","tampon":"stamp","Retirer de la classe":"Remove from class","Pays tamponnés par la classe :":"Countries stamped by the class:",
  "Personne pour l'instant. Donne le code ou le lien à tes élèves : ils le saisissent dans « Espace enseignant », en bas du site.":"No one yet. Give the code or link to your students: they enter it in “Teacher space”, at the bottom of the site.",
@@ -7864,7 +7867,301 @@ Object.assign(EN, {
  "Quitter cette classe ?":"Leave this class?","Retirer cet élève de la classe ?":"Remove this student from the class?","Supprimer cette classe ? Les élèves en seront retirés.":"Delete this class? Students will be removed from it.",
  "aucun pour l'instant":"none yet","jamais":"never","à l'instant":"just now","aujourd'hui":"today","hier":"yesterday","il y a {n} jours":"{n} days ago",
  "Il faut un compte pour cela.":"You need an account for this.","Ce code ne correspond à aucune classe.":"This code doesn't match any class.","Cette classe est complète.":"This class is full.","Tu as déjà 20 classes.":"You already have 20 classes.",
+ "Afficher le QR code":"Show the QR code",
  "Crée un compte pour rejoindre la classe de ton enseignant, puis ouvre « Espace enseignant » en bas du site.":"Create an account to join your teacher's class, then open “Teacher space” at the bottom of the site."
+});
+
+/* qrcode-generator 1.4.4, Kazuhiko Arase, licence MIT */
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+/* ---------- Quiz en direct (projeté au tableau, réponses sur téléphone) et QR code de classe ---------- */
+(function(){
+  const SITE = "https://sankofa-atlas.org";
+  const ss = { get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ sessionStorage.setItem(k, v); }catch(e){} } };
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
+  const qp = (()=>{ try{ return new URLSearchParams(location.search); }catch(e){ return new URLSearchParams(""); } })();
+  const LET = ["A", "B", "C", "D", "E", "F"];
+  const lvName = lv => t((LEVELS.find(x=>x.k === lv) || {}).name || "");
+  const cname = id => (C[id] && C[id].name) || id;
+  const fmtPin = p => String(p).replace(/^(\d{3})(\d{3})$/, "$1 $2");
+  const ERR = {"compte requis":"Il faut un compte enseignant pour lancer une partie.", "partie introuvable":"Aucune partie ne correspond à ce code.",
+    "partie terminee":"Cette partie est terminée.", "partie pleine":"Cette partie est complète.", "pseudo requis":"Choisis un pseudo.",
+    "trop tard":"Trop tard pour cette question.", "pas inscrit":"Rejoins d'abord la partie."};
+  const errText = e=>{ const m = String((e && e.message) || ""); const k = Object.keys(ERR).find(x=>m.includes(x)); return t(k ? ERR[k] : "Impossible pour le moment. Vérifie ta connexion."); };
+
+  /* ---------- QR code ---------- */
+  function qrSVG(text){
+    try{ const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({cellSize:6, margin:2, scalable:true}); }catch(e){ return ""; }
+  }
+  window.skfQR = function(url, code, name){
+    mode = "qr"; stop(); open_(); ROOT.classList.add("qrmode");
+    paint(`<div class="lvqr">
+      <div class="lvqrbox">${qrSVG(url)}</div>
+      <div class="lvqrside"><div class="eyebrow">${t("Rejoindre la classe")}</div>
+        <h2>${esc(name || "")}</h2>
+        <p>${t("Scanne le code avec l'appareil photo de ton téléphone.")}</p>
+        <p class="lvsmall">${t("Ou va sur sankofa-atlas.org, ouvre « Espace enseignant » en bas de la page et entre le code :")}</p>
+        <b class="lvbig mono">${esc(code)}</b>
+        <p class="lvsmall">${t("Il faut un compte Sankofa pour rejoindre une classe.")}</p></div></div>`);
+  };
+
+  /* ---------- Plein écran ---------- */
+  let ROOT = null, TIMER = null, TICK = null, mode = null;
+  function open_(){
+    if(!ROOT){
+      document.body.insertAdjacentHTML("beforeend", `<div id="skfLive" class="lvroot" role="dialog" aria-modal="true" aria-label="${t("Quiz en direct")}">
+        <div class="lvbar"><span class="lvbrand">Sankofa · <em>${t("en direct")}</em></span><span class="lvsp"></span>
+          <button class="lvtool" id="lvFull">${t("Plein écran")}</button><button class="lvtool" id="lvClose" aria-label="${t("Fermer")}">${t("Fermer")}</button></div>
+        <div class="lvin" id="lvIn"></div></div>`);
+      ROOT = $("#skfLive");
+      $("#lvClose").onclick = close_;
+      $("#lvFull").onclick = ()=>{ const d = document; if(d.fullscreenElement) d.exitFullscreen && d.exitFullscreen(); else ROOT.requestFullscreen && ROOT.requestFullscreen().catch(()=>{}); };
+    }
+    try{ $("#modal").classList.remove("show"); }catch(e){}
+    ROOT.classList.add("show"); document.body.classList.add("livemode");
+  }
+  function close_(){
+    if(mode === "host" && H.pin && H.state && H.state !== "end" && H.state !== "setup" && !confirm(t("Quitter l'écran de la partie ? Elle restera ouverte, mais plus personne ne la fera avancer."))) return;
+    stop(); mode = null;
+    try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+    if(ROOT){ ROOT.classList.remove("show"); } document.body.classList.remove("livemode");
+  }
+  function stop(){ clearTimeout(TIMER); clearInterval(TICK); TIMER = null; TICK = null; }
+  const paint = html=>{ $("#lvIn").innerHTML = html; };
+  function loop(fn, ms){ clearTimeout(TIMER); const go = async ()=>{ if(!ROOT || !ROOT.classList.contains("show")) return; try{ await fn(); }catch(e){} TIMER = setTimeout(go, ms); }; go(); }
+
+  /* Compte à rebours partagé : calé sur le temps du serveur */
+  let deadline = 0, dlKey = "";
+  function syncDeadline(key, secs, elapsed){ if(key !== dlKey){ dlKey = key; deadline = Date.now() + Math.max(0, secs - (elapsed || 0)) * 1000; } }
+  const left = ()=>Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+
+  /* =========================================================
+     Enseignant
+     ========================================================= */
+  const H = {pin:null, state:null, data:null, busy:false};
+  function hostSetup(){
+    mode = "host"; H.pin = null; H.state = "setup"; stop(); open_(); ROOT.classList.remove("qrmode");
+    const ids = FEATURED.filter(id=>Q[id] && Q[id].d).slice().sort((a, b)=>cname(a).localeCompare(cname(b), LANG));
+    const last = ls.get("skf-live-c");
+    paint(`<div class="lvsetup">
+      <div class="eyebrow">${t("Quiz en direct")}</div>
+      <h2>${t("Projette un quiz au tableau. Les élèves répondent sur leur téléphone.")}</h2>
+      <p class="lvlead">${t("Pas besoin de compte pour les élèves : ils scannent le QR code ou entrent le code de la partie, choisissent un pseudo, et c'est parti.")}</p>
+      <label class="lvlab">${t("Pays")}<select id="lvC" class="clinput">${ids.map(id=>`<option value="${id}" ${id === last ? "selected" : ""}>${esc(cname(id))}</option>`).join("")}</select></label>
+      <div class="lvlab">${t("Niveau")}<div class="lvseg" id="lvL">${["d", "i", "e"].map((l, i)=>`<button type="button" data-l="${l}" aria-pressed="${i === 0}">${esc(lvName(l))}</button>`).join("")}</div></div>
+      <div class="lvlab">${t("Temps par question")}<div class="lvseg" id="lvS">${[10, 20, 30].map(s=>`<button type="button" data-s="${s}" aria-pressed="${s === 20}">${s} s</button>`).join("")}</div></div>
+      <button class="cta lvgo" id="lvMake">${t("Créer la partie")}</button>
+      <p class="ferr" id="lvErr" role="alert"></p></div>`);
+    let lv = "d", secs = 20;
+    $("#lvL").querySelectorAll("button").forEach(b=>b.onclick = ()=>{ lv = b.dataset.l; $("#lvL").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x === b)); });
+    $("#lvS").querySelectorAll("button").forEach(b=>b.onclick = ()=>{ secs = +b.dataset.s; $("#lvS").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x === b)); });
+    $("#lvMake").onclick = async ()=>{
+      const id = $("#lvC").value, qs = (Q[id] && Q[id][lv]) || [];
+      if(!qs.length) return;
+      ls.set("skf-live-c", id);
+      const questions = qs.map(q=>({q:q.q, o:q.o, a:q.a, e:q.e || ""}));
+      $("#lvMake").disabled = true;
+      try{
+        const r = await SB.rpc("live_create", {country:id, lv, title:cname(id) + " · " + lvName(lv), questions, secs});
+        H.pin = r.pin; H.state = "lobby"; dlKey = "";
+        if(window.skfEvent) skfEvent("live", "create");
+        loop(hostPoll, 1000);
+      }catch(e){ $("#lvMake").disabled = false; const x = $("#lvErr"); x.textContent = errText(e); x.classList.add("show"); }
+    };
+  }
+  async function hostPoll(){
+    const d = await SB.rpc("live_host", {pin:H.pin});
+    H.data = d; H.state = d.state;
+    if(d.state === "question"){
+      syncDeadline(d.pin + ":" + d.qi, d.secs, d.elapsed);
+      if(!H.busy && (left() <= 0 || (d.players.length && d.answered >= d.players.length))){ await hostNext(); return; }
+    }
+    hostPaint();
+  }
+  async function hostNext(action){
+    if(H.busy) return; H.busy = true;
+    try{ await SB.rpc("live_next", {pin:H.pin, action:action || "next"}); const d = await SB.rpc("live_host", {pin:H.pin}); H.data = d; H.state = d.state; if(d.state === "question") syncDeadline(d.pin + ":" + d.qi, d.secs, d.elapsed); }
+    catch(e){ toast(errText(e)); }
+    H.busy = false; hostPaint();
+  }
+  let lastHost = "";
+  function hostPaint(){
+    const d = H.data; if(!d) return;
+    const key = [d.state, d.qi, d.players.length, d.answered, d.players.map(p=>p.uid + p.score).join()].join("|");
+    if(key === lastHost) return; lastHost = key;
+    clearInterval(TICK);
+    if(d.state === "lobby"){
+      const url = SITE + "/?live=" + d.pin;
+      paint(`<div class="lvlobby">
+        <div class="lvjoin"><div class="lvqrbox">${qrSVG(url)}</div>
+          <div><div class="eyebrow">${t("Pour jouer")}</div>
+            <p class="lvhow">${t("Scanne le QR code, ou va sur")} <b>sankofa-atlas.org</b> ${t("et entre le code")}</p>
+            <b class="lvpin mono">${fmtPin(d.pin)}</b></div></div>
+        <div class="lvroom"><div class="lvroomh"><h2>${esc(d.title || "")}</h2><span class="mono">${d.players.length} ${d.players.length > 1 ? t("joueurs") : t("joueur")}</span></div>
+          <div class="lvchips">${d.players.length ? d.players.map(p=>`<button class="lvchip" data-kick="${esc(p.uid)}" title="${t("Retirer")}">${esc(p.name)}</button>`).join("") : `<p class="lvwait">${t("En attente des joueurs…")}</p>`}</div>
+          <div class="lvact"><span class="lvsmall">${d.total} ${t("questions")} · ${d.secs} s</span><button class="cta lvgo" id="lvStart" ${d.players.length ? "" : "disabled"}>${t("Lancer le quiz")}</button></div></div></div>`);
+      ROOT.querySelectorAll("[data-kick]").forEach(b=>b.onclick = async ()=>{ if(!confirm(t("Retirer {n} de la partie ?", {n:b.textContent}))) return; try{ await SB.rpc("live_kick", {pin:d.pin, who:b.dataset.kick}); lastHost = ""; }catch(e){} });
+      $("#lvStart").onclick = ()=>hostNext();
+      return;
+    }
+    if(d.state === "question" || d.state === "reveal"){
+      const q = d.question || {}, rev = d.state === "reveal", tot = Math.max(1, d.answered);
+      paint(`<div class="lvq ${rev ? "rev" : ""}">
+        <div class="lvqtop"><span class="mono">${t("Question {i} sur {n}", {i:d.qi + 1, n:d.total})}</span>
+          ${rev ? `<span class="mono">${d.answered} ${d.answered > 1 ? t("réponses") : t("réponse")}</span>` : `<span class="lvclock mono" id="lvClock">${left()}</span><span class="mono">${d.answered} / ${d.players.length}</span>`}</div>
+        <h2 class="lvqq">${esc(q.q || "")}</h2>
+        <div class="lvopts n${(q.o || []).length}">${(q.o || []).map((o, i)=>{ const ok = i === q.a, c = (d.counts || [])[i] || 0;
+          return `<div class="lvopt c${i} ${rev ? (ok ? "ok" : "no") : ""}"><span class="lvlet">${LET[i]}</span><span class="lvot">${esc(o)}</span>${rev ? `<span class="lvcnt"><i style="width:${Math.round(c / tot * 100)}%"></i><b>${c}</b></span>` : ""}</div>`; }).join("")}</div>
+        ${rev ? `<div class="lvrev">${q.e ? `<p class="lvexp">${esc(q.e)}</p>` : ""}${topHTML(d.players, 5)}
+          <button class="cta lvgo" id="lvNext">${d.qi + 1 >= d.total ? t("Voir le podium") : t("Question suivante")}</button></div>`
+          : `<div class="lvact"><span></span><button class="cta ghost" id="lvSkip">${t("Afficher la réponse")}</button></div>`}</div>`);
+      if(rev) $("#lvNext").onclick = ()=>hostNext();
+      else{ $("#lvSkip").onclick = ()=>hostNext(); TICK = setInterval(()=>{ const c = $("#lvClock"); if(c){ const n = left(); c.textContent = n; c.classList.toggle("low", n <= 5); } }, 250); }
+      return;
+    }
+    if(d.state === "end"){
+      const p = d.players, pod = [p[1], p[0], p[2]];
+      paint(`<div class="lvend"><div class="eyebrow">${esc(d.title || "")}</div><h2>${t("Le podium.")}</h2>
+        <div class="lvpod">${pod.map((x, i)=>x ? `<div class="lvstep s${[2, 1, 3][i]}"><b>${esc(x.name)}</b><span class="mono">${x.score}</span><i>${[2, 1, 3][i]}</i></div>` : `<div class="lvstep empty"></div>`).join("")}</div>
+        ${p.length > 3 ? `<ol class="lvrest" start="4">${p.slice(3, 30).map(x=>`<li><span>${esc(x.name)}</span><span class="mono">${x.score}</span></li>`).join("")}</ol>` : ""}
+        <div class="lvact"><button class="cta ghost" id="lvAgain">${t("Nouvelle partie")}</button><button class="cta" id="lvDone">${t("Terminer")}</button></div></div>`);
+      stop();
+      $("#lvAgain").onclick = hostSetup; $("#lvDone").onclick = close_;
+    }
+  }
+  function topHTML(p, n){
+    if(!p.length) return "";
+    return `<ol class="lvtop">${p.slice(0, n).map(x=>`<li><span>${esc(x.name)}</span><span class="mono">${x.score}</span></li>`).join("")}</ol>`;
+  }
+
+  /* =========================================================
+     Élève (téléphone)
+     ========================================================= */
+  const P = {pin:null, d:null, sent:-1};
+  function playerJoin(pin, msg){
+    mode = "player"; stop(); open_(); ROOT.classList.remove("qrmode");
+    const nm = ls.get("skf-live-name") || (state.profile && state.profile.name) || "";
+    paint(`<div class="lvp lvpjoin"><div class="eyebrow">${t("Quiz en direct")}</div><h2>${t("Rejoins la partie.")}</h2>
+      <form id="lvPJ" class="lvpform">
+        <label class="lvlab">${t("Code de la partie")}<input id="lvPin" class="clinput mono lvpinin" inputmode="numeric" maxlength="7" placeholder="000 000" value="${esc(pin ? fmtPin(pin) : "")}" autocomplete="off"></label>
+        <label class="lvlab">${t("Ton pseudo")}<input id="lvName" class="clinput" maxlength="20" value="${esc(nm)}" autocomplete="off" placeholder="${t("Ex. Amina")}"></label>
+        <button class="cta lvgo" type="submit">${t("Entrer")}</button></form>
+      <p class="ferr ${msg ? "show" : ""}" id="lvErr" role="alert">${esc(msg || "")}</p>
+      <p class="lvsmall">${t("Ton pseudo s'affiche au tableau : reste correct.")}</p></div>`);
+    $("#lvPJ").onsubmit = async e=>{
+      e.preventDefault();
+      const p = $("#lvPin").value.replace(/\D/g, ""), n = $("#lvName").value.trim();
+      const err = m=>{ const x = $("#lvErr"); x.textContent = m; x.classList.toggle("show", !!m); };
+      if(p.length !== 6) return err(t("Le code de la partie fait 6 chiffres."));
+      if(!n) return err(t("Choisis un pseudo."));
+      try{ const r = await SB.rpc("live_join", {pin:p, name:n}); ls.set("skf-live-name", n); ss.set("skf-live", p); P.pin = p; P.sent = -1; lastP = ""; if(window.skfEvent) skfEvent("live", "join"); loop(playerPoll, 1200); }
+      catch(x){ err(errText(x)); }
+    };
+  }
+  async function playerPoll(){
+    let d;
+    try{ d = await SB.rpc("live_player", {pin:P.pin}); }catch(e){ if(String(e.message || "").includes("introuvable")){ stop(); ss.set("skf-live", ""); playerJoin("", t("Cette partie n'existe plus.")); } return; }
+    if(d.state === "out"){ stop(); ss.set("skf-live", ""); playerJoin(P.pin, t("Tu n'es plus dans la partie. Tu peux la rejoindre à nouveau.")); return; }
+    P.d = d; if(d.state === "question") syncDeadline(P.pin + ":" + d.qi, d.secs, d.elapsed);
+    playerPaint();
+  }
+  let lastP = "";
+  function playerPaint(){
+    const d = P.d; if(!d) return;
+    const answered = !!d.mine || P.sent === d.qi;
+    const key = [d.state, d.qi, answered, d.score, d.rank, d.players].join("|");
+    if(key === lastP) return; lastP = key;
+    clearInterval(TICK);
+    const head = `<div class="lvphead"><span>${esc(d.name)}</span><span class="mono">${d.score} ${t("pts")}</span></div>`;
+    if(d.state === "lobby"){
+      paint(`<div class="lvp">${head}<div class="lvpmid"><div class="lvdot"></div><h2>${t("Tu es dans la partie.")}</h2>
+        <p>${t("Regarde le tableau : le quiz va commencer.")}</p><p class="lvsmall">${esc(d.title || "")} · ${d.players} ${d.players > 1 ? t("joueurs") : t("joueur")}</p></div></div>`);
+      return;
+    }
+    if(d.state === "question" && !answered){
+      paint(`<div class="lvp">${head}<div class="lvpq"><div class="lvpbar"><i id="lvBar"></i></div>
+        <span class="mono lvsmall">${t("Question {i} sur {n}", {i:d.qi + 1, n:d.total})}</span>
+        <p class="lvpqq">${esc(d.q || "")}</p>
+        <div class="lvpbtns">${(d.o || []).map((o, i)=>`<button class="lvopt c${i}" data-c="${i}"><span class="lvlet">${LET[i]}</span><span class="lvot">${esc(o)}</span></button>`).join("")}</div></div></div>`);
+      const bar = $("#lvBar"), all = d.secs * 1000;
+      TICK = setInterval(()=>{ const ms = Math.max(0, deadline - Date.now()); if(bar) bar.style.width = (ms / all * 100) + "%"; }, 200);
+      ROOT.querySelectorAll("[data-c]").forEach(b=>b.onclick = async ()=>{
+        ROOT.querySelectorAll("[data-c]").forEach(x=>{ x.disabled = true; x.classList.toggle("picked", x === b); });
+        P.sent = d.qi;
+        try{ await SB.rpc("live_answer", {pin:P.pin, qi:d.qi, choice:+b.dataset.c}); }catch(e){ toast(errText(e)); }
+        lastP = ""; playerPaint();
+      });
+      return;
+    }
+    if(d.state === "question"){
+      paint(`<div class="lvp">${head}<div class="lvpmid"><div class="lvdot"></div><h2>${t("Réponse envoyée.")}</h2><p>${t("On attend les autres…")}</p></div></div>`);
+      return;
+    }
+    if(d.state === "reveal"){
+      const m = d.mine, ok = m && m.correct;
+      paint(`<div class="lvp">${head}<div class="lvpmid lvpres ${ok ? "ok" : "no"}">
+        <h2>${m ? (ok ? t("Bonne réponse.") : t("Raté.")) : t("Pas de réponse.")}</h2>
+        ${ok ? `<b class="lvplus mono">+${m.points}</b>` : `<p>${t("La bonne réponse :")} <b>${LET[d.a]} · ${esc((d.o || [])[d.a] || "")}</b></p>`}
+        <p class="lvrank">${t("Tu es {r} sur {n}.", {r:rankTxt(d.rank), n:d.players})}</p></div></div>`);
+      return;
+    }
+    if(d.state === "end"){
+      stop(); ss.set("skf-live", "");
+      paint(`<div class="lvp">${head}<div class="lvpmid lvpend"><div class="eyebrow">${t("Fin du quiz")}</div>
+        <b class="lvbig">${rankTxt(d.rank)}</b><p>${t("sur {n} joueurs, avec {s} points.", {n:d.players, s:d.score})}</p>
+        <p class="lvsmall">${esc(d.title || "")}</p><button class="cta" id="lvPDone">${t("Revenir sur Sankofa")}</button></div></div>`);
+      $("#lvPDone").onclick = close_;
+    }
+  }
+  const rankTxt = r => { if(LANG !== "en") return r === 1 ? "1er" : r + "e"; const t10 = r % 10, t100 = r % 100; return r + (t100 >= 11 && t100 <= 13 ? "th" : t10 === 1 ? "st" : t10 === 2 ? "nd" : t10 === 3 ? "rd" : "th"); };
+
+  /* ---------- Entrées : lien ?live=, et carte dans l'espace enseignant ---------- */
+  window.skfLiveHook = function(box, acct){
+    const card = `<div class="clcard lvcard2"><div class="cltitle">${t("Quiz en direct")}</div>
+      <p class="clsmall">${t("Ton enseignant projette un quiz ? Entre le code de la partie.")}</p>
+      <form class="clrow" id="lvQJ"><input id="lvQPin" class="clinput mono" inputmode="numeric" maxlength="7" placeholder="000 000" autocomplete="off"><button class="cta" type="submit">${t("Jouer")}</button></form>
+      ${acct ? `<div class="lvhostrow"><span class="clsmall">${t("Enseignant : projette un quiz au tableau, tes élèves répondent sur leur téléphone.")}</span><button class="cta ghost" id="lvHost">${t("Lancer un quiz en direct")}</button></div>` : ""}</div>`;
+    const lead = box.querySelector(".cllead");
+    if(lead) lead.insertAdjacentHTML("afterend", card); else box.insertAdjacentHTML("beforeend", card);
+    $("#lvQJ").onsubmit = e=>{ e.preventDefault(); const p = $("#lvQPin").value.replace(/\D/g, ""); playerJoin(p.length === 6 ? p : ""); };
+    if(acct) $("#lvHost").onclick = hostSetup;
+  };
+  window.skfLive = {host:hostSetup, join:playerJoin};
+  (function(){
+    const p = (qp.get("live") || "").replace(/\D/g, "");
+    const resume = ss.get("skf-live");
+    if(p.length === 6) setTimeout(()=>{ if(resume === p){ P.pin = p; mode = "player"; open_(); loop(playerPoll, 1200); } else playerJoin(p); }, 900);
+    else if(resume && resume.length === 6) setTimeout(()=>{ P.pin = resume; mode = "player"; open_(); paint(`<p class="lvwait">${t("Un instant…")}</p>`); loop(playerPoll, 1200); }, 900);
+  })();
+  document.addEventListener("keydown", e=>{ if(e.key === "Escape" && ROOT && ROOT.classList.contains("show") && !document.fullscreenElement) close_(); });
+})();
+
+Object.assign(EN, {
+ "Quiz en direct":"Live quiz","en direct":"live","Plein écran":"Full screen","Fermer":"Close",
+ "Rejoindre la classe":"Join the class","Scanne le code avec l'appareil photo de ton téléphone.":"Scan the code with your phone's camera.",
+ "Ou va sur sankofa-atlas.org, ouvre « Espace enseignant » en bas de la page et entre le code :":"Or go to sankofa-atlas.org, open “Teacher space” at the bottom of the page and enter the code:",
+ "Il faut un compte Sankofa pour rejoindre une classe.":"You need a Sankofa account to join a class.",
+ "Quitter l'écran de la partie ? Elle restera ouverte, mais plus personne ne la fera avancer.":"Leave the game screen? It will stay open, but no one will move it forward.",
+ "Projette un quiz au tableau. Les élèves répondent sur leur téléphone.":"Project a quiz on the board. Students answer on their phones.",
+ "Pas besoin de compte pour les élèves : ils scannent le QR code ou entrent le code de la partie, choisissent un pseudo, et c'est parti.":"Students don't need an account: they scan the QR code or enter the game code, pick a nickname, and off they go.",
+ "Pays":"Country","Niveau":"Level","Temps par question":"Time per question","Créer la partie":"Create the game",
+ "Pour jouer":"To play","Scanne le QR code, ou va sur":"Scan the QR code, or go to","et entre le code":"and enter the code",
+ "joueurs":"players","joueur":"player","Retirer":"Remove","En attente des joueurs…":"Waiting for players…","questions":"questions","Lancer le quiz":"Start the quiz",
+ "Retirer {n} de la partie ?":"Remove {n} from the game?","Question {i} sur {n}":"Question {i} of {n}","réponses":"answers","réponse":"answer",
+ "Voir le podium":"See the podium","Question suivante":"Next question","Afficher la réponse":"Show the answer","Le podium.":"The podium.",
+ "Nouvelle partie":"New game","Terminer":"Finish","Rejoins la partie.":"Join the game.","Code de la partie":"Game code","Ton pseudo":"Your nickname",
+ "Ex. Amina":"E.g. Amina","Entrer":"Enter","Ton pseudo s'affiche au tableau : reste correct.":"Your nickname appears on the board: keep it polite.",
+ "Le code de la partie fait 6 chiffres.":"The game code has 6 digits.","Choisis un pseudo.":"Choose a nickname.",
+ "Cette partie n'existe plus.":"This game no longer exists.","Tu n'es plus dans la partie. Tu peux la rejoindre à nouveau.":"You're no longer in the game. You can join it again.",
+ "pts":"pts","Tu es dans la partie.":"You're in the game.","Regarde le tableau : le quiz va commencer.":"Look at the board: the quiz is about to start.",
+ "Réponse envoyée.":"Answer sent.","On attend les autres…":"Waiting for the others…","Bonne réponse.":"Correct.","Raté.":"Wrong.","Pas de réponse.":"No answer.",
+ "La bonne réponse :":"The right answer:","Tu es {r} sur {n}.":"You're {r} out of {n}.","Fin du quiz":"End of the quiz",
+ "sur {n} joueurs, avec {s} points.":"out of {n} players, with {s} points.","Revenir sur Sankofa":"Back to Sankofa",
+ "Ton enseignant projette un quiz ? Entre le code de la partie.":"Is your teacher projecting a quiz? Enter the game code.","Jouer":"Play",
+ "Enseignant : projette un quiz au tableau, tes élèves répondent sur leur téléphone.":"Teachers: project a quiz on the board, your students answer on their phones.",
+ "Lancer un quiz en direct":"Start a live quiz",
+ "Il faut un compte enseignant pour lancer une partie.":"You need a teacher account to start a game.","Aucune partie ne correspond à ce code.":"No game matches this code.",
+ "Cette partie est terminée.":"This game is over.","Cette partie est complète.":"This game is full.","Trop tard pour cette question.":"Too late for this question.",
+ "Rejoins d'abord la partie.":"Join the game first.","Impossible pour le moment. Vérifie ta connexion.":"Not possible right now. Check your connection."
 });
 
 /* ================= DÉMARRAGE ================= */
