@@ -1123,7 +1123,8 @@ label.sw input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2p
 /* ---------- Avant / après : vraies images ---------- */
 .satreal{background:#1b1d20}
 .sattiles{position:absolute;inset:0;overflow:hidden}
-.sattiles img{position:absolute;width:256px;height:256px;max-width:none;opacity:0;transition:opacity .35s;pointer-events:none;user-select:none}
+.sattile{position:absolute;width:256px;height:256px;overflow:hidden}
+.sattiles img{position:absolute;left:0;top:0;width:256px;height:256px;max-width:none;opacity:0;transition:opacity .35s;pointer-events:none;user-select:none}
 .sattiles img.in{opacity:1}
 .satzoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;z-index:3}
 .satzoom button{width:36px;height:36px;border-radius:10px;border:0;background:rgba(255,255,255,.92);color:#121315;font:600 20px/1 var(--mono);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}

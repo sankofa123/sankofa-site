@@ -8168,12 +8168,18 @@ Object.assign(EN, {
 Object.assign(S, {
   satEox:{t:"EOX, Sentinel-2 cloudless : mosaïques annuelles sans nuages, données Copernicus",u:"https://s2maps.eu"},
   gazaFao:{t:"FAO et UNOSAT, terres agricoles de Gaza endommagées, 31 octobre 2025",u:"https://www.fao.org/newsroom/detail/gaza-strip--ceasefire-opens-window-for-rehabilitation-as-over-a-third-of-cropland-becomes-accessible/en"},
-  kakhWiki:{t:"Réservoir de Kakhovka, synthèse et sources (Wikipédia, en anglais)",u:"https://en.wikipedia.org/wiki/Kakhovka_Reservoir"}
+  kakhWiki:{t:"Réservoir de Kakhovka, synthèse et sources (Wikipédia, en anglais)",u:"https://en.wikipedia.org/wiki/Kakhovka_Reservoir"},
+  rafahFao:{t:"FAO et UNOSAT, l'agriculture de Gaza continue de se dégrader, 26 mai 2025",u:"https://www.fao.org/newsroom/detail/gaza-s-agricultural-infrastructure-continues-to-deteriorate-at-alarming-rate/en"},
+  bakhAlj:{t:"Al Jazeera, images satellites de la destruction de Bakhmout, 24 mai 2023",u:"https://www.aljazeera.com/news/longform/2023/5/24/satellite-images-show-scale-of-destruction-in-bakhmut-ukraine"},
+  gomaHrw:{t:"Human Rights Watch, le M23 chasse les déplacés des camps de Goma, 13 février 2025",u:"https://www.hrw.org/news/2025/02/13/dr-congo-m23-drives-displaced-people-goma-camps"}
 });
 if(typeof EN_S !== "undefined") Object.assign(EN_S, {
   satEox:"EOX, Sentinel-2 cloudless: yearly cloud-free mosaics, Copernicus data",
   gazaFao:"FAO and UNOSAT, damaged farmland in Gaza, 31 October 2025",
-  kakhWiki:"Kakhovka Reservoir, overview and sources (Wikipedia)"
+  kakhWiki:"Kakhovka Reservoir, overview and sources (Wikipedia)",
+  rafahFao:"FAO and UNOSAT, Gaza's agricultural infrastructure continues to deteriorate, 26 May 2025",
+  bakhAlj:"Al Jazeera, satellite images of the destruction of Bakhmut, 24 May 2023",
+  gomaHrw:"Human Rights Watch, M23 drives displaced people from Goma camps, 13 February 2025"
 });
 
 (function(){
@@ -8186,14 +8192,26 @@ if(typeof EN_S !== "undefined") Object.assign(EN_S, {
      fr:"Le plus grand réservoir d'Ukraine par son volume : 18 milliards de mètres cubes d'eau, sur le Dniepr. Le 6 juin 2023, le barrage de Kakhovka, alors sous contrôle russe, est détruit. En quelques semaines, le réservoir se vide. À droite, en 2024, une forêt de jeunes arbres pousse là où il y avait un lac.",
      en:"Ukraine's largest reservoir by volume: 18 billion cubic metres of water on the Dnipro. On 6 June 2023, the Kakhovka dam, then under Russian control, was destroyed. Within weeks, the reservoir drained. On the right, in 2024, a forest of young trees grows where there was a lake.",
      src:["kakhWiki"]},
-    {name:"Kutupalong", slug:"bangladesh", lat:21.205, lon:92.155, z:14, a:2016, b:2025,
+    {name:"Kutupalong", slug:"bangladesh", lat:21.205, lon:92.155, z:13, a:2016, b:2025,
      fr:"Des collines boisées près de Cox's Bazar, au Bangladesh. En août 2017, plus de 700 000 Rohingyas fuient la Birmanie et s'installent ici. À droite, le même lieu est devenu le plus grand camp de réfugiés du monde : environ 1,19 million de Rohingyas vivent dans les camps du Bangladesh en 2026.",
      en:"Wooded hills near Cox's Bazar, Bangladesh. In August 2017, more than 700,000 Rohingya fled Myanmar and settled here. On the right, the same place has become the world's largest refugee camp: about 1.19 million Rohingya live in Bangladesh's camps in 2026.",
-     src:["bgdUnhcr"]}
+     src:["bgdUnhcr"]},
+    {name:"Rafah", slug:"palestine", lat:31.30, lon:34.27, z:13, a:2022, b:2025,
+     fr:"Le sud de la bande de Gaza, le long de la frontière égyptienne. À gauche, en 2022, une ville et une ceinture de serres et de champs. À droite, en 2025, une grande partie a disparu. Selon la FAO et l'ONU, 86,5 % des serres de Rafah étaient endommagées en avril 2025, contre 57,5 % en décembre 2024.",
+     en:"The south of the Gaza Strip, along the Egyptian border. On the left, in 2022, a city surrounded by greenhouses and fields. On the right, in 2025, much of it is gone. According to the FAO and the UN, 86.5% of Rafah's greenhouses were damaged in April 2025, up from 57.5% in December 2024.",
+     src:["rafahFao"]},
+    {name:"Bakhmout", nameEn:"Bakhmut", slug:"ukraine", lat:48.595, lon:38.00, z:13, a:2021, b:2024,
+     fr:"Une ville de l'est de l'Ukraine où vivaient environ 70 000 personnes avant l'invasion russe. Elle a été au cœur de l'une des batailles les plus longues de la guerre, d'août 2022 à mai 2023. À droite, les arbres et les jardins ont disparu, et la ville n'est plus qu'une tache grise.",
+     en:"A city in eastern Ukraine where about 70,000 people lived before the Russian invasion. It was at the heart of one of the longest battles of the war, from August 2022 to May 2023. On the right, trees and gardens are gone, and the city is just a grey patch.",
+     src:["bakhAlj"]},
+    {name:"Camps de Goma", nameEn:"Goma camps", slug:"congo", lat:-1.615, lon:29.19, z:13, a:2022, b:2024,
+     fr:"Les abords de Goma, dans l'est du Congo, entre la ville et le volcan Nyiragongo. À droite, en 2024, les taches claires sont les abris de camps de déplacés qui ont poussé avec l'avancée du groupe armé M23. Selon Human Rights Watch, plus d'un demi-million de déplacés vivaient autour de Goma avant que le M23 ne prenne la ville, fin janvier 2025, et ordonne de vider les camps.",
+     en:"The outskirts of Goma, in eastern Congo, between the city and the Nyiragongo volcano. On the right, in 2024, the pale patches are shelters in displacement camps that grew as the M23 armed group advanced. According to Human Rights Watch, more than half a million displaced people lived around Goma before the M23 took the city in late January 2025 and ordered the camps emptied.",
+     src:["gomaHrw"]}
   ];
   SAT.length = 0; PLACES.forEach(p=>SAT.push(p));
   Object.keys(SAT_BY).forEach(k=>delete SAT_BY[k]);
-  Object.assign(SAT_BY, {palestine:0, ukraine:1, bangladesh:2, rohingyas:2});
+  Object.assign(SAT_BY, {palestine:0, ukraine:1, bangladesh:2, rohingyas:2, congo:5});
 
   const layer = y => y === 2016 ? ["s2cloudless-2016_3857", "s2cloudless_3857"] : ["s2cloudless-" + y + "_3857"];
   const tileUrl = (id, z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/${id}/default/g/${z}/${y}/${x}.jpg`;
@@ -8210,13 +8228,23 @@ if(typeof EN_S !== "undefined") Object.assign(EN_S, {
       if(ty < 0 || ty >= max) continue;
       for(let tx = Math.floor(x0 / 256); tx * 256 < x0 + w; tx++){
         const X = ((tx % max) + max) % max;
-        html += `<img alt="" draggable="false" loading="eager" decoding="async" style="left:${Math.round(tx * 256 - x0)}px;top:${Math.round(ty * 256 - y0)}px" src="${tileUrl(ids[0], z, X, ty)}" data-alt="${ids[1] ? tileUrl(ids[1], z, X, ty) : ""}">`;
+        html += `<div class="sattile" style="left:${Math.round(tx * 256 - x0)}px;top:${Math.round(ty * 256 - y0)}px"><img alt="" draggable="false" decoding="async" data-z="${z}" data-x="${X}" data-y="${ty}" data-k="0" data-up="0"></div>`;
       }
     }
     box.innerHTML = html;
     box.querySelectorAll("img").forEach(im=>{
+      const load = ()=>{ const up = +im.dataset.up, d = Math.pow(2, up), zz = +im.dataset.z - up, x = +im.dataset.x, y = +im.dataset.y;
+        const px = Math.floor(x / d), py = Math.floor(y / d);
+        im.style.width = im.style.height = 256 * d + "px";
+        im.style.left = -((x - px * d) * 256) + "px"; im.style.top = -((y - py * d) * 256) + "px";
+        im.src = tileUrl(ids[+im.dataset.k], zz, px, py); };
       im.onload = ()=>im.classList.add("in");
-      im.onerror = ()=>{ if(im.dataset.alt){ const a = im.dataset.alt; im.dataset.alt = ""; im.src = a; } else im.classList.add("bad"); };
+      im.onerror = ()=>{
+        if(+im.dataset.k + 1 < ids.length){ im.dataset.k = +im.dataset.k + 1; load(); }
+        else if(+im.dataset.up < 2 && +im.dataset.z - +im.dataset.up > 8){ im.dataset.k = 0; im.dataset.up = +im.dataset.up + 1; load(); }
+        else im.classList.add("bad");
+      };
+      load();
     });
   }
 
