@@ -8290,6 +8290,53 @@ Object.assign(EN, {
  "Gaza (nord)":"Northern Gaza"
 });
 
+/* ---------- Couleur de l'icône de l'application (au choix, comme Snapchat) ---------- */
+(function(){
+  const T = {"nuit": ["#23262C", "#121315", "#F2F3EF", "#C8962E", "#121315"], "ivoire": ["#FFFFFF", "#E6E7E0", "#121315", "#C8962E", "#F2F3EF"], "or": ["#E0AE4E", "#B8862A", "#121315", "#F7F3E6", "#C99A3A"], "terre": ["#C9593D", "#9A3822", "#F7F3E6", "#F0B84E", "#9A3822"], "ocean": ["#356792", "#163857", "#F7F3E6", "#F0B84E", "#163857"], "foret": ["#46845C", "#23503A", "#F7F3E6", "#F0B84E", "#23503A"], "prune": ["#7A55A8", "#43286A", "#F7F3E6", "#F0B84E", "#43286A"], "corail": ["#F48A78", "#DB5A4C", "#FFFFFF", "#FFD36E", "#DB5A4C"]};
+  const NAMES = {nuit:"Nuit", ivoire:"Ivoire", or:"Or", terre:"Terre", ocean:"Océan", foret:"Forêt", prune:"Prune", corail:"Corail"};
+  const get = ()=>{ try{ return localStorage.getItem("skf-icon") || "nuit"; }catch(e){ return "nuit"; } };
+  const isApp = ()=>{ try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }catch(e){ return false; } };
+  function apply(k){
+    if(!T[k]) k = "nuit";
+    const man = document.querySelector('link[rel="manifest"]'), ap = document.querySelector('link[rel="apple-touch-icon"]');
+    if(man) man.href = k === "nuit" ? "/manifest.webmanifest" : "/manifest-" + k + ".webmanifest";
+    if(ap) ap.href = k === "nuit" ? "/icons/apple-touch-icon.png" : "/icons/" + k + "/apple-touch-icon.png";
+  }
+  apply(get());
+  const mini = k=>{ const [a, b, bird, wing, eye] = T[k];
+    return `<svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="ig-${k}" cx="30%" cy="25%" r="80%"><stop offset="0" stop-color="${a}"/><stop offset=".7" stop-color="${b}"/></radialGradient></defs><rect width="32" height="32" rx="7.5" fill="url(#ig-${k})"/><g transform="translate(5.6 5.4) scale(.66)"><path d="M4.5 17.5 1.8 13.2l4.4 2.1z" fill="${bird}"/><ellipse cx="14.5" cy="20" rx="9.5" ry="6.2" transform="rotate(-12 14.5 20)" fill="${bird}"/><path d="M21.5 17.2C25.8 11 21 4.6 15.4 7.4" fill="none" stroke="${bird}" stroke-width="3.4" stroke-linecap="round"/><circle cx="14.6" cy="8.6" r="3.3" fill="${bird}"/><path d="M12.2 10.3 10.3 13.4l3.4-1.6z" fill="${bird}"/><ellipse cx="11.6" cy="14.6" rx="2.5" ry="1.9" fill="${wing}"/><circle cx="15.6" cy="7.9" r=".9" fill="${eye}"/><path d="M12.5 25.5v4M17 25v4.5" stroke="${bird}" stroke-width="1.6" stroke-linecap="round"/></g></svg>`; };
+  function row(){
+    const cur = get();
+    return `<div class="setrow seticon"><span class="eyebrow">${t("Icône de l'application")}</span>
+      <div class="icopick" role="radiogroup" aria-label="${t("Icône de l'application")}">${Object.keys(T).map(k=>`<button type="button" role="radio" aria-checked="${k === cur}" data-ico="${k}" title="${t(NAMES[k])}">${mini(k)}<span>${t(NAMES[k])}</span></button>`).join("")}</div>
+      <p class="sethint" id="icoHint">${isApp() ? t("Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.") : t("Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.")}</p></div>`;
+  }
+  function inject(){
+    const p = document.getElementById("setPop"); if(!p) return;
+    const links = p.querySelector(".setlinks");
+    if(!links || p.querySelector(".seticon")) return;
+    links.insertAdjacentHTML("beforebegin", row());
+    p.querySelectorAll("[data-ico]").forEach(b=>b.onclick = e=>{
+      e.stopPropagation();
+      const k = b.dataset.ico; try{ localStorage.setItem("skf-icon", k); }catch(x){}
+      apply(k);
+      p.querySelectorAll("[data-ico]").forEach(x=>x.setAttribute("aria-checked", x === b));
+      if(window.skfEvent) skfEvent("icon", k);
+      toast(t("Icône {n} choisie.", {n:t(NAMES[k])}));
+    });
+  }
+  const pop = document.getElementById("setPop");
+  if(pop) new MutationObserver(inject).observe(pop, {childList:true});
+  inject();
+})();
+
+Object.assign(EN, {
+ "Icône de l'application":"App icon","Nuit":"Night","Ivoire":"Ivory","Or":"Gold","Terre":"Earth","Océan":"Ocean","Forêt":"Forest","Prune":"Plum","Corail":"Coral",
+ "Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.":"To see the new icon on your home screen, remove the app and add it again. On Android, it sometimes updates on its own within a day.",
+ "Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.":"Pick your colour before adding Sankofa to your home screen: the icon will be that colour.",
+ "Icône {n} choisie.":"{n} icon selected."
+});
+
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();
 translateStatic();
