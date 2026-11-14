@@ -8164,6 +8164,104 @@ Object.assign(EN, {
  "Rejoins d'abord la partie.":"Join the game first.","Impossible pour le moment. Vérifie ta connexion.":"Not possible right now. Check your connection."
 });
 
+/* ---------- Avant / après, vu du ciel : vraies images Sentinel-2 (Copernicus), mosaïques annuelles EOX ---------- */
+Object.assign(S, {
+  satEox:{t:"EOX, Sentinel-2 cloudless : mosaïques annuelles sans nuages, données Copernicus",u:"https://s2maps.eu"},
+  gazaFao:{t:"FAO et UNOSAT, terres agricoles de Gaza endommagées, 31 octobre 2025",u:"https://www.fao.org/newsroom/detail/gaza-strip--ceasefire-opens-window-for-rehabilitation-as-over-a-third-of-cropland-becomes-accessible/en"},
+  kakhWiki:{t:"Réservoir de Kakhovka, synthèse et sources (Wikipédia, en anglais)",u:"https://en.wikipedia.org/wiki/Kakhovka_Reservoir"}
+});
+if(typeof EN_S !== "undefined") Object.assign(EN_S, {
+  satEox:"EOX, Sentinel-2 cloudless: yearly cloud-free mosaics, Copernicus data",
+  gazaFao:"FAO and UNOSAT, damaged farmland in Gaza, 31 October 2025",
+  kakhWiki:"Kakhovka Reservoir, overview and sources (Wikipedia)"
+});
+
+(function(){
+  const PLACES = [
+    {name:"Gaza (nord)", nameEn:"Northern Gaza", slug:"palestine", lat:31.505, lon:34.47, z:13, a:2022, b:2025,
+     fr:"Le nord de la bande de Gaza, entre Beit Hanoun, Beit Lahia et Jabalia. À gauche, en 2022, les champs et les vergers forment des taches vertes. À droite, en 2025, la plupart ont disparu. Selon la FAO et le centre satellitaire de l'ONU (UNOSAT), près de 87 % des terres cultivées de Gaza étaient endommagées fin septembre 2025.",
+     en:"Northern Gaza, between Beit Hanoun, Beit Lahia and Jabalia. On the left, in 2022, fields and orchards form green patches. On the right, in 2025, most are gone. According to the FAO and the UN Satellite Centre (UNOSAT), nearly 87% of Gaza's cropland was damaged by late September 2025.",
+     src:["gazaFao"]},
+    {name:"Réservoir de Kakhovka", nameEn:"Kakhovka Reservoir", slug:"ukraine", lat:47.45, lon:34.35, z:10, a:2022, b:2024,
+     fr:"Le plus grand réservoir d'Ukraine par son volume : 18 milliards de mètres cubes d'eau, sur le Dniepr. Le 6 juin 2023, le barrage de Kakhovka, alors sous contrôle russe, est détruit. En quelques semaines, le réservoir se vide. À droite, en 2024, une forêt de jeunes arbres pousse là où il y avait un lac.",
+     en:"Ukraine's largest reservoir by volume: 18 billion cubic metres of water on the Dnipro. On 6 June 2023, the Kakhovka dam, then under Russian control, was destroyed. Within weeks, the reservoir drained. On the right, in 2024, a forest of young trees grows where there was a lake.",
+     src:["kakhWiki"]},
+    {name:"Kutupalong", slug:"bangladesh", lat:21.205, lon:92.155, z:14, a:2016, b:2025,
+     fr:"Des collines boisées près de Cox's Bazar, au Bangladesh. En août 2017, plus de 700 000 Rohingyas fuient la Birmanie et s'installent ici. À droite, le même lieu est devenu le plus grand camp de réfugiés du monde : environ 1,19 million de Rohingyas vivent dans les camps du Bangladesh en 2026.",
+     en:"Wooded hills near Cox's Bazar, Bangladesh. In August 2017, more than 700,000 Rohingya fled Myanmar and settled here. On the right, the same place has become the world's largest refugee camp: about 1.19 million Rohingya live in Bangladesh's camps in 2026.",
+     src:["bgdUnhcr"]}
+  ];
+  SAT.length = 0; PLACES.forEach(p=>SAT.push(p));
+  Object.keys(SAT_BY).forEach(k=>delete SAT_BY[k]);
+  Object.assign(SAT_BY, {palestine:0, ukraine:1, bangladesh:2, rohingyas:2});
+
+  const layer = y => y === 2016 ? ["s2cloudless-2016_3857", "s2cloudless_3857"] : ["s2cloudless-" + y + "_3857"];
+  const tileUrl = (id, z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/${id}/default/g/${z}/${y}/${x}.jpg`;
+  const credit = y => y >= 2025
+    ? `EOxCloudless <a href="https://cloudless.eox.at" target="_blank" rel="noopener">cloudless.eox.at</a> by <a href="https://eox.at" target="_blank" rel="noopener">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data ${y})`
+    : `Sentinel-2 cloudless - <a href="https://s2maps.eu" target="_blank" rel="noopener">https://s2maps.eu</a> by <a href="https://eox.at" target="_blank" rel="noopener">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data ${y === 2016 ? "2016 & 2017" : y})`;
+  const proj = (lat, lon, z)=>{ const n = 256 * Math.pow(2, z), s = Math.sin(lat * Math.PI / 180);
+    return [(lon + 180) / 360 * n, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n]; };
+
+  function tiles(box, year, p, z, w, h){
+    const [cx, cy] = proj(p.lat, p.lon, z), x0 = cx - w / 2, y0 = cy - h / 2, ids = layer(year), max = Math.pow(2, z);
+    let html = "";
+    for(let ty = Math.floor(y0 / 256); ty * 256 < y0 + h; ty++){
+      if(ty < 0 || ty >= max) continue;
+      for(let tx = Math.floor(x0 / 256); tx * 256 < x0 + w; tx++){
+        const X = ((tx % max) + max) % max;
+        html += `<img alt="" draggable="false" loading="eager" decoding="async" style="left:${Math.round(tx * 256 - x0)}px;top:${Math.round(ty * 256 - y0)}px" src="${tileUrl(ids[0], z, X, ty)}" data-alt="${ids[1] ? tileUrl(ids[1], z, X, ty) : ""}">`;
+      }
+    }
+    box.innerHTML = html;
+    box.querySelectorAll("img").forEach(im=>{
+      im.onload = ()=>im.classList.add("in");
+      im.onerror = ()=>{ if(im.dataset.alt){ const a = im.dataset.alt; im.dataset.alt = ""; im.src = a; } else im.classList.add("bad"); };
+    });
+  }
+
+  let zoomOff = 0;
+  window.renderSatellite = function(){
+    const s = SAT[satI] || SAT[0], en = LANG === "en", nm = en && s.nameEn ? s.nameEn : s.name;
+    $("#satelliteIn").innerHTML = `<a class="back" href="#pays-${s.slug}">← ${t("Retour")}</a>
+      <div class="lhead"><div class="eyebrow">${t("Avant / après, vu du ciel")}</div><h1>${t("Le même lieu, à quelques années d'écart.")}</h1>
+      <p class="dlede">${t("Fais glisser le curseur pour comparer deux images satellites du même endroit.")}</p></div>
+      <div class="filters">${SAT.map((x, i)=>`<button class="filter" data-s="${i}" aria-pressed="${i === satI}">${esc(en && x.nameEn ? x.nameEn : x.name)}</button>`).join("")}</div>
+      <div class="satwrap satreal" id="satW" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0" aria-label="${t("Avant / après")} · ${esc(nm)}">
+        <div class="sattiles" id="satA"></div><div class="satclip" id="satClip"><div class="sattiles" id="satB"></div></div>
+        <div class="sathandle" id="satH"><i></i></div>
+        <span class="satl l">${s.a}</span><span class="satl r">${s.b}</span>
+        <div class="satzoom"><button id="satIn" aria-label="${t("Zoomer")}">+</button><button id="satOut" aria-label="${t("Dézoomer")}">−</button></div></div>
+      <p class="satcap">${esc(en ? s.en : s.fr)}</p>
+      <p class="satsrc">${t("Sources :")} ${s.src.map(k=>S[k] ? `<a href="${S[k].u}" target="_blank" rel="noopener">${esc(en && EN_S && EN_S[k] ? EN_S[k] : S[k].t)}</a>` : "").join(" · ")}</p>
+      <p class="satcredit">${t("Images :")} ${credit(s.a)}. ${credit(s.b)}. ${t("Chaque image est une mosaïque de l'année, sans nuages, avec 10 mètres par pixel : on voit les champs, l'eau et les quartiers, pas chaque maison.")}</p>
+      <a class="cta ghost" href="#pays-${s.slug}">${t("Ouvrir la fiche")}</a>`;
+    document.querySelectorAll("#satelliteIn [data-s]").forEach(b=>b.onclick = ()=>{ satI = +b.dataset.s; zoomOff = 0; renderSatellite(); });
+    const W = $("#satW"), w = W.clientWidth, h = Math.round(Math.min(w * .62, innerHeight * .64));
+    W.style.height = h + "px";
+    const z = Math.max(8, Math.min(14, s.z + zoomOff));
+    tiles($("#satA"), s.a, s, z, w, h); tiles($("#satB"), s.b, s, z, w, h);
+    $("#satIn").disabled = z >= 14; $("#satOut").disabled = z <= 8;
+    $("#satIn").onclick = e=>{ e.stopPropagation(); zoomOff++; renderSatellite(); };
+    $("#satOut").onclick = e=>{ e.stopPropagation(); zoomOff--; renderSatellite(); };
+    ["#satIn", "#satOut"].forEach(k=>$(k).onpointerdown = e=>e.stopPropagation());
+    const set = p=>{ p = Math.max(0, Math.min(1, p)); $("#satClip").style.clipPath = `inset(0 0 0 ${p * 100}%)`; $("#satH").style.left = p * 100 + "%"; W.setAttribute("aria-valuenow", Math.round(p * 100)); W._p = p; };
+    set(.5);
+    let drag = false; const mv = e=>{ if(!drag) return; const r = W.getBoundingClientRect(); set((e.clientX - r.left) / r.width); };
+    W.onpointerdown = e=>{ drag = true; W.setPointerCapture(e.pointerId); mv(e); }; W.onpointermove = mv; W.onpointerup = ()=>drag = false;
+    W.onkeydown = e=>{ if(e.key === "ArrowLeft"){ set(W._p - .05); e.preventDefault(); } if(e.key === "ArrowRight"){ set(W._p + .05); e.preventDefault(); } };
+  };
+  renderSatellite = window.renderSatellite;
+})();
+
+Object.assign(EN, {
+ "Avant / après, vu du ciel":"Before and after, seen from space","Le même lieu, à quelques années d'écart.":"The same place, a few years apart.",
+ "Fais glisser le curseur pour comparer deux images satellites du même endroit.":"Drag the slider to compare two satellite images of the same place.",
+ "Zoomer":"Zoom in","Dézoomer":"Zoom out","Sources :":"Sources:","Images :":"Images:",
+ "Chaque image est une mosaïque de l'année, sans nuages, avec 10 mètres par pixel : on voit les champs, l'eau et les quartiers, pas chaque maison.":"Each image is a cloud-free mosaic of the year, at 10 metres per pixel: you can see fields, water and neighbourhoods, not individual houses.",
+ "Gaza (nord)":"Northern Gaza"
+});
+
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();
 translateStatic();

@@ -1120,6 +1120,18 @@ label.sw input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2p
 .sathandle i{position:absolute;top:50%;left:50%;width:38px;height:38px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 2px 10px rgba(0,0,0,.35)}
 .sathandle i::before{content:"⟷";position:absolute;inset:0;display:grid;place-items:center;color:#121315;font-size:18px}
 .satl{position:absolute;top:12px;padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font:700 13px var(--mono)} .satl.l{left:12px} .satl.r{right:12px}
+/* ---------- Avant / après : vraies images ---------- */
+.satreal{background:#1b1d20}
+.sattiles{position:absolute;inset:0;overflow:hidden}
+.sattiles img{position:absolute;width:256px;height:256px;max-width:none;opacity:0;transition:opacity .35s;pointer-events:none;user-select:none}
+.sattiles img.in{opacity:1}
+.satzoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;z-index:3}
+.satzoom button{width:36px;height:36px;border-radius:10px;border:0;background:rgba(255,255,255,.92);color:#121315;font:600 20px/1 var(--mono);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.satzoom button:disabled{opacity:.4;cursor:default}
+.satreal .sathandle,.satreal .satl{z-index:2}
+.satcap{font-size:16px;line-height:1.55;color:var(--ink);max-width:760px;margin:4px 0 10px}
+.satsrc{font-size:13.5px;color:var(--ink2);margin:0 0 6px}.satsrc a{color:var(--ink2)}
+.satcredit{font-size:12px;color:var(--mute);line-height:1.5;margin:0 0 16px;max-width:760px}.satcredit a{color:var(--mute)}
 
 /* ================= v14 ================= */
 /* Frontières plus nettes */
