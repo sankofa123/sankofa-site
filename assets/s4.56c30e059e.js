@@ -8213,7 +8213,7 @@ if(typeof EN_S !== "undefined") Object.assign(EN_S, {
   Object.keys(SAT_BY).forEach(k=>delete SAT_BY[k]);
   Object.assign(SAT_BY, {palestine:0, ukraine:1, bangladesh:2, rohingyas:2, congo:5});
 
-  const layer = y => y === 2016 ? ["s2cloudless-2016_3857", "s2cloudless_3857"] : ["s2cloudless-" + y + "_3857"];
+  const layer = y => y === 2016 ? ["s2cloudless_3857"] : ["s2cloudless-" + y + "_3857"];
   const tileUrl = (id, z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/${id}/default/g/${z}/${y}/${x}.jpg`;
   const credit = y => y >= 2025
     ? `EOxCloudless <a href="https://cloudless.eox.at" target="_blank" rel="noopener">cloudless.eox.at</a> by <a href="https://eox.at" target="_blank" rel="noopener">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data ${y})`
