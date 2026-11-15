@@ -8427,8 +8427,8 @@ Object.assign(EN, {
       const r = _re.apply(this, arguments);
       const v = document.getElementById("v-explorer");
       if(v && !v.querySelector("#prCard")){
-        const anchor = v.querySelector("#exSort") || v.querySelector("#filters");
-        const html = `<button class="prlink" id="prCard">${t("Il manque un pays ? Propose-le.")} <span aria-hidden="true">→</span></button>`;
+        const anchor = v.querySelector("#filters") || v.querySelector("#exSort");
+        const html = `<button class="card prcard" id="prCard"><span class="eyebrow">${t("La communauté décide")}</span><b>${t("Il manque un pays ? Propose-le.")}</b><span>${t("Chaque mois, les membres proposent puis votent.")}</span><em aria-hidden="true">→</em></button>`;
         if(anchor) anchor.insertAdjacentHTML("afterend", html); else v.insertAdjacentHTML("beforeend", html);
         v.querySelector("#prCard").onclick = open;
       }
