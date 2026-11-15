@@ -3253,13 +3253,19 @@ function markPass(){ const on = hasCele(); document.querySelectorAll('[data-v="p
 function celebrate(){
   if(!hasCele()) return;
   const c = state.cele, el = $("#lvlup"); if(!el) return;
-  const cols = ["#E2373D","#7A55F5","#EE9A12","#E0457F","#2E66FF","#0E9C88","#5E8C31","#C8962E"];
-  const items = [...c.stamps.filter(id=>state.stamps[id]).map(id=>`<li><i style="background:${RARITY[state.stamps[id].r].col}"></i>${t("Tampon {r}",{r:RARITY[state.stamps[id].r].name})} · ${esc(C[id].short)}</li>`),
-                 ...c.badges.map(b=>{ const B = BADGES.find(x=>x.id===b); return B?`<li><i style="background:var(--gold)"></i>${t("Badge")} · ${esc(t(B.n))}</li>`:""; })].join("");
-  el.innerHTML = `${reduce?"":`<div class="burst">${Array.from({length:36},(_,i)=>`<i style="--c:${cols[i%8]};--a:${i*10}deg;--d:${120+Math.random()*120}px;--t:${(Math.random()*.2).toFixed(2)}s"></i>`).join("")}</div>`}
-    <div class="lvcard">${c.level?`<div class="eyebrow">${t("Nouveau niveau")}</div><b>${c.level}</b><span>${esc(TITLES[Math.min(TITLES.length-1,c.level-1)])}</span>`:`<div class="eyebrow">${t("Depuis ta dernière visite")}</div><span class="lvsub">${t("Nouveaux dans ton passeport")}</span>`}
-    ${items?`<ul class="lvlist">${items}</ul>`:""}<button class="cta" id="lvOk">${t("Continuer")}</button></div>`;
-  el.classList.add("show"); $("#lvOk").onclick=()=>el.classList.remove("show");
+  const ids = c.stamps.filter(id=>state.stamps[id] && C[id]);
+  const badges = c.badges.map(b=>BADGES.find(x=>x.id===b)).filter(Boolean);
+  const lvTitle = c.level ? TITLES[Math.min(TITLES.length-1,c.level-1)] : "";
+  const head = ids.length > 1 ? t("{n} nouveaux tampons",{n:ids.length}) : ids.length === 1 ? t("Nouveau tampon") : c.level ? t("Nouveau niveau") : t("Nouveau badge");
+  const shown = ids.slice(0,3);
+  const stamps = shown.length ? `<div class="nvrow n${shown.length}">${shown.map((id,i)=>{ const st = state.stamps[id];
+      return `<div class="nvstamp" style="--i:${i}"><div class="nvpress"><span class="nvring"></span>${stampSVG(id,st.r,st.d)}</div><b>${esc(C[id].short)}</b><span>${t("Tampon {r}",{r:RARITY[st.r].name})}</span></div>`; }).join("")}</div>${ids.length>3?`<p class="nvmore">${t("et {n} de plus",{n:ids.length-3})}</p>`:""}` : "";
+  const level = c.level ? (ids.length ? `<p class="nvlevel"><i></i>${t("Niveau {n}",{n:c.level})} · ${esc(lvTitle)}</p>` : `<b class="nvbig">${c.level}</b><span class="nvtitle">${esc(lvTitle)}</span>`) : "";
+  const bd = badges.length ? `<p class="nvbadges">${badges.map(B=>`<span>${t("Badge")} · ${esc(t(B.n))}</span>`).join("")}</p>` : "";
+  el.innerHTML = `<div class="lvcard nvcard" role="dialog" aria-modal="true" aria-label="${esc(head)}"><div class="eyebrow">${head}</div>${stamps}${level}${bd}<button class="cta" id="lvOk">${t("Continuer")}</button></div>`;
+  el.classList.add("show");
+  const close = ()=>el.classList.remove("show");
+  $("#lvOk").onclick = close; el.onclick = e=>{ if(e.target === el) close(); };
   state.cele = {level:0,stamps:[],badges:[]}; store.set(state); markPass();
 }
 function checkBadges(){
@@ -8560,6 +8566,8 @@ Object.assign(EN, {
  "Un résumé de l'actualité par semaine, les nouveaux pays et les votes. Jamais de publicité.":"One news summary a week, new countries and votes. Never any ads.",
  "Notifications désactivées.":"Notifications off.","C'est activé. Tu vas recevoir une notification d'essai.":"It's on. You'll get a test notification.","Tu n'as pas autorisé les notifications.":"You didn't allow notifications."
 });
+
+Object.assign(EN, {"{n} nouveaux tampons":"{n} new stamps","Nouveau tampon":"New stamp","Nouveau badge":"New badge","et {n} de plus":"and {n} more"});
 
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();

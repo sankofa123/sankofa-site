@@ -1530,3 +1530,28 @@ body.livemode{overflow:hidden}
 .pushtopics input{margin-top:3px;accent-color:var(--ink)}
 .pushtopics b{display:block;font-weight:600}.pushtopics em{font-style:normal;color:var(--mute);font-size:12.5px}
 .pushmsg{color:var(--ink)!important}
+
+/* ---------- Nouveau tampon : le coup de tampon ---------- */
+.nvcard{width:min(360px,88vw);padding:26px 22px 22px!important;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;animation:nvIn .28s ease-out both}
+.nvcard .eyebrow{margin-bottom:14px}
+.nvrow{display:flex;justify-content:center;gap:14px;width:100%}
+.nvstamp{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.nvrow.n1 .nvpress{width:176px}.nvrow.n2 .nvpress{width:128px}.nvrow.n3 .nvpress{width:92px}
+.nvpress{position:relative;margin-bottom:12px;animation:nvPress .62s cubic-bezier(.2,.9,.25,1) both;animation-delay:calc(.18s + var(--i)*.16s)}
+.nvring{position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;opacity:0;color:var(--mute);animation:nvRing .7s ease-out both;animation-delay:calc(.46s + var(--i)*.16s);pointer-events:none}
+.nvstamp b{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.05;color:var(--ink);animation:nvUp .4s ease-out both;animation-delay:calc(.5s + var(--i)*.16s)}
+.nvrow.n2 .nvstamp b{font-size:20px}.nvrow.n3 .nvstamp b{font-size:16px}
+.nvstamp>span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)!important;animation:nvUp .4s ease-out both;animation-delay:calc(.58s + var(--i)*.16s)}
+.nvmore{margin:8px 0 0;font-size:13px;color:var(--mute)}
+.nvlevel{display:inline-flex;align-items:center;gap:8px;margin:16px 0 0;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:14px;font-weight:500;color:var(--ink);animation:nvUp .4s ease-out .8s both}
+.nvlevel i{width:8px;height:8px;border-radius:50%;background:#2F9E5B}
+.nvbig{font-family:var(--display);font-weight:400;font-size:96px;line-height:1;color:var(--ink);animation:nvPress .6s cubic-bezier(.2,.9,.25,1) .15s both}
+.nvtitle{font-family:var(--display);font-size:28px;color:var(--ink)}
+.nvbadges{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0 0}
+.nvbadges span{font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--ink2)!important}
+.nvcard .cta{margin-top:22px;min-width:180px;justify-content:center;text-align:center}
+@keyframes nvIn{from{opacity:0;transform:translateY(14px) scale(.97)}}
+@keyframes nvPress{0%{opacity:0;transform:scale(1.55) rotate(-10deg)}55%{opacity:1;transform:scale(.95) rotate(0)}78%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
+@keyframes nvRing{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(1.28)}}
+@keyframes nvUp{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.nvcard,.nvpress,.nvring,.nvstamp b,.nvstamp>span,.nvlevel,.nvbig{animation:none!important}.nvring{display:none}}
