@@ -1499,3 +1499,24 @@ body.livemode{overflow:hidden}
 .icopick button[aria-checked="true"] svg{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 .icopick button[aria-checked="true"] span{color:var(--ink);font-weight:600}
 .icopick button:hover svg{transform:scale(1.06)}
+
+/* ---------- Propositions et vote ---------- */
+.prcard{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;margin-top:18px;padding:18px 44px 18px 18px;position:relative;cursor:pointer;font:inherit;color:var(--ink)}
+.prcard b{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.1}.prcard span:not(.eyebrow){color:var(--ink2);font-size:14px}
+.prcard em{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-style:normal;font-size:20px}
+.prphase{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin:0 0 12px}.prphase i{width:8px;height:8px;border-radius:50%;background:#2F9E5B;flex:none}
+.prrules{margin:0 0 8px;padding-left:20px;font-size:14.5px;color:var(--ink2);display:grid;gap:6px}.prrules b{color:var(--ink)}
+.prcond{font-size:14px;margin:0 0 4px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.prgate b,.prdone b{display:block;margin-bottom:6px}.prbar{margin:8px 0}
+.prform{display:grid;gap:12px}.prform label{display:grid;gap:5px;font-size:13.5px;color:var(--ink2)}
+.prform textarea{resize:vertical;min-height:96px;font-family:inherit;line-height:1.45}
+.prcount{justify-self:end;font-size:12px;color:var(--mute);font-family:var(--mono)}.prcount.ok{color:#2F9E5B}
+.prmsg{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:rgba(47,158,91,.12);font-size:14px}
+.prlt{margin-top:20px}
+.prhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.prhead b{font-family:var(--display);font-weight:400;font-size:22px}.prhead span{font-size:12px;color:var(--mute)}
+.prwhy{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:14px}.prwhy p{margin:4px 0;line-height:1.45;overflow-wrap:anywhere}.prwhy a{font-size:13px;color:var(--ink2)}
+.prtheme{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.prvote{display:flex;align-items:center;gap:10px;margin-top:12px}.prvote .xpbar{flex:1}.prvote span{font-size:12px;white-space:nowrap}.prvote .cta{padding:8px 16px}
+.pritem.mine{border-color:var(--ink)}.prmine{font-weight:600}
+.prlast{margin-top:16px;font-size:14px;color:var(--ink2)}.prempty{margin-top:8px}
+.qwall{padding:20px;text-align:left}.qwall h3{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.1;margin:6px 0 8px}.qwall p{color:var(--ink2);font-size:15px;margin:0 0 14px}

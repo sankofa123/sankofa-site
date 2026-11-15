@@ -3494,7 +3494,7 @@ const LEGAL = {
   confidentialite:`<div class="eyebrow">Tes données</div><h2>Politique de confidentialité</h2><p class="lupd">Dernière mise à jour : 11 novembre 2026</p>
    <div class="lsum"><b>En bref</b><ul><li>Pas de publicité, pas de revente, pas de profilage.</li><li>Nous comptons les pages vues de façon anonyme (sans cookie, sans adresse IP), pour savoir ce qui est utile.</li><li>Pas de compte à créer : ta progression est liée à ton navigateur par un identifiant anonyme.</li><li>Sous 15 ans, un parent doit donner son accord pour créer un passeport.</li><li>Tu peux tout effacer à tout moment.</li></ul></div>
    <h3>Responsable du traitement</h3><p>L'éditeur du site, désigné dans les <a href="#mentions">mentions légales</a>.</p>
-   <h3>Ce que nous gardons</h3><p><b>Ta progression :</b> tes tampons, ta série, tes points et ton passeport sont enregistrés dans ton navigateur et sauvegardés en ligne sous un identifiant anonyme, sans nom ni adresse e-mail. Tes réglages, tes passages surlignés et l'endroit où tu t'es arrêté dans un dossier restent uniquement dans ton navigateur. Les images de citation sont créées sur ton appareil.</p><p><b>Ton passeport :</b> le pseudo que tu choisis, les couleurs de ton emblème, ta tranche d'âge (moins ou plus de 15 ans) et, le cas échéant, l'accord parental. La cause et le pays de cœur sont facultatifs ; ils restent privés et n'apparaissent que sur ta carte, si tu choisis de la partager.</p><p><b>Signalements :</b> si tu signales une erreur, ton message et, si tu la donnes, ton adresse e-mail servent uniquement à vérifier la fiche et à te répondre.</p><p><b>Si tu es connecté :</b> ces éléments sont synchronisés pour te suivre d'un appareil à l'autre.</p><p><b>Ton compte (facultatif) :</b> si tu crées un compte, nous gardons ton adresse e-mail pour t'envoyer tes liens de connexion et t'écrire au sujet de ton compte. Aucun mot de passe n'est créé ni stocké.</p><p><b>Compteur de la semaine :</b> chaque semaine, nous comptons combien de personnes ont validé une notion ou un parcours. Le compteur ne garde aucun nom ni aucun pseudo.</p><p><b>Parrainage :</b> si tu t'inscris avec le lien d'un ami, nous gardons un code court qui lui permet de savoir combien de personnes il a invitées, sans jamais voir qui.</p><p><b>Classes :</b> si tu rejoins la classe d'un enseignant avec le code qu'il t'a donné, il voit ton pseudo, ton emblème, tes tampons, tes points et la date de ta dernière activité. Les autres élèves ne voient rien. Tu peux quitter la classe à tout moment depuis « Espace enseignant », en bas du site.</p><p><b>Quiz en direct :</b> si tu joues à un quiz projeté par un enseignant, nous gardons le pseudo que tu tapes, tes réponses et ton score. Ton pseudo et ton score s'affichent au tableau pendant la partie. Tout est effacé au bout d'un jour.</p>
+   <h3>Ce que nous gardons</h3><p><b>Ta progression :</b> tes tampons, ta série, tes points et ton passeport sont enregistrés dans ton navigateur et sauvegardés en ligne sous un identifiant anonyme, sans nom ni adresse e-mail. Tes réglages, tes passages surlignés et l'endroit où tu t'es arrêté dans un dossier restent uniquement dans ton navigateur. Les images de citation sont créées sur ton appareil.</p><p><b>Ton passeport :</b> le pseudo que tu choisis, les couleurs de ton emblème, ta tranche d'âge (moins ou plus de 15 ans) et, le cas échéant, l'accord parental. La cause et le pays de cœur sont facultatifs ; ils restent privés et n'apparaissent que sur ta carte, si tu choisis de la partager.</p><p><b>Signalements :</b> si tu signales une erreur, ton message et, si tu la donnes, ton adresse e-mail servent uniquement à vérifier la fiche et à te répondre.</p><p><b>Si tu es connecté :</b> ces éléments sont synchronisés pour te suivre d'un appareil à l'autre.</p><p><b>Ton compte (facultatif) :</b> si tu crées un compte, nous gardons ton adresse e-mail pour t'envoyer tes liens de connexion et t'écrire au sujet de ton compte. Aucun mot de passe n'est créé ni stocké.</p><p><b>Compteur de la semaine :</b> chaque semaine, nous comptons combien de personnes ont validé une notion ou un parcours. Le compteur ne garde aucun nom ni aucun pseudo.</p><p><b>Parrainage :</b> si tu t'inscris avec le lien d'un ami, nous gardons un code court qui lui permet de savoir combien de personnes il a invitées, sans jamais voir qui.</p><p><b>Classes :</b> si tu rejoins la classe d'un enseignant avec le code qu'il t'a donné, il voit ton pseudo, ton emblème, tes tampons, tes points et la date de ta dernière activité. Les autres élèves ne voient rien. Tu peux quitter la classe à tout moment depuis « Espace enseignant », en bas du site.</p><p><b>Quiz en direct :</b> si tu joues à un quiz projeté par un enseignant, nous gardons le pseudo que tu tapes, tes réponses et ton score. Ton pseudo et ton score s'affichent au tableau pendant la partie. Tout est effacé au bout d'un jour.</p><p><b>Propositions et votes :</b> si tu proposes un pays ou si tu votes, nous gardons ta proposition et ton vote, reliés à ton compte. Ta proposition est affichée à tous sans ton nom.</p>
    <h3>Pourquoi</h3><p>Uniquement pour faire fonctionner ton passeport et ta progression (exécution du service), et sur ton consentement pour les éléments facultatifs.</p>
    <h3>Moins de 15 ans</h3><p>En France, un mineur de moins de 15 ans ne peut pas consentir seul au traitement de ses données : l'accord d'un titulaire de l'autorité parentale est requis (article 45 de la loi Informatique et Libertés, article 8 du RGPD). Sankofa le demande à la création du passeport. La personne qui crée le passeport confirme qu'un parent a donné son accord. Sans accord, il reste possible d'utiliser Sankofa sans passeport : la progression reste alors sur l'appareil.</p>
    <h3>Durée</h3><p>Les données locales restent jusqu'à ce que tu les effaces. Les données d'un compte sont supprimées après deux ans d'inactivité.</p>
@@ -3512,7 +3512,7 @@ const LEGAL = {
   confidentialite:`<div class="eyebrow">Your data</div><h2>Privacy policy</h2><p class="lupd">Last updated: 11 November 2026</p>
    <div class="lsum"><b>In short</b><ul><li>No ads, no data sales, no profiling.</li><li>We count page views anonymously (no cookies, no IP address) to learn what is useful.</li><li>No account needed: your progress is tied to your browser by an anonymous identifier.</li><li>Under 15, a parent must agree before you create a passport.</li><li>You can erase everything at any time.</li></ul></div>
    <h3>Data controller</h3><p>The site's publisher, named in the <a href="#mentions">legal notice</a>.</p>
-   <h3>What we keep</h3><p><b>Your progress:</b> your stamps, streak, points and passport are stored in your browser and backed up online under an anonymous identifier, with no name or email address. Your settings, highlighted passages and where you stopped in a dossier stay only in your browser. Quote images are created on your device.</p><p><b>Your passport:</b> the nickname you choose, your emblem colours, your age group (under or over 15) and, where relevant, parental consent. Your cause and country close to your heart are optional; they stay private and only appear on your card if you choose to share it.</p><p><b>Error reports:</b> if you report an error, your message and, if you give it, your email address are used only to check the page and to reply to you.</p><p><b>If you are signed in:</b> these details are synced so they follow you across devices.</p><p><b>Your account (optional):</b> if you create an account, we keep your email address to send you sign-in links and to write to you about your account. No password is created or stored.</p><p><b>Weekly counter:</b> each week, we count how many people completed a lesson or a course. The counter keeps no names or nicknames.</p><p><b>Referrals:</b> if you sign up with a friend's link, we keep a short code that lets them see how many people they invited, never who.</p><p><b>Classes:</b> if you join a teacher's class with the code they gave you, they see your nickname, emblem, stamps, points and the date of your last activity. Other students see nothing. You can leave the class at any time from “Teacher space”, at the bottom of the site.</p><p><b>Live quizzes:</b> if you play a quiz projected by a teacher, we keep the nickname you type, your answers and your score. Your nickname and score appear on the board during the game. Everything is deleted after one day.</p>
+   <h3>What we keep</h3><p><b>Your progress:</b> your stamps, streak, points and passport are stored in your browser and backed up online under an anonymous identifier, with no name or email address. Your settings, highlighted passages and where you stopped in a dossier stay only in your browser. Quote images are created on your device.</p><p><b>Your passport:</b> the nickname you choose, your emblem colours, your age group (under or over 15) and, where relevant, parental consent. Your cause and country close to your heart are optional; they stay private and only appear on your card if you choose to share it.</p><p><b>Error reports:</b> if you report an error, your message and, if you give it, your email address are used only to check the page and to reply to you.</p><p><b>If you are signed in:</b> these details are synced so they follow you across devices.</p><p><b>Your account (optional):</b> if you create an account, we keep your email address to send you sign-in links and to write to you about your account. No password is created or stored.</p><p><b>Weekly counter:</b> each week, we count how many people completed a lesson or a course. The counter keeps no names or nicknames.</p><p><b>Referrals:</b> if you sign up with a friend's link, we keep a short code that lets them see how many people they invited, never who.</p><p><b>Classes:</b> if you join a teacher's class with the code they gave you, they see your nickname, emblem, stamps, points and the date of your last activity. Other students see nothing. You can leave the class at any time from “Teacher space”, at the bottom of the site.</p><p><b>Live quizzes:</b> if you play a quiz projected by a teacher, we keep the nickname you type, your answers and your score. Your nickname and score appear on the board during the game. Everything is deleted after one day.</p><p><b>Proposals and votes:</b> if you propose a country or vote, we keep your proposal and your vote, linked to your account. Your proposal is shown to everyone without your name.</p>
    <h3>Why</h3><p>Only to run your passport and progress (performance of the service), and with your consent for the optional details.</p>
    <h3>Under 15</h3><p>In France, a minor under 15 cannot consent alone to the processing of their data: the consent of a person with parental authority is required (article 45 of the French Data Protection Act, article 8 of the GDPR). Sankofa asks for it when you create a passport. The person creating the passport confirms that a parent has agreed. Without consent, you can still use Sankofa without a passport: your progress then stays on your device.</p>
    <h3>Retention</h3><p>Local data stays until you erase it. Account data is deleted after two years of inactivity.</p>
@@ -8335,6 +8335,160 @@ Object.assign(EN, {
  "Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.":"To see the new icon on your home screen, remove the app and add it again. On Android, it sometimes updates on its own within a day.",
  "Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.":"Pick your colour before adding Sankofa to your home screen: the icon will be that colour.",
  "Icône {n} choisie.":"{n} icon selected."
+});
+
+/* ---------- La communauté choisit le prochain pays (proposer en semaine, voter le week-end) + limite de quiz sans compte ---------- */
+(function(){
+  const ISO = "AD AL AM AO AR AT AU AZ BA BB BE BG BH BI BJ BN BO BR BS BT BW BY BZ CA CF CG CH CL CN CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ES FI FJ FR GA GB GD GE GH GM GN GQ GR GT GW GY HN HR HU ID IE IL IN IQ IS IT JM JO JP KE KG KH KI KM KR KZ LA LK LR LS LT LU LV LY MA MC MD ME MG MK MM MN MT MU MV MW MY NA NE NL NO NP NZ OM PA PE PG PK PL PT PY QA RO RS RW SB SC SE SG SI SK SL SN SR ST SV SZ TD TG TL TM TN TO TT TW TZ UG US UY UZ VN VU WS XK ZA ZM ZW".split(" ");
+  const THEMES = [["crime","Crimes de masse"],["exil","Déplacements forcés"],["hunger","Faim extrême"],["enfants","Enfants dans la guerre"],["slave","Esclavage moderne"],["presse","Journalistes tués"],["apatride","Apatridie"],["autre","Autre atteinte grave aux droits"]];
+  const MIN_LV = 4, MIN_XP = 450;
+  let dn = null; const cname = c=>{ try{ dn = dn || new Intl.DisplayNames([LANG === "en" ? "en" : "fr"], {type:"region"}); return dn.of(c) || c; }catch(e){ return c; } };
+  const tname = k=>t((THEMES.find(x=>x[0] === k) || THEMES[7])[1]);
+  const ERR = {"compte requis":"Il faut un compte pour participer.","niveau insuffisant":"Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.",
+    "propositions closes":"Les propositions sont closes pour cette semaine. Le vote est ouvert.","raison invalide":"Explique ton choix en 80 à 400 caractères.","source invalide":"Indique un lien valide, qui commence par https://",
+    "deja propose":"Tu as déjà proposé un pays cette semaine.","vote ferme":"Le vote ouvre samedi.","deja vote":"Tu as déjà voté cette semaine.","pays invalide":"Choisis un pays dans la liste."};
+  const errText = e=>{ const m = String((e && e.message) || ""); const k = Object.keys(ERR).find(x=>m.includes(x)); return t(k ? ERR[k] : "Impossible pour le moment. Vérifie ta connexion."); };
+  let ST = null;
+
+  async function open(){
+    const m = $("#modal");
+    m.innerHTML = `<div class="mbox clbox prbox" role="dialog" aria-modal="true" aria-labelledby="prT"><button class="mclose" aria-label="${t("Fermer")}">×</button><div id="prIn"><p class="clwait">${t("Un instant…")}</p></div></div>`;
+    m.classList.add("show");
+    const close = ()=>m.classList.remove("show");
+    m.querySelector(".mclose").onclick = close; m.onclick = e=>{ if(e.target === m) close(); };
+    try{ ST = await SB.rpc("prop_state"); }catch(e){ ST = null; }
+    paint();
+  }
+  function paint(msg){
+    const box = $("#prIn"); if(!box) return;
+    if(!ST){ box.innerHTML = `<h2 id="prT">${t("Le prochain pays, c'est vous qui le choisissez.")}</h2><p class="cllead">${t("Impossible pour le moment. Vérifie ta connexion.")}</p>`; return; }
+    const vote = ST.phase === "vote", me = ST.me || {}, acct = !!state.account, LI = levelInfo(), xp = Math.max(state.xp || 0, me.xp || 0);
+    const okLevel = acct && (me.ok || LI.l >= MIN_LV);
+    const rules = `<ol class="prrules">
+      <li><b>${t("Du lundi au vendredi")}</b> ${t("chaque membre peut proposer un pays, une seule fois par semaine.")}</li>
+      <li><b>${t("Samedi et dimanche")}</b> ${t("les membres votent : une voix chacun.")}</li>
+      <li><b>${t("Le lundi")}</b> ${t("le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.")}</li></ol>
+      <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).")}</p>`;
+    let gate = "";
+    if(!acct) gate = `<div class="clcard prgate"><b>${t("Crée ton compte pour participer.")}</b><p class="clsmall">${t("C'est gratuit. Tu pourras proposer et voter dès le niveau 4.")}</p><div class="clrow"><button class="cta" id="prUp">${t("Créer mon compte")}</button><button class="cta ghost" id="prLog">${t("Se connecter")}</button></div></div>`;
+    else if(!okLevel) gate = `<div class="clcard prgate"><b>${t("Tu es au niveau {n}. Encore {x} XP avant le niveau 4.", {n:LI.l, x:Math.max(0, MIN_XP - xp)})}</b><div class="xpbar prbar"><i style="width:${Math.min(100, xp / MIN_XP * 100)}%"></i></div><p class="clsmall">${t("Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.")}</p></div>`;
+    const taken = new Set((ST.list || []).map(x=>x.code));
+    const form = (!vote && okLevel && !me.proposed) ? `<form class="clcard prform" id="prForm">
+        <div class="cltitle">${t("Ta proposition de la semaine")}</div>
+        <label>${t("Pays")}<select id="prC" class="clinput" required><option value="">${t("Choisis un pays")}</option>${ISO.map(c=>[c, cname(c)]).sort((a, b)=>a[1].localeCompare(b[1], LANG)).map(([c, n])=>`<option value="${c}">${esc(n)}${taken.has(c) ? " · " + t("déjà proposé") : ""}</option>`).join("")}</select></label>
+        <label>${t("Peuple ou région concernée (facultatif)")}<input id="prP" class="clinput" maxlength="40" placeholder="${t("Ex. les Kurdes, le Cachemire")}"></label>
+        <label>${t("Sujet principal")}<select id="prTh" class="clinput">${THEMES.map(([k, n])=>`<option value="${k}">${t(n)}</option>`).join("")}</select></label>
+        <label>${t("Pourquoi ce pays ? Des faits, pas une opinion.")}<textarea id="prR" class="clinput" rows="4" minlength="80" maxlength="400" required placeholder="${t("Ce qui s'y passe, depuis quand, et qui est touché.")}"></textarea><span class="prcount" id="prN">0 / 400</span></label>
+        <label>${t("Un lien vers une source fiable (ONU, ONG reconnue, grand média)")}<input id="prS" class="clinput" type="url" inputmode="url" maxlength="300" required placeholder="https://"></label>
+        <p class="clsmall">${t("Ta proposition sera visible par tous pendant le vote, sans ton nom. Une proposition insultante ou sans source sérieuse est retirée.")}</p>
+        <button class="cta" type="submit">${t("Envoyer ma proposition")}</button><p class="ferr" id="prErr" role="alert"></p></form>`
+      : (!vote && okLevel && me.proposed) ? `<div class="clcard prdone"><b>${t("Ta proposition est enregistrée.")}</b><p class="clsmall">${t("Reviens samedi pour voter.")}</p></div>` : "";
+    const tot = Math.max(1, (ST.list || []).reduce((a, x)=>a + x.votes, 0));
+    const list = (ST.list || []).length ? `<div class="prlist">${ST.list.map(x=>`<div class="clcard pritem ${me.voted === x.code ? "mine" : ""}">
+        <div class="prhead"><b>${esc(cname(x.code))}</b><span class="mono">${x.n > 1 ? t("{n} propositions", {n:x.n}) : t("1 proposition")}</span></div>
+        ${(x.items || []).map(it=>`<div class="prwhy"><span class="prtheme">${esc(tname(it.theme))}${it.people ? " · " + esc(it.people) : ""}</span><p>${esc(it.reason)}</p><a href="${esc(it.source)}" target="_blank" rel="noopener nofollow ugc">${t("Voir la source")}</a></div>`).join("")}
+        ${vote ? `<div class="prvote"><div class="xpbar"><i style="width:${x.votes / tot * 100}%"></i></div><span class="mono">${x.votes > 1 ? t("{n} voix", {n:x.votes}) : x.votes + " " + t("voix")}</span>${okLevel && !me.voted ? `<button class="cta" data-vote="${x.code}">${t("Voter")}</button>` : me.voted === x.code ? `<span class="prmine">${t("Ton vote")}</span>` : ""}</div>` : ""}</div>`).join("")}</div>`
+      : `<p class="clsmall prempty">${vote ? t("Aucune proposition cette semaine. Rendez-vous lundi.") : t("Aucune proposition pour l'instant. Sois le premier.")}</p>`;
+    const last = ST.last ? `<p class="prlast">${t("Choisi la semaine dernière :")} <b>${esc(cname(ST.last.code))}</b>. ${t("Sa fiche est en préparation.")}</p>` : "";
+    box.innerHTML = `<div class="eyebrow">${t("La communauté décide")}</div><h2 id="prT">${t("Le prochain pays, c'est vous qui le choisissez.")}</h2>
+      <p class="prphase"><i></i>${vote ? t("Le vote est ouvert jusqu'à dimanche soir.") : t("Les propositions sont ouvertes jusqu'à vendredi soir.")}</p>
+      ${rules}${gate}${msg ? `<p class="prmsg">${esc(msg)}</p>` : ""}${form}
+      <div class="cltitle prlt">${vote ? t("Les pays en lice") : t("Les propositions de la semaine")}</div>${list}${last}`;
+    const go = tab=>{ $("#modal").classList.remove("show"); authTab = tab; openSheet("account"); };
+    if($("#prUp")){ $("#prUp").onclick = ()=>go("up"); $("#prLog").onclick = ()=>go("in"); }
+    const f = $("#prForm");
+    if(f){
+      const r = $("#prR"), n = $("#prN"); r.oninput = ()=>{ n.textContent = r.value.trim().length + " / 400"; n.classList.toggle("ok", r.value.trim().length >= 80); };
+      f.onsubmit = async e=>{ e.preventDefault(); const er = $("#prErr"), fail = m=>{ er.textContent = m; er.classList.add("show"); };
+        const code = $("#prC").value, reason = r.value.trim(), source = $("#prS").value.trim();
+        if(!code) return fail(t("Choisis un pays dans la liste."));
+        if(reason.length < 80) return fail(t("Explique ton choix en 80 à 400 caractères."));
+        if(!/^https:\/\/\S+\.\S+/.test(source)) return fail(t("Indique un lien valide, qui commence par https://"));
+        f.querySelector("button[type=submit]").disabled = true;
+        try{ await SB.rpc("prop_submit", {code, people:$("#prP").value.trim(), theme:$("#prTh").value, reason, source}); if(window.skfEvent) skfEvent("propose", code); ST = await SB.rpc("prop_state"); paint(t("Merci. Ta proposition est en ligne.")); }
+        catch(x){ f.querySelector("button[type=submit]").disabled = false; fail(errText(x)); } };
+    }
+    box.querySelectorAll("[data-vote]").forEach(b=>b.onclick = async ()=>{ b.disabled = true;
+      try{ await SB.rpc("prop_vote", {code:b.dataset.vote}); if(window.skfEvent) skfEvent("vote", b.dataset.vote); ST = await SB.rpc("prop_state"); paint(t("Ton vote est enregistré.")); }
+      catch(x){ b.disabled = false; toast(errText(x)); } });
+  }
+  window.skfPropose = open;
+
+  /* carte dans l'Explorer */
+  if(typeof renderExplorer === "function"){
+    const _re = renderExplorer;
+    renderExplorer = function(){
+      const r = _re.apply(this, arguments);
+      const v = document.getElementById("v-explorer");
+      if(v && !v.querySelector("#prCard")){
+        const inner = v.querySelector(".in, .wrap, section, div") || v;
+        (v.querySelector("#explorerIn") || inner).insertAdjacentHTML("beforeend", `<button class="card prcard" id="prCard"><span class="eyebrow">${t("La communauté décide")}</span><b>${t("Il manque un pays ? Propose-le.")}</b><span>${t("Chaque semaine, les membres proposent puis votent. Le pays arrivé en tête rejoint l'atlas.")}</span><em>→</em></button>`);
+        v.querySelector("#prCard").onclick = open;
+      }
+      return r;
+    };
+  }
+  try{ if(new URLSearchParams(location.search).get("proposer") != null) setTimeout(open, 1200); }catch(e){}
+
+  /* ---------- Sans compte : 2 quiz d'essai, puis il faut créer un compte ---------- */
+  const FREE = 2;
+  const gq = { get(){ try{ return JSON.parse(localStorage.getItem("skf-gq") || "[]"); }catch(e){ return []; } }, set(a){ try{ localStorage.setItem("skf-gq", JSON.stringify(a)); }catch(e){} } };
+  if(typeof runQuiz === "function"){
+    const _rq = runQuiz;
+    runQuiz = function(box, qs0, opt){
+      if(opt && opt.id && !state.account){
+        const key = opt.id + ":" + opt.lv, seen = gq.get();
+        if(!seen.includes(key)){
+          if(seen.length >= FREE){ wall(box); return; }
+          seen.push(key); gq.set(seen);
+        }
+      }
+      return _rq.apply(this, arguments);
+    };
+  }
+  function wall(box){
+    if(window.skfEvent) skfEvent("quizwall", "show");
+    const html = `<div class="card qwall"><div class="eyebrow">${t("Compte gratuit")}</div><h3>${t("Tu as terminé tes 2 quiz d'essai.")}</h3>
+      <p>${t("Crée ton compte pour continuer. C'est gratuit, sans publicité, et tes tampons sont sauvegardés sur tous tes appareils.")}</p>
+      <div class="clrow"><button class="cta" id="qwUp">${t("Créer mon compte")}</button><button class="cta ghost" id="qwIn">${t("J'ai déjà un compte")}</button></div></div>`;
+    if(box){ box.innerHTML = html; box.scrollIntoView({block:"center", behavior:"smooth"}); }
+    else{ const m = $("#modal"); m.innerHTML = `<div class="mbox clbox"><button class="mclose" aria-label="${t("Fermer")}">×</button>${html}</div>`; m.classList.add("show"); m.querySelector(".mclose").onclick = ()=>m.classList.remove("show"); }
+    const go = tab=>{ $("#modal").classList.remove("show"); authTab = tab; openSheet("account"); };
+    $("#qwUp").onclick = ()=>go("up"); $("#qwIn").onclick = ()=>go("in");
+  }
+})();
+
+Object.assign(EN, {
+ "Crimes de masse":"Mass crimes","Déplacements forcés":"Forced displacement","Faim extrême":"Extreme hunger","Enfants dans la guerre":"Children in war","Esclavage moderne":"Modern slavery","Journalistes tués":"Journalists killed","Apatridie":"Statelessness","Autre atteinte grave aux droits":"Other serious rights abuse",
+ "Il faut un compte pour participer.":"You need an account to take part.",
+ "Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.":"Level 4 is required. If you just reached it, wait a minute for your passport to sync, then try again.",
+ "Les propositions sont closes pour cette semaine. Le vote est ouvert.":"Proposals are closed for this week. Voting is open.",
+ "Explique ton choix en 80 à 400 caractères.":"Explain your choice in 80 to 400 characters.","Indique un lien valide, qui commence par https://":"Enter a valid link starting with https://",
+ "Tu as déjà proposé un pays cette semaine.":"You have already proposed a country this week.","Le vote ouvre samedi.":"Voting opens on Saturday.","Tu as déjà voté cette semaine.":"You have already voted this week.","Choisis un pays dans la liste.":"Choose a country from the list.",
+ "Le prochain pays, c'est vous qui le choisissez.":"You choose the next country.",
+ "Du lundi au vendredi":"Monday to Friday","chaque membre peut proposer un pays, une seule fois par semaine.":"each member can propose one country, once a week.",
+ "Samedi et dimanche":"Saturday and Sunday","les membres votent : une voix chacun.":"members vote: one vote each.",
+ "Le lundi":"On Monday","le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.":"the country with the most votes is selected. Its page is then written with verified sources.",
+ "Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).":"To propose and to vote, you need an account and level 4 (Scout, 450 XP).",
+ "Crée ton compte pour participer.":"Create your account to take part.","C'est gratuit. Tu pourras proposer et voter dès le niveau 4.":"It's free. You can propose and vote from level 4.",
+ "Créer mon compte":"Create my account","Se connecter":"Log in",
+ "Tu es au niveau {n}. Encore {x} XP avant le niveau 4.":"You are level {n}. {x} XP to go before level 4.",
+ "Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.":"Every quiz passed and every dossier read brings you closer to level 4.",
+ "Ta proposition de la semaine":"Your proposal this week","Pays":"Country","Choisis un pays":"Choose a country","déjà proposé":"already proposed",
+ "Peuple ou région concernée (facultatif)":"People or region concerned (optional)","Ex. les Kurdes, le Cachemire":"E.g. the Kurds, Kashmir","Sujet principal":"Main issue",
+ "Pourquoi ce pays ? Des faits, pas une opinion.":"Why this country? Facts, not opinion.","Ce qui s'y passe, depuis quand, et qui est touché.":"What is happening, since when, and who is affected.",
+ "Un lien vers une source fiable (ONU, ONG reconnue, grand média)":"A link to a reliable source (UN, recognised NGO, major outlet)",
+ "Ta proposition sera visible par tous pendant le vote, sans ton nom. Une proposition insultante ou sans source sérieuse est retirée.":"Your proposal will be visible to everyone during the vote, without your name. Insulting proposals or ones without a serious source are removed.",
+ "Envoyer ma proposition":"Send my proposal","Ta proposition est enregistrée.":"Your proposal is saved.","Reviens samedi pour voter.":"Come back on Saturday to vote.",
+ "{n} propositions":"{n} proposals","1 proposition":"1 proposal","Voir la source":"See the source","{n} voix":"{n} votes","voix":"vote","Voter":"Vote","Ton vote":"Your vote",
+ "Aucune proposition cette semaine. Rendez-vous lundi.":"No proposals this week. See you on Monday.","Aucune proposition pour l'instant. Sois le premier.":"No proposals yet. Be the first.",
+ "Choisi la semaine dernière :":"Chosen last week:","Sa fiche est en préparation.":"Its page is being prepared.","La communauté décide":"The community decides",
+ "Le vote est ouvert jusqu'à dimanche soir.":"Voting is open until Sunday evening.","Les propositions sont ouvertes jusqu'à vendredi soir.":"Proposals are open until Friday evening.",
+ "Les pays en lice":"Countries in the running","Les propositions de la semaine":"This week's proposals","Merci. Ta proposition est en ligne.":"Thank you. Your proposal is live.","Ton vote est enregistré.":"Your vote is saved.",
+ "Il manque un pays ? Propose-le.":"Is a country missing? Propose it.","Chaque semaine, les membres proposent puis votent. Le pays arrivé en tête rejoint l'atlas.":"Every week, members propose and then vote. The top country joins the atlas.",
+ "Compte gratuit":"Free account","Tu as terminé tes 2 quiz d'essai.":"You have used your 2 trial quizzes.",
+ "Crée ton compte pour continuer. C'est gratuit, sans publicité, et tes tampons sont sauvegardés sur tous tes appareils.":"Create your account to continue. It's free, ad-free, and your stamps are saved on all your devices.",
+ "J'ai déjà un compte":"I already have an account"
 });
 
 /* ================= DÉMARRAGE ================= */

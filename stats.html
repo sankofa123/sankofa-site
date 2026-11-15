@@ -584,10 +584,25 @@ async function load(code){
   if(!r.ok) throw new Error(r.status === 400 || r.status === 401 || r.status === 403 ? "code" : "net");
   return r.json();
 }
+/* ---------- propositions de pays : modération ---------- */
+async function props(code, hideId, hide){
+  try{
+    const r = await fetch(URL_ + "/rest/v1/rpc/prop_admin", {method:"POST", headers:{apikey:KEY, Authorization:"Bearer " + KEY, "Content-Type":"application/json"}, body:JSON.stringify(hideId ? {code, hide_id:hideId, hide} : {code})});
+    if(!r.ok) return; const list = await r.json();
+    let box = document.getElementById("props"); if(!box){ box = document.createElement("section"); box.id = "props"; box.style.cssText = "margin:28px 0;padding:18px;border:1px solid rgba(128,128,128,.3);border-radius:16px"; $("#dash").appendChild(box); }
+    const esc = x => String(x == null ? "" : x).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    let dn; const nm = c => { try{ dn = dn || new Intl.DisplayNames(["fr"], {type:"region"}); return dn.of(c); }catch(e){ return c; } };
+    box.innerHTML = "<h2 style='margin:0 0 4px;font-size:20px'>Propositions de pays</h2><p style='margin:0 0 12px;opacity:.7;font-size:13px'>Quatre dernières semaines. « Masquer » retire une proposition du site.</p>" +
+      (list.length ? list.map(p => `<div style="padding:10px 0;border-top:1px solid rgba(128,128,128,.25);opacity:${p.hidden ? .45 : 1}"><b>${esc(nm(p.code))}</b> · semaine du ${esc(p.week)} · ${esc(p.theme)}${p.people ? " · " + esc(p.people) : ""} · ${p.votes} voix
+        <p style="margin:4px 0;font-size:14px">${esc(p.reason)}</p><a href="${esc(p.source)}" target="_blank" rel="noopener" style="font-size:13px">${esc(p.source)}</a>
+        <button data-pid="${p.id}" data-h="${p.hidden ? 0 : 1}" style="margin-left:10px;font:inherit;font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;background:none;color:inherit;cursor:pointer">${p.hidden ? "Réafficher" : "Masquer"}</button></div>`).join("") : "<p style='font-size:14px;opacity:.7'>Aucune proposition pour l'instant.</p>");
+    box.querySelectorAll("[data-pid]").forEach(b => b.onclick = () => props(code, +b.dataset.pid, b.dataset.h === "1"));
+  }catch(e){}
+}
 async function open_(code, quiet){
   if(!quiet) $("#err").textContent = "";
   $("#dash").classList.add("loading");
-  try{ const s = await load(code); localStorage.setItem("skf-stats", code); $("#gate").hidden = true; $("#dash").hidden = false; render(s);
+  try{ const s = await load(code); localStorage.setItem("skf-stats", code); $("#gate").hidden = true; $("#dash").hidden = false; render(s); props(code);
     clearInterval(timer); timer = setInterval(() => { if(!document.hidden) open_(code, true); }, 60000); }
   catch(e){ if(quiet) return; $("#err").textContent = e.message === "code" ? "Code incorrect." : e.message === "v3" ? "Il manque la mise à jour de la base : colle stats-setup-v3.sql dans Supabase, puis réessaie." : "Impossible de joindre la base pour le moment."; $("#gate").hidden = false; $("#dash").hidden = true; }
   finally{ $("#dash").classList.remove("loading"); }
