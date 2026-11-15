@@ -8345,8 +8345,8 @@ Object.assign(EN, {
   let dn = null; const cname = c=>{ try{ dn = dn || new Intl.DisplayNames([LANG === "en" ? "en" : "fr"], {type:"region"}); return dn.of(c) || c; }catch(e){ return c; } };
   const tname = k=>t((THEMES.find(x=>x[0] === k) || THEMES[7])[1]);
   const ERR = {"compte requis":"Il faut un compte pour participer.","niveau insuffisant":"Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.",
-    "propositions closes":"Les propositions sont closes pour cette semaine. Le vote est ouvert.","raison invalide":"Explique ton choix en 80 à 400 caractères.","source invalide":"Indique un lien valide, qui commence par https://",
-    "deja propose":"Tu as déjà proposé un pays cette semaine.","vote ferme":"Le vote ouvre samedi.","deja vote":"Tu as déjà voté cette semaine.","pays invalide":"Choisis un pays dans la liste."};
+    "propositions closes":"Les propositions sont closes pour ce mois-ci. Le vote est ouvert.","raison invalide":"Explique ton choix en 80 à 400 caractères.","source invalide":"Indique un lien valide, qui commence par https://",
+    "deja propose":"Tu as déjà proposé un pays ce mois-ci.","vote ferme":"Le vote ouvre le 21.","deja vote":"Tu as déjà voté ce mois-ci.","pays invalide":"Choisis un pays dans la liste."};
   const errText = e=>{ const m = String((e && e.message) || ""); const k = Object.keys(ERR).find(x=>m.includes(x)); return t(k ? ERR[k] : "Impossible pour le moment. Vérifie ta connexion."); };
   let ST = null;
 
@@ -8365,16 +8365,16 @@ Object.assign(EN, {
     const vote = ST.phase === "vote", me = ST.me || {}, acct = !!state.account, LI = levelInfo(), xp = Math.max(state.xp || 0, me.xp || 0);
     const okLevel = acct && (me.ok || LI.l >= MIN_LV);
     const rules = `<ol class="prrules">
-      <li><b>${t("Du lundi au vendredi")}</b> ${t("chaque membre peut proposer un pays, une seule fois par semaine.")}</li>
-      <li><b>${t("Samedi et dimanche")}</b> ${t("les membres votent : une voix chacun.")}</li>
-      <li><b>${t("Le lundi")}</b> ${t("le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.")}</li></ol>
+      <li><b>${t("Du 1er au 20 du mois")}</b> ${t("chaque membre peut proposer un pays, une seule fois par mois.")}</li>
+      <li><b>${t("Du 21 à la fin du mois")}</b> ${t("les membres votent : une voix chacun.")}</li>
+      <li><b>${t("Le 1er du mois suivant")}</b> ${t("le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.")}</li></ol>
       <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).")}</p>`;
     let gate = "";
     if(!acct) gate = `<div class="clcard prgate"><b>${t("Crée ton compte pour participer.")}</b><p class="clsmall">${t("C'est gratuit. Tu pourras proposer et voter dès le niveau 4.")}</p><div class="clrow"><button class="cta" id="prUp">${t("Créer mon compte")}</button><button class="cta ghost" id="prLog">${t("Se connecter")}</button></div></div>`;
     else if(!okLevel) gate = `<div class="clcard prgate"><b>${t("Tu es au niveau {n}. Encore {x} XP avant le niveau 4.", {n:LI.l, x:Math.max(0, MIN_XP - xp)})}</b><div class="xpbar prbar"><i style="width:${Math.min(100, xp / MIN_XP * 100)}%"></i></div><p class="clsmall">${t("Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.")}</p></div>`;
     const taken = new Set((ST.list || []).map(x=>x.code));
     const form = (!vote && okLevel && !me.proposed) ? `<form class="clcard prform" id="prForm">
-        <div class="cltitle">${t("Ta proposition de la semaine")}</div>
+        <div class="cltitle">${t("Ta proposition du mois")}</div>
         <label>${t("Pays")}<select id="prC" class="clinput" required><option value="">${t("Choisis un pays")}</option>${ISO.map(c=>[c, cname(c)]).sort((a, b)=>a[1].localeCompare(b[1], LANG)).map(([c, n])=>`<option value="${c}">${esc(n)}${taken.has(c) ? " · " + t("déjà proposé") : ""}</option>`).join("")}</select></label>
         <label>${t("Peuple ou région concernée (facultatif)")}<input id="prP" class="clinput" maxlength="40" placeholder="${t("Ex. les Kurdes, le Cachemire")}"></label>
         <label>${t("Sujet principal")}<select id="prTh" class="clinput">${THEMES.map(([k, n])=>`<option value="${k}">${t(n)}</option>`).join("")}</select></label>
@@ -8382,18 +8382,18 @@ Object.assign(EN, {
         <label>${t("Un lien vers une source fiable (ONU, ONG reconnue, grand média)")}<input id="prS" class="clinput" type="url" inputmode="url" maxlength="300" required placeholder="https://"></label>
         <p class="clsmall">${t("Ta proposition sera visible par tous pendant le vote, sans ton nom. Une proposition insultante ou sans source sérieuse est retirée.")}</p>
         <button class="cta" type="submit">${t("Envoyer ma proposition")}</button><p class="ferr" id="prErr" role="alert"></p></form>`
-      : (!vote && okLevel && me.proposed) ? `<div class="clcard prdone"><b>${t("Ta proposition est enregistrée.")}</b><p class="clsmall">${t("Reviens samedi pour voter.")}</p></div>` : "";
+      : (!vote && okLevel && me.proposed) ? `<div class="clcard prdone"><b>${t("Ta proposition est enregistrée.")}</b><p class="clsmall">${t("Reviens le 21 pour voter.")}</p></div>` : "";
     const tot = Math.max(1, (ST.list || []).reduce((a, x)=>a + x.votes, 0));
     const list = (ST.list || []).length ? `<div class="prlist">${ST.list.map(x=>`<div class="clcard pritem ${me.voted === x.code ? "mine" : ""}">
         <div class="prhead"><b>${esc(cname(x.code))}</b><span class="mono">${x.n > 1 ? t("{n} propositions", {n:x.n}) : t("1 proposition")}</span></div>
         ${(x.items || []).map(it=>`<div class="prwhy"><span class="prtheme">${esc(tname(it.theme))}${it.people ? " · " + esc(it.people) : ""}</span><p>${esc(it.reason)}</p><a href="${esc(it.source)}" target="_blank" rel="noopener nofollow ugc">${t("Voir la source")}</a></div>`).join("")}
         ${vote ? `<div class="prvote"><div class="xpbar"><i style="width:${x.votes / tot * 100}%"></i></div><span class="mono">${x.votes > 1 ? t("{n} voix", {n:x.votes}) : x.votes + " " + t("voix")}</span>${okLevel && !me.voted ? `<button class="cta" data-vote="${x.code}">${t("Voter")}</button>` : me.voted === x.code ? `<span class="prmine">${t("Ton vote")}</span>` : ""}</div>` : ""}</div>`).join("")}</div>`
-      : `<p class="clsmall prempty">${vote ? t("Aucune proposition cette semaine. Rendez-vous lundi.") : t("Aucune proposition pour l'instant. Sois le premier.")}</p>`;
-    const last = ST.last ? `<p class="prlast">${t("Choisi la semaine dernière :")} <b>${esc(cname(ST.last.code))}</b>. ${t("Sa fiche est en préparation.")}</p>` : "";
+      : `<p class="clsmall prempty">${vote ? t("Aucune proposition ce mois-ci. Rendez-vous le 1er.") : t("Aucune proposition pour l'instant. Sois le premier.")}</p>`;
+    const last = ST.last ? `<p class="prlast">${t("Choisi le mois dernier :")} <b>${esc(cname(ST.last.code))}</b>. ${t("Sa fiche est en préparation.")}</p>` : "";
     box.innerHTML = `<div class="eyebrow">${t("La communauté décide")}</div><h2 id="prT">${t("Le prochain pays, c'est vous qui le choisissez.")}</h2>
-      <p class="prphase"><i></i>${vote ? t("Le vote est ouvert jusqu'à dimanche soir.") : t("Les propositions sont ouvertes jusqu'à vendredi soir.")}</p>
+      <p class="prphase"><i></i>${vote ? t("Le vote est ouvert jusqu'à la fin du mois.") : t("Les propositions sont ouvertes jusqu'au 20 du mois.")}</p>
       ${rules}${gate}${msg ? `<p class="prmsg">${esc(msg)}</p>` : ""}${form}
-      <div class="cltitle prlt">${vote ? t("Les pays en lice") : t("Les propositions de la semaine")}</div>${list}${last}`;
+      <div class="cltitle prlt">${vote ? t("Les pays en lice") : t("Les propositions du mois")}</div>${list}${last}`;
     const go = tab=>{ $("#modal").classList.remove("show"); authTab = tab; openSheet("account"); };
     if($("#prUp")){ $("#prUp").onclick = ()=>go("up"); $("#prLog").onclick = ()=>go("in"); }
     const f = $("#prForm");
@@ -8421,8 +8421,9 @@ Object.assign(EN, {
       const r = _re.apply(this, arguments);
       const v = document.getElementById("v-explorer");
       if(v && !v.querySelector("#prCard")){
-        const inner = v.querySelector(".in, .wrap, section, div") || v;
-        (v.querySelector("#explorerIn") || inner).insertAdjacentHTML("beforeend", `<button class="card prcard" id="prCard"><span class="eyebrow">${t("La communauté décide")}</span><b>${t("Il manque un pays ? Propose-le.")}</b><span>${t("Chaque semaine, les membres proposent puis votent. Le pays arrivé en tête rejoint l'atlas.")}</span><em>→</em></button>`);
+        const anchor = v.querySelector("#exSort") || v.querySelector("#filters");
+        const html = `<button class="prlink" id="prCard">${t("Il manque un pays ? Propose-le.")} <span aria-hidden="true">→</span></button>`;
+        if(anchor) anchor.insertAdjacentHTML("afterend", html); else v.insertAdjacentHTML("beforeend", html);
         v.querySelector("#prCard").onclick = open;
       }
       return r;
@@ -8462,30 +8463,30 @@ Object.assign(EN, {
  "Crimes de masse":"Mass crimes","Déplacements forcés":"Forced displacement","Faim extrême":"Extreme hunger","Enfants dans la guerre":"Children in war","Esclavage moderne":"Modern slavery","Journalistes tués":"Journalists killed","Apatridie":"Statelessness","Autre atteinte grave aux droits":"Other serious rights abuse",
  "Il faut un compte pour participer.":"You need an account to take part.",
  "Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.":"Level 4 is required. If you just reached it, wait a minute for your passport to sync, then try again.",
- "Les propositions sont closes pour cette semaine. Le vote est ouvert.":"Proposals are closed for this week. Voting is open.",
+ "Les propositions sont closes pour ce mois-ci. Le vote est ouvert.":"Proposals are closed for this month. Voting is open.",
  "Explique ton choix en 80 à 400 caractères.":"Explain your choice in 80 to 400 characters.","Indique un lien valide, qui commence par https://":"Enter a valid link starting with https://",
- "Tu as déjà proposé un pays cette semaine.":"You have already proposed a country this week.","Le vote ouvre samedi.":"Voting opens on Saturday.","Tu as déjà voté cette semaine.":"You have already voted this week.","Choisis un pays dans la liste.":"Choose a country from the list.",
+ "Tu as déjà proposé un pays ce mois-ci.":"You have already proposed a country this month.","Le vote ouvre le 21.":"Voting opens on the 21st.","Tu as déjà voté ce mois-ci.":"You have already voted this month.","Choisis un pays dans la liste.":"Choose a country from the list.",
  "Le prochain pays, c'est vous qui le choisissez.":"You choose the next country.",
- "Du lundi au vendredi":"Monday to Friday","chaque membre peut proposer un pays, une seule fois par semaine.":"each member can propose one country, once a week.",
- "Samedi et dimanche":"Saturday and Sunday","les membres votent : une voix chacun.":"members vote: one vote each.",
- "Le lundi":"On Monday","le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.":"the country with the most votes is selected. Its page is then written with verified sources.",
+ "Du 1er au 20 du mois":"From the 1st to the 20th","chaque membre peut proposer un pays, une seule fois par mois.":"each member can propose one country, once a month.",
+ "Du 21 à la fin du mois":"From the 21st to the end of the month","les membres votent : une voix chacun.":"members vote: one vote each.",
+ "Le 1er du mois suivant":"On the 1st of the next month","le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.":"the country with the most votes is selected. Its page is then written with verified sources.",
  "Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).":"To propose and to vote, you need an account and level 4 (Scout, 450 XP).",
  "Crée ton compte pour participer.":"Create your account to take part.","C'est gratuit. Tu pourras proposer et voter dès le niveau 4.":"It's free. You can propose and vote from level 4.",
  "Créer mon compte":"Create my account","Se connecter":"Log in",
  "Tu es au niveau {n}. Encore {x} XP avant le niveau 4.":"You are level {n}. {x} XP to go before level 4.",
  "Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.":"Every quiz passed and every dossier read brings you closer to level 4.",
- "Ta proposition de la semaine":"Your proposal this week","Pays":"Country","Choisis un pays":"Choose a country","déjà proposé":"already proposed",
+ "Ta proposition du mois":"Your proposal this month","Pays":"Country","Choisis un pays":"Choose a country","déjà proposé":"already proposed",
  "Peuple ou région concernée (facultatif)":"People or region concerned (optional)","Ex. les Kurdes, le Cachemire":"E.g. the Kurds, Kashmir","Sujet principal":"Main issue",
  "Pourquoi ce pays ? Des faits, pas une opinion.":"Why this country? Facts, not opinion.","Ce qui s'y passe, depuis quand, et qui est touché.":"What is happening, since when, and who is affected.",
  "Un lien vers une source fiable (ONU, ONG reconnue, grand média)":"A link to a reliable source (UN, recognised NGO, major outlet)",
  "Ta proposition sera visible par tous pendant le vote, sans ton nom. Une proposition insultante ou sans source sérieuse est retirée.":"Your proposal will be visible to everyone during the vote, without your name. Insulting proposals or ones without a serious source are removed.",
- "Envoyer ma proposition":"Send my proposal","Ta proposition est enregistrée.":"Your proposal is saved.","Reviens samedi pour voter.":"Come back on Saturday to vote.",
+ "Envoyer ma proposition":"Send my proposal","Ta proposition est enregistrée.":"Your proposal is saved.","Reviens le 21 pour voter.":"Come back on the 21st to vote.",
  "{n} propositions":"{n} proposals","1 proposition":"1 proposal","Voir la source":"See the source","{n} voix":"{n} votes","voix":"vote","Voter":"Vote","Ton vote":"Your vote",
- "Aucune proposition cette semaine. Rendez-vous lundi.":"No proposals this week. See you on Monday.","Aucune proposition pour l'instant. Sois le premier.":"No proposals yet. Be the first.",
- "Choisi la semaine dernière :":"Chosen last week:","Sa fiche est en préparation.":"Its page is being prepared.","La communauté décide":"The community decides",
- "Le vote est ouvert jusqu'à dimanche soir.":"Voting is open until Sunday evening.","Les propositions sont ouvertes jusqu'à vendredi soir.":"Proposals are open until Friday evening.",
- "Les pays en lice":"Countries in the running","Les propositions de la semaine":"This week's proposals","Merci. Ta proposition est en ligne.":"Thank you. Your proposal is live.","Ton vote est enregistré.":"Your vote is saved.",
- "Il manque un pays ? Propose-le.":"Is a country missing? Propose it.","Chaque semaine, les membres proposent puis votent. Le pays arrivé en tête rejoint l'atlas.":"Every week, members propose and then vote. The top country joins the atlas.",
+ "Aucune proposition ce mois-ci. Rendez-vous le 1er.":"No proposals this month. See you on the 1st.","Aucune proposition pour l'instant. Sois le premier.":"No proposals yet. Be the first.",
+ "Choisi le mois dernier :":"Chosen last month:","Sa fiche est en préparation.":"Its page is being prepared.","La communauté décide":"The community decides",
+ "Le vote est ouvert jusqu'à la fin du mois.":"Voting is open until the end of the month.","Les propositions sont ouvertes jusqu'au 20 du mois.":"Proposals are open until the 20th.",
+ "Les pays en lice":"Countries in the running","Les propositions du mois":"This month's proposals","Merci. Ta proposition est en ligne.":"Thank you. Your proposal is live.","Ton vote est enregistré.":"Your vote is saved.",
+ "Il manque un pays ? Propose-le.":"Is a country missing? Propose it.","Chaque mois, les membres proposent puis votent.":"Every month, members propose and then vote.",
  "Compte gratuit":"Free account","Tu as terminé tes 2 quiz d'essai.":"You have used your 2 trial quizzes.",
  "Crée ton compte pour continuer. C'est gratuit, sans publicité, et tes tampons sont sauvegardés sur tous tes appareils.":"Create your account to continue. It's free, ad-free, and your stamps are saved on all your devices.",
  "J'ai déjà un compte":"I already have an account"

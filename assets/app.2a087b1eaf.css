@@ -1501,9 +1501,8 @@ body.livemode{overflow:hidden}
 .icopick button:hover svg{transform:scale(1.06)}
 
 /* ---------- Propositions et vote ---------- */
-.prcard{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;margin-top:18px;padding:18px 44px 18px 18px;position:relative;cursor:pointer;font:inherit;color:var(--ink)}
-.prcard b{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.1}.prcard span:not(.eyebrow){color:var(--ink2);font-size:14px}
-.prcard em{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-style:normal;font-size:20px}
+.prlink{display:inline-block;margin:10px 0 2px;padding:0;border:0;background:none;font:inherit;font-size:13px;color:var(--mute);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);cursor:pointer}
+.prlink:hover{color:var(--ink)}
 .prphase{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin:0 0 12px}.prphase i{width:8px;height:8px;border-radius:50%;background:#2F9E5B;flex:none}
 .prrules{margin:0 0 8px;padding-left:20px;font-size:14.5px;color:var(--ink2);display:grid;gap:6px}.prrules b{color:var(--ink)}
 .prcond{font-size:14px;margin:0 0 4px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
