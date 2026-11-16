@@ -630,7 +630,7 @@ const EN_RHYTHMS = [["≈ 1 / s","conflict displacement worldwide (2025)"],["1 /
 const EN_TOUR = [["Eastern Congo","9.7 million forced displacements in 2025, a record: one every 3.2 seconds."],["Sudan","9.1 million internally displaced people, the largest crisis of its kind in the world."],["Palestine","12,445 grave violations against children verified by the UN in 2025 in Israel and the Occupied Palestinian Territory: the highest figure in the world."],["Lebanon","In March 2026, a child was displaced every 4.5 seconds."],["Syria","More than 9 million people facing acute food insecurity."],["Yemen","31 media workers killed in a single strike in 2025."],["Rohingya","The largest stateless people in the world. The International Court of Justice delivers its judgment on 19 November 2026."],["Haiti","1.47 million displaced: 12% of the population."]];
 const EN_RARITY = [null,["Common","Pass Discovery"],["Rare","Pass the Initiate level"],["Epic","Pass the Expert level"],["Legendary","Pass the Legendary challenge"]];
 const EN_LEVELS = [["Discovery","4 random questions"],["Initiate","4 random questions"],["Expert","20 seconds per question"],["Legendary challenge","6 mixed questions, 12 seconds, no mistakes"]];
-const EN_TITLES = ["Traveller","Curious","Witness","Scout","Ferryman","Watcher","Guardian","Keeper of memory","Ambassador","Sage","Sankofa"];
+const EN_TITLES = ["Traveller I","Traveller II","Traveller III","Traveller IV","Curious I","Curious II","Curious III","Curious IV","Witness I","Witness II","Witness III","Witness IV","Scout I","Scout II","Scout III","Scout IV","Ferryman I","Ferryman II","Ferryman III","Ferryman IV","Watcher I","Watcher II","Watcher III","Watcher IV","Guardian I","Guardian II","Guardian III","Guardian IV","Ambassador I","Ambassador II","Ambassador III","Ambassador IV","Sage I","Sage II","Sage III","Sage IV","Sankofa I","Sankofa II","Sankofa III","Sankofa IV"];
 
 const EN_LEXIQUE = [
   ["Genocide","Acts committed with intent to destroy, in whole or in part, a national, ethnic, racial or religious group. Defined by the 1948 Convention."],
@@ -1374,7 +1374,7 @@ const LEVELS = [
   {k:"i",name:"Initié",xp:10,time:0,n:4,pass:3,desc:"4 questions tirées au hasard"},
   {k:"e",name:"Expert",xp:20,time:20,n:4,pass:3,desc:"20 secondes par question"},
   {k:"L",name:"Défi légendaire",xp:40,time:12,n:6,pass:6,desc:"6 questions mêlées, 12 secondes, zéro faute"}];
-const TITLES = ["Voyageur","Curieux","Témoin","Éclaireur","Passeur","Veilleur","Gardien","Gardien de la mémoire","Ambassadeur","Sage","Sankofa"];
+const TITLES = ["Voyageur I","Voyageur II","Voyageur III","Voyageur IV","Curieux I","Curieux II","Curieux III","Curieux IV","Témoin I","Témoin II","Témoin III","Témoin IV","Éclaireur I","Éclaireur II","Éclaireur III","Éclaireur IV","Passeur I","Passeur II","Passeur III","Passeur IV","Veilleur I","Veilleur II","Veilleur III","Veilleur IV","Gardien I","Gardien II","Gardien III","Gardien IV","Ambassadeur I","Ambassadeur II","Ambassadeur III","Ambassadeur IV","Sage I","Sage II","Sage III","Sage IV","Sankofa I","Sankofa II","Sankofa III","Sankofa IV"];
 const XP_STEP = 150;
 const BADGES = [
   {id:"first",n:"Premier tampon",d:"Obtenir un premier tampon",ok:s=>Object.keys(s.stamps).length>0},
@@ -2380,7 +2380,7 @@ function passEmblem(){
 }
 
 /* ================= PROGRESSION RÉALISTE ================= */
-const XP_THR = [0,100,250,450,700,1000,1400,1900,2500,3200,4000];
+const XP_THR = [0,40,220,430,700,1020,1380,1790,2240,2720,3250,3810,4410,5040,5700,6400,7130,7900,8690,9510,10360,11250,12160,13100,14060,15060,16080,17130,18200,19300,20430,21580,22760,23970,25190,26450,27720,29020,30350,31700];
 function levelInfo(){
   const xp = state.xp; let l = 1; while(l < XP_THR.length && xp >= XP_THR[l]) l++;
   const lo = XP_THR[l-1], hi = XP_THR[l] ?? (lo+1000);
@@ -3081,7 +3081,7 @@ function renderPays(id){
   $("#backBtn").onclick=()=>history.length>1?history.back():location.hash="globe";
   $("#goGlobe").onclick=()=>{ location.hash="globe"; setTimeout(()=>focusCountry(id),380); };
   const lc=$("#locator"); if(lc) lc.onclick=()=>$("#goGlobe").click();
-  $("#share").onclick=()=>{ const u=location.href; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast(t("Lien copié"))).catch(()=>toast(u)); };
+  $("#share").onclick=()=>{ const u="https://sankofa-atlas.org/"+c.slug+"/"; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast(t("Lien copié"))).catch(()=>toast(u)); };
   $("#shareImg").onclick=()=>shareCard("fig",id);
   $("#paysIn").querySelectorAll(".softbtn").forEach(b=>b.onclick=()=>b.parentElement.classList.add("open"));
   const tg=$("#sensToggle"); if(tg) tg.onclick=()=>{ gateOk[id] = mode==="soft" ? "show" : "soft"; const y=scrollY; renderPays(id); scrollTo({top:y,behavior:"instant"}); };
@@ -3414,7 +3414,7 @@ function renderPass(){
   const counts = [1,2,3,4,5].map(r=>Object.values(state.stamps).filter(s=>s.r===r).length);
   $("#passHead").innerHTML = `<div class="pcover">
       <div class="phid">${state.profile?avatarSVG(state.profile,64):""}<div><div class="eyebrow">${t("Passeport Sankofa")}${state.profile?" · "+esc(state.profile.name):""}</div><h2>${esc(title())}</h2>
-      <div class="lvline"><span>${t("Niveau {n}",{n:lv})}</span><div class="xpbar"><i style="width:${into/LI.need*100}%"></i></div><span>${into} / ${LI.need} XP${lv<XP_THR.length?" · "+t("avant {x}",{x:esc(TITLES[Math.min(TITLES.length-1,lv)])}):""}</span></div></div></div>
+      <div class="lvline"><span>${t("Niveau {n}",{n:lv})}</span><div class="xpbar"><i style="width:${into/LI.need*100}%"></i></div><span>${into} / ${LI.need} XP${lv<XP_THR.length?" · "+(TITLES[lv].split(" ")[0]!==TITLES[lv-1].split(" ")[0]?t("avant {x}",{x:esc(TITLES[lv])}):t("avant le niveau {n}",{n:lv+1})):""}</span></div></div></div>
       ${passEmblem()}
     </div>
     <div class="stats"><div><b>${n}/${FEATURED.length}</b><span>${t("escales tamponnées")}</span></div><div><b>${state.xp}</b><span>${t("points d'expérience")}</span></div><div><b>${(state.notions||[]).length}/${NOTIONS.length}</b><span>${t("notions validées")}</span></div><div><b>${(state.dossiers||[]).length}/${Object.keys(DOSSIERS).length}</b><span>${t("dossiers lus")}</span></div><div><b>${state.streak}</b><span>${t("jours de série")}</span></div><div><b>${state.badges.length}/${BADGES.length}</b><span>${t("badges")}</span></div></div>
@@ -3631,7 +3631,7 @@ function mergeState(a,b){
   for(const k of ["visited","layersSeen","badges","notions","termsSeen","cleared"]) o[k] = Array.from(new Set([...(a[k]||[]),...(b[k]||[])]));
   if((b.lastDaily && (!a.lastDaily || new Date(b.lastDaily)>new Date(a.lastDaily)))){ o.lastDaily=b.lastDaily; o.streak=b.streak; }
   o.resumeQ = ((b.resumeQ?.d||0) > (a.resumeQ?.d||0)) ? b.resumeQ : (a.resumeQ ?? b.resumeQ ?? null);
-  o.tour = !!(a.tour||b.tour);
+  o.tour = !!(a.tour||b.tour); o.cos = a.cos || b.cos;
   o.profile = a.profile || b.profile; o.dailyLog = Array.from(new Set([...(a.dailyLog||[]),...(b.dailyLog||[])])).slice(-30);
   o.week = (a.week && b.week && a.week.id===b.week.id) ? (a.week.done.length>=b.week.done.length?a.week:b.week) : (a.week||b.week);
   return o;
@@ -9305,7 +9305,7 @@ Object.assign(EN, {
     r.querySelector("#defiBtn").onclick = async ()=>{
       let code = null; try{ const L = window.skfLaunch ? await window.skfLaunch() : null; code = L && L.me && L.me.code; }catch(e){}
       const name = state.profile && state.profile.name ? state.profile.name.slice(0, 20) : "";
-      const link = SITE_URL + "/?defi=" + c.slug + "." + opt.lv + "." + score + "." + tot + (name ? "&n=" + encodeURIComponent(name) : "") + (code ? "&p=" + code : "") + "#quiz-" + c.slug;
+      const link = SITE_URL + "/" + c.slug + "/?defi=" + c.slug + "." + opt.lv + "." + score + "." + tot + (name ? "&n=" + encodeURIComponent(name) : "") + (code ? "&p=" + code : "") + "#quiz-" + c.slug;
       const text = t("J'ai eu {s} sur {n} au quiz {c}, niveau {l}, sur Sankofa. Tu fais mieux ?", {s:score, n:tot, c:c.short, l:lvName(opt.lv)});
       if(window.skfEvent) skfEvent("share", "defi:" + c.slug);
       if(navigator.share){ try{ await navigator.share({title:"Sankofa", text, url:link}); return; }catch(e){ if(e && e.name === "AbortError") return; } }
@@ -9934,10 +9934,10 @@ Object.assign(EN, {
 (function(){
   const ISO = "AD AL AM AO AR AT AU AZ BA BB BE BG BH BI BJ BN BO BR BS BT BW BY BZ CA CF CG CH CL CN CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ES FI FJ FR GA GB GD GE GH GM GN GQ GR GT GW GY HN HR HU ID IE IL IN IQ IS IT JM JO JP KE KG KH KI KM KR KZ LA LK LR LS LT LU LV LY MA MC MD ME MG MK MM MN MT MU MV MW MY NA NE NL NO NP NZ OM PA PE PG PK PL PT PY QA RO RS RW SB SC SE SG SI SK SL SN SR ST SV SZ TD TG TL TM TN TO TT TW TZ UG US UY UZ VN VU WS XK ZA ZM ZW".split(" ");
   const THEMES = [["crime","Crimes de masse"],["exil","Déplacements forcés"],["hunger","Faim extrême"],["enfants","Enfants dans la guerre"],["slave","Esclavage moderne"],["presse","Journalistes tués"],["apatride","Apatridie"],["autre","Autre atteinte grave aux droits"]];
-  const MIN_LV = 4, MIN_XP = 450;
+  const MIN_LV = 8, MIN_XP = 1790;
   let dn = null; const cname = c=>{ try{ dn = dn || new Intl.DisplayNames([LANG === "en" ? "en" : "fr"], {type:"region"}); return dn.of(c) || c; }catch(e){ return c; } };
   const tname = k=>t((THEMES.find(x=>x[0] === k) || THEMES[7])[1]);
-  const ERR = {"compte requis":"Il faut un compte pour participer.","niveau insuffisant":"Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.",
+  const ERR = {"compte requis":"Il faut un compte pour participer.","niveau insuffisant":"Il faut le niveau 8. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.",
     "propositions closes":"Les propositions sont closes pour ce mois-ci. Le vote est ouvert.","raison invalide":"Explique ton choix en 80 à 400 caractères.","source invalide":"Indique un lien valide, qui commence par https://",
     "deja propose":"Tu as déjà proposé un pays ce mois-ci.","vote ferme":"Le vote ouvre le 21.","deja vote":"Tu as déjà voté ce mois-ci.","pays invalide":"Choisis un pays dans la liste."};
   const errText = e=>{ const m = String((e && e.message) || ""); const k = Object.keys(ERR).find(x=>m.includes(x)); return t(k ? ERR[k] : "Impossible pour le moment. Vérifie ta connexion."); };
@@ -9961,10 +9961,10 @@ Object.assign(EN, {
       <li><b>${t("Du 1er au 20 du mois")}</b> ${t("chaque membre peut proposer un pays, une seule fois par mois.")}</li>
       <li><b>${t("Du 21 à la fin du mois")}</b> ${t("les membres votent : une voix chacun.")}</li>
       <li><b>${t("Le 1er du mois suivant")}</b> ${t("le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.")}</li></ol>
-      <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).")}</p>`;
+      <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 8 (Curieux IV, 1790 XP).")}</p>`;
     let gate = "";
-    if(!acct) gate = `<div class="clcard prgate"><b>${t("Crée ton compte pour participer.")}</b><p class="clsmall">${t("C'est gratuit. Tu pourras proposer et voter dès le niveau 4.")}</p><div class="clrow"><button class="cta" id="prUp">${t("Créer mon compte")}</button><button class="cta ghost" id="prLog">${t("Se connecter")}</button></div></div>`;
-    else if(!okLevel) gate = `<div class="clcard prgate"><b>${t("Tu es au niveau {n}. Encore {x} XP avant le niveau 4.", {n:LI.l, x:Math.max(0, MIN_XP - xp)})}</b><div class="xpbar prbar"><i style="width:${Math.min(100, xp / MIN_XP * 100)}%"></i></div><p class="clsmall">${t("Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.")}</p></div>`;
+    if(!acct) gate = `<div class="clcard prgate"><b>${t("Crée ton compte pour participer.")}</b><p class="clsmall">${t("C'est gratuit. Tu pourras proposer et voter dès le niveau 8.")}</p><div class="clrow"><button class="cta" id="prUp">${t("Créer mon compte")}</button><button class="cta ghost" id="prLog">${t("Se connecter")}</button></div></div>`;
+    else if(!okLevel) gate = `<div class="clcard prgate"><b>${t("Tu es au niveau {n}. Encore {x} XP avant le niveau 8.", {n:LI.l, x:Math.max(0, MIN_XP - xp)})}</b><div class="xpbar prbar"><i style="width:${Math.min(100, xp / MIN_XP * 100)}%"></i></div><p class="clsmall">${t("Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 8.")}</p></div>`;
     const taken = new Set((ST.list || []).map(x=>x.code));
     const form = (!vote && okLevel && !me.proposed) ? `<form class="clcard prform" id="prForm">
         <div class="cltitle">${t("Ta proposition du mois")}</div>
@@ -10055,7 +10055,7 @@ Object.assign(EN, {
 Object.assign(EN, {
  "Crimes de masse":"Mass crimes","Déplacements forcés":"Forced displacement","Faim extrême":"Extreme hunger","Enfants dans la guerre":"Children in war","Esclavage moderne":"Modern slavery","Journalistes tués":"Journalists killed","Apatridie":"Statelessness","Autre atteinte grave aux droits":"Other serious rights abuse",
  "Il faut un compte pour participer.":"You need an account to take part.",
- "Il faut le niveau 4. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.":"Level 4 is required. If you just reached it, wait a minute for your passport to sync, then try again.",
+ "Il faut le niveau 8. Si tu viens de l'atteindre, attends une minute que ton passeport se synchronise, puis réessaie.":"Level 8 is required. If you just reached it, wait a minute for your passport to sync, then try again.",
  "Les propositions sont closes pour ce mois-ci. Le vote est ouvert.":"Proposals are closed for this month. Voting is open.",
  "Explique ton choix en 80 à 400 caractères.":"Explain your choice in 80 to 400 characters.","Indique un lien valide, qui commence par https://":"Enter a valid link starting with https://",
  "Tu as déjà proposé un pays ce mois-ci.":"You have already proposed a country this month.","Le vote ouvre le 21.":"Voting opens on the 21st.","Tu as déjà voté ce mois-ci.":"You have already voted this month.","Choisis un pays dans la liste.":"Choose a country from the list.",
@@ -10063,11 +10063,11 @@ Object.assign(EN, {
  "Du 1er au 20 du mois":"From the 1st to the 20th","chaque membre peut proposer un pays, une seule fois par mois.":"each member can propose one country, once a month.",
  "Du 21 à la fin du mois":"From the 21st to the end of the month","les membres votent : une voix chacun.":"members vote: one vote each.",
  "Le 1er du mois suivant":"On the 1st of the next month","le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.":"the country with the most votes is selected. Its page is then written with verified sources.",
- "Pour proposer et pour voter, il faut un compte et le niveau 4 (Éclaireur, 450 XP).":"To propose and to vote, you need an account and level 4 (Scout, 450 XP).",
- "Crée ton compte pour participer.":"Create your account to take part.","C'est gratuit. Tu pourras proposer et voter dès le niveau 4.":"It's free. You can propose and vote from level 4.",
+ "Pour proposer et pour voter, il faut un compte et le niveau 8 (Curieux IV, 1790 XP).":"To propose and to vote, you need an account and level 8 (Curious IV, 1,790 XP).",
+ "Crée ton compte pour participer.":"Create your account to take part.","C'est gratuit. Tu pourras proposer et voter dès le niveau 8.":"It's free. You can propose and vote from level 8.",
  "Créer mon compte":"Create my account","Se connecter":"Log in",
- "Tu es au niveau {n}. Encore {x} XP avant le niveau 4.":"You are level {n}. {x} XP to go before level 4.",
- "Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 4.":"Every quiz passed and every dossier read brings you closer to level 4.",
+ "Tu es au niveau {n}. Encore {x} XP avant le niveau 8.":"You are level {n}. {x} XP to go before level 8.",
+ "Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 8.":"Every quiz passed and every dossier read brings you closer to level 8.",
  "Ta proposition du mois":"Your proposal this month","Pays":"Country","Choisis un pays":"Choose a country","déjà proposé":"already proposed",
  "Peuple ou région concernée (facultatif)":"People or region concerned (optional)","Ex. les Kurdes, le Cachemire":"E.g. the Kurds, Kashmir","Sujet principal":"Main issue",
  "Pourquoi ce pays ? Des faits, pas une opinion.":"Why this country? Facts, not opinion.","Ce qui s'y passe, depuis quand, et qui est touché.":"What is happening, since when, and who is affected.",
@@ -10156,60 +10156,150 @@ Object.assign(EN, {
 
 Object.assign(EN, {"{n} nouveaux tampons":"{n} new stamps","Nouveau tampon":"New stamp","Nouveau badge":"New badge","et {n} de plus":"and {n} more"});
 
-/* ---------- Récompenses par niveau : chaque palier débloque quelque chose de visible ---------- */
-window.ICON_LV = {nuit:1, ivoire:1, ocean:2, foret:2, terre:5, prune:5, corail:7, or:7};
-const PERKS = [
-  {l:1, k:"icon",  fr:"Ton passeport, et les icônes Nuit et Ivoire", en:"Your passport, and the Night and Ivory icons"},
-  {l:2, k:"icon",  fr:"Icônes Océan et Forêt", en:"Ocean and Forest icons"},
-  {l:3, k:"frame", fr:"Cadre bronze autour de ton emblème", en:"Bronze frame around your emblem"},
-  {l:4, k:"vote",  fr:"Proposer un pays et voter chaque mois", en:"Suggest a country and vote every month"},
-  {l:5, k:"icon",  fr:"Icônes Terre et Prune", en:"Earth and Plum icons"},
-  {l:6, k:"frame", fr:"Cadre argent", en:"Silver frame"},
-  {l:7, k:"icon",  fr:"Icônes Corail et Or", en:"Coral and Gold icons"},
-  {l:8, k:"frame", fr:"Cadre or", en:"Gold frame"},
-  {l:9, k:"cover", fr:"Couverture de passeport Nuit", en:"Night passport cover"},
-  {l:10,k:"frame", fr:"Cadre mythique, rouge et animé", en:"Mythic frame, red and animated"},
-  {l:11,k:"card",  fr:"Carte d'identité Sankofa, en rouge mythique", en:"Sankofa identity card, in mythic red"}
+/* ---------- Récompenses : 40 niveaux, presque un déblocage par niveau, et « Personnaliser » ---------- */
+window.ICON_LV = {nuit:1, ivoire:1, ocean:3, foret:3, terre:11, prune:11, corail:19, or:19};
+
+/* Nouvelles couleurs d'emblème (fonds), ajoutées après les 8 de base */
+const EMB_NEW = [
+  ["lagon","Lagon","Lagoon",["#0B3D3A","#1F8A7E"],2],
+  ["grenat","Grenat","Garnet",["#3B0F1A","#9A2840"],7],
+  ["ardoise","Ardoise","Slate",["#2B2D42","#8D99AE"],14],
+  ["amethyste","Améthyste","Amethyst",["#3E1A55","#A774D6"],18],
+  ["jungle","Jungle","Jungle",["#0D2416","#3E8A55"],22],
+  ["braise","Braise","Ember",["#4A140A","#D2553A"],26],
+  ["nuitbleue","Nuit bleue","Midnight",["#0A1430","#3466B8"],28],
+  ["mythique","Mythique","Mythic",["#0B0B0E","#B4233A"],33]
 ];
-function skfFrame(l){ return l>=10 ? "myth" : l>=8 ? "or" : l>=6 ? "argent" : l>=3 ? "bronze" : ""; }
+const EMB_BASE = AV_BG.length; EMB_NEW.forEach(e=>AV_BG.push(e[3]));
+const embLv = i => i < EMB_BASE ? 1 : EMB_NEW[i-EMB_BASE][4];
+
+const SKINS = {
+  classique:{l:1, fr:"Classique", en:"Classic", sw:["#D3DCE9","#FBFBF9"]},
+  nuit:{l:5, fr:"Nuit", en:"Night", sw:["#0B1222","#2B3140"], th:{sea0:"#17213A",sea1:"#070B16",land:"#2B3140",landLine:"rgba(255,255,255,.12)",grat:"rgba(255,255,255,.05)",halo:"rgba(120,150,255,.32)",halo0:"rgba(120,150,255,0)",shade:"rgba(0,0,0,.35)"}},
+  ocean:{l:9, fr:"Océan profond", en:"Deep ocean", sw:["#0E3C66","#E9EEF2"], th:{sea0:"#2276B3",sea1:"#0A2C4F",land:"#E9EEF2",landLine:"rgba(10,40,70,.25)",grat:"rgba(255,255,255,.08)",halo:"rgba(60,160,230,.35)",halo0:"rgba(60,160,230,0)",shade:"rgba(0,10,30,.35)"}},
+  ardoise:{l:13, fr:"Ardoise", en:"Slate", sw:["#3A4049","#C9CDD3"], th:{sea0:"#5D6572",sea1:"#2B3038",land:"#C9CDD3",landLine:"rgba(20,22,26,.3)",grat:"rgba(255,255,255,.06)",halo:"rgba(160,170,185,.3)",halo0:"rgba(160,170,185,0)",shade:"rgba(0,0,0,.3)"}},
+  craie:{l:17, fr:"Craie", en:"Chalk", sw:["#ECECE8","#BDBDB6"], th:{sea0:"#FFFFFF",sea1:"#E4E4DF",land:"#C4C4BD",landLine:"rgba(0,0,0,.22)",grat:"rgba(0,0,0,.05)",halo:"rgba(0,0,0,.08)",halo0:"rgba(0,0,0,0)",shade:"rgba(0,0,0,.12)"}},
+  satellite:{l:23, fr:"Satellite", en:"Satellite", sw:["#06111F","#3B4A36"], th:{sea0:"#0D2440",sea1:"#020A14",land:"#3B4A36",landLine:"rgba(255,255,255,.09)",grat:"rgba(255,255,255,.04)",halo:"rgba(90,170,255,.3)",halo0:"rgba(90,170,255,0)",shade:"rgba(0,0,0,.4)"}},
+  aurore:{l:29, fr:"Aurore", en:"Aurora", sw:["#1A1340","#4FE0B8"], th:{sea0:"#1F1650",sea1:"#05030F",land:"#2C2545",landLine:"rgba(190,160,255,.18)",grat:"rgba(190,160,255,.06)",halo:"rgba(80,230,190,.45)",halo0:"rgba(80,230,190,0)",shade:"rgba(0,0,0,.35)"}}
+};
+const FRAMES = {
+  aucun:{l:1, fr:"Aucun", en:"None"}, bronze:{l:4, fr:"Bronze", en:"Bronze"}, argent:{l:10, fr:"Argent", en:"Silver"}, or:{l:15, fr:"Or", en:"Gold"},
+  rouge:{l:20, fr:"Rouge", en:"Red"}, globe:{l:24, fr:"Globe", en:"Globe"}, aurore:{l:30, fr:"Aurore", en:"Aurora"}
+};
+const COVERS = {
+  clair:{l:1, fr:"Clair", en:"Light", sw:["#F7F1E3","#EFE5CC"]}, nuit:{l:6, fr:"Nuit", en:"Night", sw:["#1A1D24","#0F1115"]},
+  ocean:{l:12, fr:"Océan", en:"Ocean", sw:["#123A5E","#0A1B2E"]}, foret:{l:16, fr:"Forêt", en:"Forest", sw:["#17402B","#0B1F15"]},
+  prune:{l:21, fr:"Prune", en:"Plum", sw:["#371A44","#190B21"]}, rouge:{l:25, fr:"Rouge", en:"Red", sw:["#5A1322","#24070D"]},
+  carte:{l:32, fr:"Carte du monde", en:"World map", sw:["#14161B","#2A3140"]}
+};
+const PERKS = [
+  {l:1, k:"icon", fr:"Ton passeport, le globe Classique, les icônes Nuit et Ivoire", en:"Your passport, the Classic globe, the Night and Ivory icons"},
+  ...EMB_NEW.map(e=>({l:e[4], k:"emb", fr:"Couleur d'emblème "+e[1], en:e[2]+" emblem colour"})),
+  {l:3, k:"icon", fr:"Icônes Océan et Forêt", en:"Ocean and Forest icons"},
+  {l:11, k:"icon", fr:"Icônes Terre et Prune", en:"Earth and Plum icons"},
+  {l:19, k:"icon", fr:"Icônes Corail et Or", en:"Coral and Gold icons"},
+  {l:8, k:"vote", fr:"Proposer un pays et voter chaque mois", en:"Suggest a country and vote every month"},
+  ...Object.entries(SKINS).filter(([k])=>k!=="classique").map(([k,s])=>({l:s.l, k:"globe", fr:"Thème du globe "+s.fr+(k==="aurore"?", animé":""), en:s.en+" globe theme"+(k==="aurore"?", animated":"")})),
+  ...Object.entries(FRAMES).filter(([k])=>k!=="aucun").map(([k,s])=>({l:s.l, k:"frame", fr:"Cadre "+s.fr.toLowerCase()+(k==="aurore"?", animé":""), en:s.en+" frame"+(k==="aurore"?", animated":"")})),
+  ...Object.entries(COVERS).filter(([k])=>k!=="clair").map(([k,s])=>({l:s.l, k:"cover", fr:"Couverture de passeport "+s.fr, en:s.en+" passport cover"})),
+  {l:37, k:"card", fr:"Carte d'identité Sankofa, en rouge mythique", en:"Sankofa identity card, in mythic red"},
+  {l:40, k:"stamp", fr:"Tampons animés dans ton passeport", en:"Animated stamps in your passport"}
+].sort((a,b)=>a.l-b.l);
+
+const cos = ()=>Object.assign({globe:"classique", cover:"clair"}, state.cos||{});
+const nm = o=>LANG==="en" ? o.en : o.fr;
+function bestFrame(l){ let b = "aucun"; for(const k of ["bronze","argent","or","rouge"]) if(FRAMES[k].l <= l) b = k; return b; }
+function curFrame(){ const l = level(), c = state.cos||{}; return c.frame && FRAMES[c.frame] && FRAMES[c.frame].l <= l ? c.frame : bestFrame(l); }
+function curSkin(){ const k = cos().globe; return SKINS[k] && SKINS[k].l <= level() ? k : "classique"; }
+function curCover(){ const k = cos().cover; return COVERS[k] && COVERS[k].l <= level() ? k : "clair"; }
+
+/* Thème du globe : par-dessus les couleurs du thème clair ou sombre */
+const _readTheme = readTheme;
+readTheme = function(){
+  _readTheme.apply(this, arguments);
+  let k = "classique"; try{ k = curSkin(); }catch(e){}
+  const s = SKINS[k]; if(s && s.th && TH) Object.assign(TH, s.th);
+  document.documentElement.dataset.globe = k;
+};
+function applyCos(){ readTheme(); try{ grads = null; dirty = true; }catch(e){} document.body.classList.toggle("skf-l40", level() >= 40); }
+
 function perkIco(k){
   const p = {icon:'<rect x="4" y="4" width="16" height="16" rx="4"/>', frame:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/>',
     vote:'<path d="M5 12l4 4 10-10"/>', cover:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="11" r="3"/>',
-    card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5"/>'}[k];
+    card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5"/>', globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/>',
+    emb:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', stamp:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2 2"/>'}[k];
   return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 }
 function perksHTML(){
-  const l = level();
-  const nx = PERKS.find(p=>p.l > l);
-  return `<details class="perks" ${l < 3 ? "open" : ""}>
-    <summary><span>${t("Ce que débloquent les niveaux")}</span><em>${nx ? t("Prochain : {x}, au niveau {n}", {x:LANG==="en"?nx.en:nx.fr, n:nx.l}) : t("Tout est débloqué.")}</em></summary>
+  const l = level(), nx = PERKS.find(p=>p.l > l), done = PERKS.filter(p=>p.l <= l).length;
+  return `<details class="perks">
+    <summary><span>${t("Ce que débloquent les niveaux")} <em class="pkc">${done} / ${PERKS.length}</em></span><em>${nx ? t("Prochain : {x}, au niveau {n}", {x:nm(nx), n:nx.l}) : t("Tout est débloqué.")}</em></summary>
     <ol class="perkl">${PERKS.map(p=>`<li class="${p.l<=l?"ok":""}${nx&&p.l===nx.l?" next":""}">
       <span class="pkn">${p.l}</span><span class="pki">${perkIco(p.k)}</span>
-      <span class="pkt"><b>${esc(TITLES[p.l-1]||"")}</b>${esc(LANG==="en"?p.en:p.fr)}</span>
+      <span class="pkt"><b>${esc(TITLES[p.l-1]||"")}</b>${esc(nm(p))}</span>
       <span class="pks">${p.l<=l ? "✓" : (XP_THR[p.l-1]||0)+" XP"}</span></li>`).join("")}</ol>
   </details>`;
+}
+function cosHTML(){
+  const l = level(), fr = curFrame(), sk = curSkin(), cv = curCover();
+  const opt = (grp, k, o, on, sw)=>{ const lk = o.l > l;
+    return `<button type="button" class="cosopt" data-g="${grp}" data-k="${k}" aria-pressed="${on}" ${lk?`data-lock="${o.l}" aria-disabled="true"`:""}>
+      <span class="cossw ${grp}${grp==="frame"?" f-"+k:""}" ${sw?`style="--cs1:${sw[0]};--cs2:${sw[1]}"`:""}></span><span class="cosn">${lk ? t("Niv. {n}",{n:o.l}) : esc(nm(o))}</span></button>`; };
+  const p = state.profile;
+  const embs = AV_BG.map((b,i)=>({l:embLv(i), fr:i<EMB_BASE?"Couleur "+(i+1):EMB_NEW[i-EMB_BASE][1], en:i<EMB_BASE?"Colour "+(i+1):EMB_NEW[i-EMB_BASE][2], b}));
+  return `<div class="card cosbox" id="cosBox">
+    <div class="eyebrow">${t("Personnaliser")}</div><h3>${t("Ce que tu as gagné, à toi de choisir.")}</h3>
+    <div class="cosgrp"><b>${t("Thème du globe")}</b><div class="cosrow">${Object.entries(SKINS).map(([k,o])=>opt("globe",k,o,k===sk,o.sw)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Cadre de l'emblème")}</b><div class="cosrow">${Object.entries(FRAMES).map(([k,o])=>opt("frame",k,o,k===fr)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Couverture du passeport")}</b><div class="cosrow">${Object.entries(COVERS).map(([k,o])=>opt("cover",k,o,k===cv,o.sw)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Couleur de l'emblème")}</b>${p ? `<div class="cosrow">${embs.map((o,i)=>opt("emb",i,o,p.bg===i,o.b)).join("")}</div>` : `<p class="clsmall">${t("Crée ton passeport pour choisir la couleur de ton emblème.")}</p>`}</div>
+    <p class="clsmall">${t("Les couleurs de l'icône se choisissent dans les réglages.")}</p>
+  </div>`;
+}
+function bindCos(box){
+  box.querySelectorAll(".cosopt").forEach(b=>b.onclick=()=>{
+    if(b.dataset.lock){ toast(t("Se débloque au niveau {n}.", {n:b.dataset.lock})); return; }
+    const g = b.dataset.g, k = b.dataset.k;
+    if(g === "emb"){ if(state.profile) state.profile.bg = +k; }
+    else state.cos = Object.assign({}, state.cos||{}, {[g]:k});
+    save(); applyCos(); renderPass();
+    if(window.skfEvent) skfEvent("cos", g+":"+k);
+  });
 }
 (function(){
   const _rp = renderPass;
   renderPass = function(){
     _rp.apply(this, arguments);
-    const l = level(), fr = skfFrame(l), head = $("#passHead");
+    const l = level(), fr = curFrame(), cv = curCover(), head = $("#passHead");
     if(head){
-      head.classList.toggle("cv-nuit", l >= 9);
+      head.classList.remove(...[...head.classList].filter(c=>c.startsWith("cv-")));
+      if(cv !== "clair") head.classList.add("cv-dark", "cv-"+cv);
       if(!head.querySelector(".perks")){
         const note = head.querySelector(".xpnote");
         if(note) note.insertAdjacentHTML("afterend", perksHTML()); else head.insertAdjacentHTML("beforeend", perksHTML());
       }
+      const old = $("#cosBox"); if(old) old.remove();
+      head.insertAdjacentHTML("afterend", cosHTML()); bindCos($("#cosBox"));
     }
     document.querySelectorAll(".avring,.idc-photo").forEach(el=>{
-      el.classList.remove("fr-bronze","fr-argent","fr-or","fr-myth"); if(fr) el.classList.add("fr-"+fr);
+      el.classList.remove(...[...el.classList].filter(c=>c.startsWith("fr-"))); if(fr !== "aucun") el.classList.add("fr-"+fr);
     });
-    document.querySelectorAll(".idcard.idc").forEach(el=>el.classList.toggle("idc-gold", l >= 11));
+    document.querySelectorAll(".idcard.idc").forEach(el=>el.classList.toggle("idc-gold", l >= 37));
+    document.body.classList.toggle("skf-l40", l >= 40);
   };
+  /* Couleurs d'emblème verrouillées dans la création du passeport */
+  const lockSw = ()=>document.querySelectorAll('.swb[data-k="bg"]').forEach(b=>{ const i = +b.dataset.i, need = embLv(i);
+    if(need > level() && !b.disabled){ b.disabled = true; b.dataset.lock = need; b.title = t("Niveau {n}",{n:need}); } });
+  new MutationObserver(lockSw).observe(document.body, {childList:true, subtree:true});
+  setTimeout(applyCos, 0);
 })();
 
 Object.assign(EN, {
- "Ce que débloquent les niveaux":"What levels unlock","Prochain : {x}, au niveau {n}":"Next: {x}, at level {n}","Tout est débloqué.":"Everything is unlocked."
+ "Ce que débloquent les niveaux":"What levels unlock","Prochain : {x}, au niveau {n}":"Next: {x}, at level {n}","Tout est débloqué.":"Everything is unlocked.",
+ "Personnaliser":"Customise","Ce que tu as gagné, à toi de choisir.":"What you've earned, yours to choose.","Thème du globe":"Globe theme","Cadre de l'emblème":"Emblem frame",
+ "Couverture du passeport":"Passport cover","Couleur de l'emblème":"Emblem colour","Crée ton passeport pour choisir la couleur de ton emblème.":"Create your passport to choose your emblem colour.",
+ "Les couleurs de l'icône se choisissent dans les réglages.":"App icon colours are chosen in the settings.","Se débloque au niveau {n}.":"Unlocks at level {n}.",
+ "avant le niveau {n}":"before level {n}"
 });
 
 /* ---------- Partage : tampon et résultat en format story (1080×1920), avec l'adresse du site ---------- */
@@ -10287,54 +10377,125 @@ Object.assign(EN, {
  "Sur Sankofa, l'atlas des peuples éprouvés :":"On Sankofa, the atlas of peoples in crisis:"
 });
 
-/* ---------- Bienvenue : trois écrans à la première visite, qu'on peut passer ---------- */
+/* ---------- Tutoriel : 4 étapes sur les vraies pages, avec une main animée ---------- */
 (function(){
-  const KEY = "skf-welcome";
+  const KEY = "skf-tuto", DEMO = "colombie";
+  const HAND = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 26V10.5a3.5 3.5 0 0 1 7 0V22l9.6 2a4 4 0 0 1 3.1 4.5L37 39a5 5 0 0 1-5 4H22.5a5 5 0 0 1-4-2l-7.3-9.6a3 3 0 0 1 4.4-4L19 30" fill="#fff" stroke="#121315" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  const STEPS = [
+    {route:"globe", h:"Tourne le globe.", p:"Fais glisser ton doigt pour tourner la Terre. Chaque pays en couleur est une crise expliquée. Touche-le pour l'ouvrir.", run:"globe"},
+    {route:"pays-"+DEMO, h:"Lis la fiche.", p:"En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le parcours.", run:"fiche"},
+    {route:"quiz-"+DEMO, h:"Passe les niveaux.", p:"Découverte, Initié, Expert, puis le Défi légendaire. Chaque niveau réussi ouvre le suivant.", run:"quiz"},
+    {route:"passeport", h:"Remplis ton passeport.", p:"Chaque parcours réussi te donne un tampon. En montant de niveau, tu débloques des thèmes du globe, des cadres et le vote du mois.", run:"pass"}
+  ];
+  let root = null, k = 0, timers = [], prev = null;
+  const later = (f, ms)=>timers.push(setTimeout(f, ms));
+  const clearT = ()=>{ timers.forEach(clearTimeout); timers = []; };
+  const idOf = s=>Object.keys(C).find(x=>C[x].slug === s);
+
+  function spot(el, pad){
+    if(!root) return; const r = root.querySelector(".tuspot");
+    if(!el){ r.classList.remove("on"); return; }
+    const b = el.getBoundingClientRect(), p = pad ?? 8;
+    Object.assign(r.style, {left:(b.left - p)+"px", top:(b.top - p)+"px", width:(b.width + p*2)+"px", height:(b.height + p*2)+"px"});
+    r.classList.add("on");
+  }
+  function hand(x, y, cls){ if(!root) return; const h = root.querySelector(".tuhand"); h.className = "tuhand on " + (cls||""); h.style.left = x+"px"; h.style.top = y+"px"; }
+  function noHand(){ if(root) root.querySelector(".tuhand").className = "tuhand"; }
+  function centerOf(el){ const b = el.getBoundingClientRect(); return [b.left + b.width/2, b.top + b.height/2]; }
+  function into(el, then){ if(!el) return then(); el.scrollIntoView({block:"center", behavior:"smooth"}); later(then, 550); }
+
+  const RUN = {
+    globe(){
+      const g = $("#globe"); if(!g) return;
+      const [cx, cy] = centerOf(g);
+      hand(cx + 40, cy + 20, "drag");
+      later(()=>{ const id = idOf(DEMO); if(id && typeof focusCountry === "function") try{ focusCountry(id); }catch(e){} }, 1900);
+      later(()=>hand(cx, cy, "tap"), 2700);
+    },
+    fiche(){
+      const r = $("#paysIn .resume") || $(".resume");
+      into(r, ()=>{ spot(r, 10); noHand();
+        later(()=>{ const b = [...document.querySelectorAll(".pact .cta")].find(a=>/quiz-/.test(a.getAttribute("href")||""));
+          into(b, ()=>{ if(!b) return; spot(b, 8); const [x, y] = centerOf(b); hand(x + 10, y + 6, "tap"); }); }, 2200); });
+    },
+    quiz(){
+      const box = $("#lvls"); if(!box) return;
+      window.scrollTo({top:0, behavior:"smooth"});
+      later(()=>{ spot(box, 10); const ls = [...box.querySelectorAll(".lvl")];
+        ls.forEach((b, i)=>later(()=>b.classList.add("tuglow"), 300 + i*380));
+        later(()=>{ ls.forEach(b=>b.classList.remove("tuglow")); if(ls[0]){ const [x, y] = centerOf(ls[0]); hand(x + 60, y + 4, "tap"); } }, 300 + ls.length*380 + 400); }, 450);
+    },
+    pass(){
+      window.scrollTo({top:0, behavior:"smooth"});
+      const st = root && root.querySelector(".tustamp"), id = idOf(DEMO);
+      if(st && id){ st.innerHTML = stampSVG(id, 1, new Date().toLocaleDateString("fr-FR")); st.classList.remove("press"); void st.offsetWidth; st.classList.add("press"); }
+      later(()=>{ if(st) st.classList.remove("press"); const cb = $("#cosBox"); if(cb){ cb.scrollIntoView({block:"start", behavior:"smooth"}); later(()=>spot(cb, 6), 600); } }, 1900);
+    }
+  };
+
+  function go(){
+    clearT(); noHand(); spot(null);
+    const s = STEPS[k], st = root.querySelector(".tustamp");
+    st.classList.remove("press"); st.innerHTML = "";
+    document.querySelectorAll(".tuglow").forEach(b=>b.classList.remove("tuglow"));
+    root.querySelector(".tutxt").innerHTML = `<div class="eyebrow">${k+1} / ${STEPS.length}</div><h2 id="tuH">${t(s.h)}</h2><p>${t(s.p)}</p>`;
+    root.querySelectorAll(".tudots i").forEach((d, j)=>d.classList.toggle("on", j === k));
+    root.querySelector(".tunext").textContent = k === STEPS.length - 1 ? t("C'est parti") : t("Suivant");
+    if(location.hash !== "#"+s.route) location.hash = s.route;
+    later(()=>RUN[s.run](), 750);
+    if(window.skfEvent) skfEvent("tuto", "step"+(k+1));
+  }
+  function close(done){
+    clearT();
+    try{ localStorage.setItem(KEY, "1"); localStorage.setItem("skf-welcome", "1"); }catch(e){}
+    document.removeEventListener("keydown", key);
+    if(root){ root.classList.remove("on"); const r = root; setTimeout(()=>r.remove(), 250); root = null; }
+    document.querySelectorAll(".tuglow").forEach(b=>b.classList.remove("tuglow"));
+    location.hash = "globe";
+    if(window.skfEvent) skfEvent("tuto", done ? "done" : "skip");
+    if(prev && prev.focus) try{ prev.focus(); }catch(e){}
+  }
+  const key = e=>{ if(e.key === "Escape") close(false); };
+
+  window.skfTutorial = function(){
+    if(root) return;
+    k = 0; prev = document.activeElement;
+    root = document.createElement("div"); root.id = "skfTuto"; root.className = "turoot";
+    root.innerHTML = `<div class="tublock"></div><div class="tuspot"></div><div class="tuhand">${HAND}</div><div class="tustamp" aria-hidden="true"></div>
+      <div class="tucard" role="dialog" aria-modal="true" aria-labelledby="tuH" tabindex="-1"><div class="tutxt"></div>
+      <div class="tufoot"><button type="button" class="tuskip">${t("Passer")}</button><div class="tudots" aria-hidden="true">${STEPS.map(()=>"<i></i>").join("")}</div><button type="button" class="cta tunext"></button></div></div>`;
+    document.body.appendChild(root);
+    root.querySelector(".tuskip").onclick = ()=>close(false);
+    root.querySelector(".tunext").onclick = ()=>{ if(k < STEPS.length - 1){ k++; go(); } else close(true); };
+    document.addEventListener("keydown", key);
+    requestAnimationFrame(()=>{ if(!root) return; root.classList.add("on"); root.querySelector(".tucard").focus(); });
+    go();
+  };
+
+  /* « Revoir le tutoriel » dans les réglages */
+  function inject(){
+    const p = document.getElementById("setPop"); if(!p || p.querySelector(".settuto")) return;
+    const links = p.querySelector(".setlinks"); if(!links) return;
+    links.insertAdjacentHTML("afterbegin", `<a href="#globe" class="settuto">${t("Revoir le tutoriel")}</a>`);
+    p.querySelector(".settuto").onclick = e=>{ e.preventDefault(); p.classList.remove("show","open","on"); document.body.click(); setTimeout(window.skfTutorial, 250); };
+  }
+  const pop = document.getElementById("setPop"); if(pop) new MutationObserver(inject).observe(pop, {childList:true}); inject();
+
+  /* Première visite, en arrivant sur le globe */
   let seen = false; try{ seen = !!localStorage.getItem(KEY); }catch(e){ seen = true; }
   if(seen) return;
-  const ICO = {
-    globe:'<circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c7 7 7 37 0 44M32 10c-7 7-7 37 0 44"/>',
-    quiz:'<rect x="12" y="10" width="40" height="44" rx="8"/><path d="M22 26l4 4 8-8M22 42h20"/>',
-    pass:'<rect x="14" y="8" width="36" height="48" rx="5"/><circle cx="32" cy="28" r="9"/><path d="M24 46h16"/>'
-  };
-  const STEPS = [
-    {i:"globe", h:"Tourne le globe.", p:"42 pays et peuples éprouvés. Touche un pays pour comprendre sa crise en 3 minutes, chiffres sourcés et datés."},
-    {i:"quiz",  h:"Teste-toi.", p:"Chaque pays a son parcours de quiz, du niveau Découverte au Défi légendaire. Les questions changent à chaque essai."},
-    {i:"pass",  h:"Remplis ton passeport.", p:"Chaque parcours réussi te donne un tampon. Monte de niveau pour débloquer des couleurs, des cadres et le vote du mois."}
-  ];
-  function open(){
-    if(document.getElementById("skfWel")) return;
-    const h = location.hash.slice(1);
-    if(h && h !== "globe") return;
-    let k = 0, prev = document.activeElement;
-    const el = document.createElement("div"); el.id = "skfWel"; el.className = "welroot";
-    el.innerHTML = `<div class="welcard" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="welH"><div class="welbody"></div>
-      <div class="welfoot"><button type="button" class="welskip">${t("Passer")}</button><div class="weldots" aria-hidden="true">${STEPS.map(()=>"<i></i>").join("")}</div><button type="button" class="cta welnext"></button></div></div>`;
-    document.body.appendChild(el);
-    const close = ()=>{ try{ localStorage.setItem(KEY, "1"); }catch(e){} el.classList.remove("on"); setTimeout(()=>el.remove(), 250); document.removeEventListener("keydown", key); if(prev && prev.focus) prev.focus(); };
-    const key = e=>{ if(e.key === "Escape") close(); };
-    const draw = ()=>{
-      const s = STEPS[k];
-      el.querySelector(".welbody").innerHTML = `<div class="welico"><svg viewBox="0 0 64 64" aria-hidden="true">${ICO[s.i]}</svg></div><div class="eyebrow">${k+1} / ${STEPS.length}</div><h2 id="welH">${t(s.h)}</h2><p>${t(s.p)}</p>`;
-      el.querySelectorAll(".weldots i").forEach((d, j)=>d.classList.toggle("on", j === k));
-      const nx = el.querySelector(".welnext"); nx.textContent = k === STEPS.length - 1 ? t("C'est parti") : t("Suivant"); if(k) nx.focus(); else el.querySelector(".welcard").focus();
-    };
-    el.querySelector(".welskip").onclick = close;
-    el.querySelector(".welnext").onclick = ()=>{ if(k < STEPS.length - 1){ k++; draw(); } else close(); };
-    el.onclick = e=>{ if(e.target === el) close(); };
-    document.addEventListener("keydown", key);
-    draw(); requestAnimationFrame(()=>el.classList.add("on"));
-    if(window.skfEvent) skfEvent("welcome", "open");
-  }
+  const h0 = location.hash.slice(1); if(h0 && h0 !== "globe") return;
+  if(/^\/[a-z-]+\/$/.test(location.pathname)) return;
   let n = 0;
-  const wait = setInterval(()=>{ n++; if(!document.getElementById("splash") || n > 40){ clearInterval(wait); setTimeout(open, 700); } }, 250);
+  const wait = setInterval(()=>{ n++; if(!document.getElementById("splash") || n > 40){ clearInterval(wait); setTimeout(()=>{ const hh = location.hash.slice(1); if(!hh || hh === "globe") window.skfTutorial(); }, 700); } }, 250);
 })();
 
 Object.assign(EN, {
- "Passer":"Skip","Mise à jour : {d}":"Updated: {d}","Suivant":"Next","C'est parti":"Let's go",
- "Tourne le globe.":"Spin the globe.","42 pays et peuples éprouvés. Touche un pays pour comprendre sa crise en 3 minutes, chiffres sourcés et datés.":"42 countries and peoples in crisis. Tap a country to understand its crisis in 3 minutes, with sourced and dated figures.",
- "Teste-toi.":"Test yourself.","Chaque pays a son parcours de quiz, du niveau Découverte au Défi légendaire. Les questions changent à chaque essai.":"Each country has its quiz course, from Discovery to the Legendary challenge. The questions change every time.",
- "Remplis ton passeport.":"Fill your passport.","Chaque parcours réussi te donne un tampon. Monte de niveau pour débloquer des couleurs, des cadres et le vote du mois.":"Each course you pass gives you a stamp. Level up to unlock colours, frames and the monthly vote."
+ "Passer":"Skip","Suivant":"Next","C'est parti":"Let's go","Mise à jour : {d}":"Updated: {d}","Revoir le tutoriel":"Replay the tutorial",
+ "Tourne le globe.":"Spin the globe.","Fais glisser ton doigt pour tourner la Terre. Chaque pays en couleur est une crise expliquée. Touche-le pour l'ouvrir.":"Swipe to spin the Earth. Each coloured country is an explained crisis. Tap it to open it.",
+ "Lis la fiche.":"Read the page.","En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le parcours.":"In 3 minutes: the summary, sourced and dated figures, the history. Then start the course.",
+ "Passe les niveaux.":"Clear the levels.","Découverte, Initié, Expert, puis le Défi légendaire. Chaque niveau réussi ouvre le suivant.":"Discovery, Initiate, Expert, then the Legendary challenge. Each level you pass opens the next.",
+ "Remplis ton passeport.":"Fill your passport.","Chaque parcours réussi te donne un tampon. En montant de niveau, tu débloques des thèmes du globe, des cadres et le vote du mois.":"Each course you pass gives you a stamp. As you level up, you unlock globe themes, frames and the monthly vote."
 });
 
 /* ================= DÉMARRAGE ================= */

@@ -1605,9 +1605,58 @@ body.livemode{overflow:hidden}
 @keyframes frmyth{50%{box-shadow:0 0 0 3px #D8475C,0 0 26px 4px color-mix(in srgb,#B4233A 55%,transparent)}}
 @media (prefers-reduced-motion:reduce){.avring.fr-myth,.idc-photo.fr-myth{animation:none}}
 
-/* Couverture Nuit (niveau 9) */
-.passport.cv-nuit{background:radial-gradient(700px 320px at 100% 0%,color-mix(in srgb,var(--pc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1A1D24,#0F1115)!important;color:#F1F2F4;--ink:#F1F2F4;--ink2:#BFC3CA;--line:rgba(255,255,255,.14);--surface2:rgba(255,255,255,.08)}
-.passport.cv-nuit h2,.passport.cv-nuit b{color:#F1F2F4}
+/* Couvertures du passeport */
+.passport.cv-dark{color:#F1F2F4;--ink:#F1F2F4;--ink2:#C3C7CE;--line:rgba(255,255,255,.14);--surface2:rgba(255,255,255,.08)}
+.passport.cv-dark h2,.passport.cv-dark b{color:#F1F2F4}
+.passport.cv-nuit{background:radial-gradient(700px 320px at 100% 0%,color-mix(in srgb,var(--pc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1A1D24,#0F1115)!important}
+.passport.cv-ocean{background:radial-gradient(600px 300px at 100% 0%,rgba(90,170,255,.22),transparent 70%),linear-gradient(180deg,#123A5E,#0A1B2E)!important}
+.passport.cv-foret{background:radial-gradient(600px 300px at 100% 0%,rgba(110,200,140,.18),transparent 70%),linear-gradient(180deg,#17402B,#0B1F15)!important}
+.passport.cv-prune{background:radial-gradient(600px 300px at 100% 0%,rgba(190,140,255,.2),transparent 70%),linear-gradient(180deg,#371A44,#190B21)!important}
+.passport.cv-rouge{background:radial-gradient(600px 300px at 100% 0%,rgba(255,110,130,.2),transparent 70%),linear-gradient(180deg,#5A1322,#24070D)!important}
+.passport.cv-carte{background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.13) 1.2px,transparent 1.6px) 0 0/14px 14px,radial-gradient(600px 300px at 100% 0%,rgba(180,35,58,.22),transparent 70%),linear-gradient(180deg,#14161B,#0D0E12)!important}
+
+/* Cadres supplémentaires */
+.avring.fr-rouge{box-shadow:0 0 0 3px #B4233A,0 0 0 6px color-mix(in srgb,#B4233A 30%,transparent)}
+.idc-photo.fr-rouge{box-shadow:0 0 0 3px #B4233A}
+.avring.fr-globe,.idc-photo.fr-globe{box-shadow:0 0 0 3px #2F7FD8,0 0 0 6px #2E9E6A,0 0 0 8px color-mix(in srgb,#2F7FD8 25%,transparent)}
+.avring.fr-aurore,.idc-photo.fr-aurore{box-shadow:0 0 0 3px #4FE0B8,0 0 22px 3px rgba(122,85,245,.5);animation:fraur 4s ease-in-out infinite}
+@keyframes fraur{0%,100%{box-shadow:0 0 0 3px #4FE0B8,0 0 22px 3px rgba(122,85,245,.45)}50%{box-shadow:0 0 0 3px #A774D6,0 0 28px 5px rgba(79,224,184,.5)}}
+@media (prefers-reduced-motion:reduce){.avring.fr-aurore,.idc-photo.fr-aurore{animation:none}}
+
+/* Personnaliser */
+.cosbox{margin-top:16px;padding:22px}
+.cosbox h3{margin:6px 0 4px;font-family:var(--display);font-weight:400;font-size:28px;line-height:1.1}
+.cosgrp{margin-top:18px}
+.cosgrp>b{display:block;font-size:14px;font-weight:600;margin-bottom:10px}
+.cosrow{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none}
+.cosrow::-webkit-scrollbar{display:none}
+.cosopt{flex:none;width:64px;display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;padding:4px 0;font:inherit;cursor:pointer;color:var(--ink2)}
+.cossw{display:block;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--cs1,#ccc),var(--cs2,#eee));box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);transition:transform .15s}
+.cossw.cover{border-radius:10px;width:42px;height:54px}
+.cossw.frame{background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line)}
+.cossw.f-bronze{box-shadow:inset 0 0 0 4px #A86A3D}.cossw.f-argent{box-shadow:inset 0 0 0 4px #A9AFB8}.cossw.f-or{box-shadow:inset 0 0 0 4px #B88A2C}.cossw.f-rouge{box-shadow:inset 0 0 0 4px #B4233A}
+.cossw.f-globe{box-shadow:inset 0 0 0 3px #2F7FD8,inset 0 0 0 6px #2E9E6A}.cossw.f-aurore{box-shadow:inset 0 0 0 4px #4FE0B8,0 0 12px rgba(122,85,245,.5)}
+.cosn{font-size:12px;line-height:1.2;text-align:center}
+.cosopt[aria-pressed="true"] .cossw{outline:2.5px solid var(--ink);outline-offset:3px}
+.cosopt[aria-pressed="true"] .cosn{color:var(--ink);font-weight:600}
+.cosopt:hover .cossw{transform:scale(1.05)}
+.cosopt[data-lock] .cossw{opacity:.55;position:relative}
+.cosopt[data-lock] .cossw::after{content:"";position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.4%27 stroke-linecap=%27round%27%3E%3Crect x=%276%27 y=%2711%27 width=%2712%27 height=%279%27 rx=%272%27/%3E%3Cpath d=%27M9 11V8a3 3 0 0 1 6 0v3%27/%3E%3C/svg%3E") center/12px no-repeat;box-shadow:0 0 0 2px var(--surface)}
+.cosopt[data-lock] .cosn{color:var(--ink3,#888)}
+.pkc{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--ink2);font-weight:400;margin-left:auto;margin-right:12px}
+.swb[data-lock]{opacity:.3;filter:grayscale(1);cursor:not-allowed}
+
+/* Thème Aurore : lueur animée derrière le globe */
+html[data-globe=aurore] #stage{position:relative}
+html[data-globe=aurore] #stage::before{content:"";position:absolute;left:50%;top:50%;width:80%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(from 0deg,rgba(79,224,184,.0),rgba(79,224,184,.35),rgba(122,85,245,.35),rgba(79,224,184,.0));filter:blur(40px);animation:aurspin 14s linear infinite;pointer-events:none;z-index:0}
+html[data-globe=aurore] #globe{position:relative;z-index:1}
+@keyframes aurspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){html[data-globe=aurore] #stage::before{animation:none}}
+
+/* Niveau 40 : tampons animés */
+body.skf-l40 .slot .stampwrap svg,body.skf-l40 .reveal .stampwrap svg{animation:stamplive 5s ease-in-out infinite}
+@keyframes stamplive{0%,100%{transform:rotate(-2deg);filter:drop-shadow(0 0 0 rgba(180,35,58,0))}50%{transform:rotate(2deg);filter:drop-shadow(0 0 8px rgba(180,35,58,.45))}}
+@media (prefers-reduced-motion:reduce){body.skf-l40 .stampwrap svg{animation:none}}
 
 /* Carte d'identité Sankofa (niveau 11) */
 .idcard.idc.idc-gold{box-shadow:0 0 0 2px #B4233A,0 18px 44px -20px rgba(120,20,30,.55)}
@@ -1620,20 +1669,34 @@ body.livemode{overflow:hidden}
 .mbox.share .cardprev img{max-height:58vh;width:auto;max-width:100%;border-radius:14px;display:block;margin:0 auto}
 .mbox.share #shareAct{flex-wrap:wrap;justify-content:center}
 .mbox.share #shareAct a.cta{text-decoration:none;display:inline-flex;align-items:center}
-.welroot{position:fixed;inset:0;z-index:95;display:flex;align-items:flex-end;justify-content:center;padding:16px;background:rgba(10,11,14,.42);opacity:0;transition:opacity .25s}
-.welroot.on{opacity:1}
-@media(min-width:640px){.welroot{align-items:center}}
-.welcard{width:100%;max-width:440px;background:var(--surface);color:var(--ink);border-radius:26px;padding:28px 24px 18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);transform:translateY(16px);transition:transform .3s}
-.welroot.on .welcard{transform:none}
-.welico{width:72px;height:72px;border-radius:20px;background:var(--surface2);display:grid;place-items:center;margin-bottom:18px}
-.welico svg{width:44px;height:44px;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.welcard h2{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:40px;line-height:1.02}
-.welcard p{margin:12px 0 0;font-size:16.5px;line-height:1.5;color:var(--ink2)}
-.welfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}
-.welskip{border:0;background:none;font:inherit;font-size:15px;color:var(--ink2);min-height:44px;padding:0 6px;cursor:pointer}
-.weldots{display:flex;gap:6px}
-.weldots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
-.weldots i.on{background:var(--ink);width:20px;border-radius:4px;transition:width .2s}
-@media (prefers-reduced-motion:reduce){.welroot,.welcard{transition:none}}
-.welcard:focus{outline:none}
+.turoot{position:fixed;inset:0;z-index:95;pointer-events:none;opacity:0;transition:opacity .25s}
+.turoot.on{opacity:1}
+.tublock{position:absolute;inset:0;pointer-events:auto;background:rgba(10,11,14,.0)}
+.tuspot{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(10,11,14,.5);opacity:0;transition:all .45s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.tuspot.on{opacity:1;outline:2.5px solid #fff;outline-offset:2px}
+.tuhand{position:fixed;width:52px;height:52px;margin:-6px 0 0 -14px;opacity:0;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));transition:left .5s,top .5s,opacity .3s;z-index:2}
+.tuhand.on{opacity:1}
+.tuhand svg{width:100%;height:100%}
+.tuhand.drag{animation:tudrag 1.8s ease-in-out 1}
+.tuhand.tap{animation:tutap 1s ease-in-out infinite}
+@keyframes tudrag{0%{transform:translateX(0)}50%{transform:translateX(-110px)}100%{transform:translateX(0)}}
+@keyframes tutap{0%,100%{transform:scale(1)}45%{transform:scale(.82)}}
+.tuhand.tap::after{content:"";position:absolute;left:10px;top:2px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;animation:turing 1s ease-out infinite}
+@keyframes turing{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+.tustamp{position:fixed;left:50%;top:30%;width:200px;height:200px;margin:-100px 0 0 -100px;opacity:0;pointer-events:none;z-index:2}
+.tustamp .stampwrap,.tustamp svg{width:100%;height:100%}
+.tustamp.press{animation:tupress 1.7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes tupress{0%{opacity:0;transform:scale(1.8) rotate(-14deg)}35%{opacity:1;transform:scale(.94) rotate(-6deg)}50%{transform:scale(1.02) rotate(-6deg)}80%{opacity:1}100%{opacity:0;transform:scale(1) rotate(-6deg)}}
+.tucard{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom));max-width:460px;margin:0 auto;background:var(--surface);color:var(--ink);border-radius:24px;padding:20px 20px 12px;box-shadow:0 24px 60px -16px rgba(0,0,0,.55);pointer-events:auto;z-index:3}
+.tucard:focus{outline:none}
+@media(min-width:900px){.tucard{bottom:32px}}
+.tucard h2{margin:4px 0 0;font-family:var(--display);font-weight:400;font-size:32px;line-height:1.05}
+.tucard p{margin:8px 0 0;font-size:15.5px;line-height:1.45;color:var(--ink2)}
+.tufoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.tuskip{border:0;background:none;font:inherit;font-size:15px;color:var(--ink2);min-height:44px;padding:0 6px;cursor:pointer}
+.tudots{display:flex;gap:6px}
+.tudots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.tudots i.on{background:var(--ink);width:20px;border-radius:4px;transition:width .2s}
+.lvl.tuglow{box-shadow:0 0 0 3px var(--ink),0 10px 26px -10px rgba(0,0,0,.4)!important;transform:translateY(-2px);transition:all .25s}
+@media (prefers-reduced-motion:reduce){.turoot,.tuspot,.tuhand{transition:none}.tuhand.drag,.tuhand.tap,.tuhand.tap::after,.tustamp.press{animation:none}.tustamp.press{opacity:1}}
 .nvacts{flex-direction:column;align-items:center}.nvacts .cta.ghost{background:transparent!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1.5px var(--line)!important;margin:0!important}.nvacts .cta{margin:0!important}
