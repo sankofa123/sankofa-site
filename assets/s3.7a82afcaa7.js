@@ -210,7 +210,7 @@
   var cur = null;
   function startPage(p){ cur = {p:p, t:Date.now(), pct:0}; }
   function scrollPct(){ if(!cur) return; var h = document.documentElement.scrollHeight - innerHeight; var x = h > 40 ? Math.round(100 * scrollY / h) : 100; if(x > cur.pct) cur.pct = Math.min(100, x); }
-  addEventListener("scroll", scrollPct, {passive:true});
+  var spT = 0; addEventListener("scroll", function(){ if(spT) return; spT = setTimeout(function(){ spT = 0; scrollPct(); }, 400); }, {passive:true});
   function endPage(){ if(!cur) return; var sec = Math.round((Date.now() - cur.t) / 1000); var c = cur; cur = null;
     if(sec >= 2) send({path:c.p.slice(0,110), ev:"time", meta:Math.min(sec, 1800) + "|" + c.pct}); }
   document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "hidden") endPage(); else if(!cur) startPage(page()); });

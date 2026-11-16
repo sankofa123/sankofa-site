@@ -1760,7 +1760,7 @@ html[data-fs="3"] #v-globe .rail,html[data-fs="3"] #v-globe .sect{zoom:1.25}
 .dlink.qlink{margin-top:-10px;box-shadow:var(--shadow),inset 0 0 0 1.5px var(--ink)}
 .dlink.qlink .dli{background:var(--ink);color:var(--bg)}
 /* Fenêtres : la page derrière ne défile plus */
-html:has(#modal.show),html:has(body.sheeton),html:has(#skfLive){overflow:hidden}
+html.skf-lock{overflow:hidden}
 .mbox,.sheetbody,.modal{overscroll-behavior:contain}
 .modal.show{overflow-y:auto}
 .qpill{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translate(-50%,16px);z-index:40;display:none;align-items:center;gap:8px;padding:0 16px 0 12px;min-height:44px;border-radius:999px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14.5px;text-decoration:none;box-shadow:0 14px 34px -12px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
@@ -1768,7 +1768,7 @@ html:has(#modal.show),html:has(body.sheeton),html:has(#skfLive){overflow:hidden}
 .qpill i{font-style:normal;opacity:.7}
 .qpill.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 @media(max-width:760px){.qpill{display:inline-flex}}
-html:has(#modal.show) .qpill,html:has(body.sheeton) .qpill,html:has(#skfTuto) .qpill{display:none}
+html.skf-lock .qpill,html.skf-tuto .qpill{display:none}
 @media (prefers-reduced-motion:reduce){.qpill{transition:none}}
 
 /* ---------- Pages de visas ---------- */
@@ -1780,7 +1780,8 @@ html:has(#modal.show) .qpill,html:has(body.sheeton) .qpill,html:has(#skfTuto) .q
 .vgrid{position:relative;margin:0 auto}
 .vst{position:absolute;display:grid;place-items:center;transform:rotate(var(--rot));mix-blend-mode:multiply}
 .vst .stampwrap{width:100%;height:100%;margin:0;transform:none!important;animation:none!important;background:none!important;box-shadow:none!important}
-.vst svg{width:100%;height:100%;display:block;filter:var(--f);animation:none!important}
+.vst svg{width:100%;height:100%;display:block;animation:none!important}
+.vgrid{filter:url(#skfInk1)}
 .vst svg [fill-opacity=".06"],.vst svg [fill-opacity=".08"]{fill-opacity:0}
 .vst.new{opacity:0}
 .vst.press{animation:vpress .5s cubic-bezier(.5,0,.9,.4) both}
@@ -1833,3 +1834,6 @@ body.st-encre #stamps .slot .stampwrap svg [fill-opacity=".06"]{fill-opacity:0}
 .vst .stampwrap::before,.vst .stampwrap::after,body.st-encre #stamps .slot .stampwrap::before,body.st-encre #stamps .slot .stampwrap::after{display:none!important}
 body.st-encre #stamps .slot .stampwrap{filter:none!important}
 @media(max-width:760px){.stamps{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+
+/* Le navigateur ne dessine les sections du passeport que lorsqu'elles approchent de l'écran */
+#visaSect,#launchSect,#cards,#badges{content-visibility:auto;contain-intrinsic-size:auto 600px}

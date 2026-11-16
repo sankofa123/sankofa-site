@@ -1424,6 +1424,13 @@ const F110 = topojson.feature(TOPO, TOPO.objects.countries).features;
 const F50 = topojson.feature(TOPO50, TOPO50.objects.countries).features;
 const featById = {}; F50.forEach(f=>featById[f.id]=f);
 const DATA_F = F50.filter(f=>C[f.id]);
+/* Version allégée des contours, pour le globe en mouvement ou vu de loin (environ 8 fois moins de points) */
+const liteRing = (ring, tol)=>{ const out = [ring[0]]; let lp = ring[0];
+  for(let i = 1; i < ring.length - 1; i++){ const p = ring[i]; if(Math.abs(p[0]-lp[0]) + Math.abs(p[1]-lp[1]) >= tol){ out.push(p); lp = p; } }
+  out.push(ring[ring.length-1]); return out.length >= 4 ? out : ring; };
+const liteGeom = (g, tol)=>g.type === "Polygon" ? {type:"Polygon", coordinates:g.coordinates.map(r=>liteRing(r, tol))}
+  : g.type === "MultiPolygon" ? {type:"MultiPolygon", coordinates:g.coordinates.map(p=>p.map(r=>liteRing(r, tol)))} : g;
+const DATA_LITE = DATA_F.map(f=>({type:"Feature", id:f.id, properties:f.properties, geometry:liteGeom(f.geometry, .35)}));
 const CENTER_FIX = {"275":[34.9,31.9],"643":[45,56],"104":[93,20.5]};
 const CENTC = {}; const centroid = id => CENTC[id] || (CENTC[id] = CENTER_FIX[id] || d3.geoCentroid(featById[id]));
 
@@ -1457,7 +1464,8 @@ function silhouette(canvas,id,color,opts={}){
   }
   render(0);
   if(opts.animate && !reduce){
-    (function loop(t){ if(!document.body.contains(canvas)) return; render(t); requestAnimationFrame(loop); })(0);
+    let lastS = -99;
+    (function loop(t){ if(!document.body.contains(canvas)) return; if(t - lastS > 40 && canvas.offsetParent && !document.hidden){ lastS = t; render(t); } requestAnimationFrame(loop); })(0);
   }
 }
 function svgPath(id,box){
@@ -1529,7 +1537,7 @@ function gDraw(now){
   const baseF = (zk>=1.9 && !moving && !anim) ? F50 : F110;
   gx.beginPath(); for(const f of baseF) gpath(f);
   gx.fillStyle = "#FBFBF9"; gx.fill(); gx.strokeStyle = "rgba(90,100,120,.22)"; gx.lineWidth = .5; gx.stroke();
-  for(const f of DATA_F){
+  for(const f of (baseF === F50 ? DATA_F : DATA_LITE)){
     const col = fillFor(f.id); if(!col) continue;
     gx.beginPath(); gpath(f); gx.fillStyle = col; gx.fill();
     gx.strokeStyle = hover===f.id ? "#121315" : "rgba(255,255,255,.75)"; gx.lineWidth = hover===f.id?1.4:.6; gx.stroke();
@@ -1560,9 +1568,9 @@ let inView = true;
 new IntersectionObserver(es=>{ inView = es[0].isIntersecting; },{threshold:0}).observe(stage);
 function gLoop(now){
   if(gVisible() && inView){
-    if(!reduce && !anim && !tourOn && now-lastI>2500 && !hover && zk<1.2){ rot[0]+=0.06; proj.rotate(rot); dirty = true; }
-    // Pendant un geste : à chaque image. Au repos : 30 images par seconde suffisent pour les pulsations.
-    if(dirty || moving || anim || now-lastDraw>33) gDraw(now);
+    // Rotation douce au repos, 30 images par seconde : deux fois moins de calcul, invisible à l'œil.
+    if(!reduce && !anim && !tourOn && now-lastI>2500 && !hover && zk<1.2 && now-lastDraw>33){ rot[0]+=0.06*Math.min(3,(now-lastDraw)/16.7); proj.rotate(rot); dirty = true; }
+    if(moving || anim || ((dirty || now-lastDraw>33) && now-lastDraw>30)) gDraw(now);
   }
   requestAnimationFrame(gLoop);
 }
@@ -3517,7 +3525,8 @@ function updOf(id){
 const LEGAL = {
  fr:{
   mentions:`<div class="eyebrow">Informations légales</div><h2>Mentions légales</h2><p class="lupd">Dernière mise à jour : 16 novembre 2026</p>
-   <h3>Éditeur</h3><p>Sankofa est un projet éducatif indépendant et non commercial, édité par une personne physique agissant à titre non professionnel.<br>Contact : <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>Conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, l'éditeur a choisi de ne pas rendre publics son nom et son adresse, et a communiqué ses éléments d'identification à l'hébergeur.</p>
+   <h3>Éditeur</h3><p>Sankofa est un projet éducatif indépendant et non commercial, créé et édité par Noham Deshouilleres Battikh, personne physique agissant à titre non professionnel.<br>Contact : <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>Conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, l'éditeur a communiqué son adresse postale à l'hébergeur.</p>
+   <h3>Directeur de la publication</h3><p>Noham Deshouilleres Battikh.</p>
    <h3>Hébergement</h3><p>Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, États-Unis. Site : netlify.com.<br>La progression, les comptes et les données synchronisées sont hébergés par Supabase, Inc., sur des serveurs situés à Francfort (Allemagne).</p>
    <h3>Contenus et sources</h3><p>Les textes, la mise en page, le logo et le nom Sankofa sont protégés. Les chiffres appartiennent aux organisations qui les publient : chacun renvoie à sa source et porte sa date. Sankofa est un outil de formation et ne remplace pas les rapports d'origine.</p>
    <h3>Crédits</h3><p>Fonds de carte : Natural Earth (domaine public), via world-atlas. Bibliothèques : D3 et TopoJSON (licence ISC). Polices : Instrument Serif et Geist (licence SIL Open Font).</p>
@@ -3534,7 +3543,8 @@ const LEGAL = {
  },
  en:{
   mentions:`<div class="eyebrow">Legal information</div><h2>Legal notice</h2><p class="lupd">Last updated: 16 November 2026</p>
-   <h3>Publisher</h3><p>Sankofa is an independent, non-commercial educational project published by a private individual acting in a non-professional capacity.<br>Contact: <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>In accordance with article 6, III, 2 of French law no. 2004-575 of 21 June 2004 on confidence in the digital economy, the publisher has chosen not to make their name and address public, and has provided their identification details to the host.</p>
+   <h3>Publisher</h3><p>Sankofa is an independent, non-commercial educational project created and published by Noham Deshouilleres Battikh, a private individual acting in a non-professional capacity.<br>Contact: <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>In accordance with article 6, III, 2 of French law no. 2004-575 of 21 June 2004 on confidence in the digital economy, the publisher has provided their postal address to the host.</p>
+   <h3>Publication director</h3><p>Noham Deshouilleres Battikh.</p>
    <h3>Hosting</h3><p>Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, United States. Website: netlify.com.<br>Progress, accounts and synced data are hosted by Supabase, Inc., on servers in Frankfurt (Germany).</p>
    <h3>Content and sources</h3><p>The texts, layout, logo and the Sankofa name are protected. The figures belong to the organisations that publish them: each one links to its source and carries its date. Sankofa is a learning tool and does not replace the original reports.</p>
    <h3>Credits</h3><p>Base map: Natural Earth (public domain), via world-atlas. Libraries: D3 and TopoJSON (ISC licence). Fonts: Instrument Serif and Geist (SIL Open Font Licence).</p>
@@ -4141,8 +4151,11 @@ function drawLocator(id){
   const S0 = 132, ctx = cv.getContext("2d"); cv.width = S0*DPR; cv.height = S0*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
   const c = centroid(id), pr = d3.geoOrthographic().rotate([-c[0],-c[1]]).translate([S0/2,S0/2]).scale(S0/2-4).clipAngle(90), pa = d3.geoPath(pr, ctx);
   const col = mainLayer(C[id]).hex;
+  let lastF = -99;
   (function frame(now){
     if(!document.body.contains(cv)) return;
+    if(now - lastF < 40 || !cv.offsetParent || document.hidden){ if(!reduce) requestAnimationFrame(frame); return; }
+    lastF = now;
     ctx.clearRect(0,0,S0,S0);
     ctx.beginPath(); pa({type:"Sphere"}); ctx.fillStyle = TH.sea1; ctx.fill();
     ctx.beginPath(); for(const f of F110) pa(f); ctx.fillStyle = TH.land; ctx.fill(); ctx.strokeStyle = TH.landLine; ctx.lineWidth = .4; ctx.stroke();
@@ -8244,7 +8257,9 @@ document.addEventListener("pointermove", e=>{
 }, {passive:true});
 /* Barre de lecture */
 document.body.insertAdjacentHTML("beforeend", `<div class="pgprog" aria-hidden="true"><i id="pgBar"></i></div>`);
-function updProg(){ const h = document.documentElement.scrollHeight - innerHeight; $("#pgBar").style.width = (h>0 ? scrollY/h*100 : 0)+"%"; }
+var DOC_H = 0; try{ new ResizeObserver(()=>{ DOC_H = document.documentElement.scrollHeight; }).observe(document.body); }catch(e){}
+const docH = ()=>DOC_H || document.documentElement.scrollHeight;
+function updProg(){ const h = docH() - innerHeight; $("#pgBar").style.width = (h>0 ? scrollY/h*100 : 0)+"%"; }
 SCROLL_FNS.push(updProg);
 /* Routage : voir plus bas */
 function keptRoute(){ document.documentElement.classList.toggle("on-dossier", location.hash.startsWith("#dossier-")); }
@@ -8293,7 +8308,7 @@ const _rlcK = renderLayerCard; renderLayerCard = function(){ const r = _rlcK.app
   const svg = document.querySelector(".brand svg"); if(!svg) return;
   document.body.insertAdjacentHTML("beforeend", `<button id="upbird" aria-label="${t("Revenir en haut")}" title="${t("Revenir en haut")}"><span class="ubb">${svg.outerHTML}</span><span class="ubt">${t("Revenir")}</span></button>`);
   $("#upbird").onclick = ()=>scrollTo({top:0,behavior:reduce?"instant":"smooth"});
-  SCROLL_FNS.push(()=>$("#upbird").classList.toggle("show", scrollY>700 && scrollY+innerHeight < document.documentElement.scrollHeight-160));
+  SCROLL_FNS.push(()=>$("#upbird").classList.toggle("show", scrollY>700 && scrollY+innerHeight < docH()-160));
 })();
 
 /* Aurore et grain, étoiles : des calques fixes, animés seulement en transform / opacity */
@@ -10590,7 +10605,7 @@ Object.assign(EN, {
    <p>Quand les sources ne sont pas d'accord, Sankofa donne la fourchette ou les deux chiffres. Quand une partie conteste une conclusion, c'est écrit. Les textes décrivent les faits sans images choquantes.</p>
    <h3>En chiffres</h3><ul><li>${FEATURED.length} pays et peuples</li><li>${NQ()} questions de quiz, en français et en anglais</li><li>${NM()} cours complets avec un niveau Maître</li><li>40 niveaux à gravir dans ton passeport</li></ul>
    <h3>Une erreur ?</h3><p>Chaque fiche a un bouton « Signaler une erreur ». Chaque signalement est lu, vérifié, et la correction est datée. Tu peux aussi écrire à <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>.</p>
-   <h3>Qui fait Sankofa</h3><p>Un projet indépendant et non commercial, porté par une seule personne. <a href="#presse">Espace presse</a> · <a href="#methode">Méthode</a> · <a href="#mentions">Mentions légales</a></p>`;
+   <h3>Qui fait Sankofa</h3><p>Un projet indépendant et non commercial, créé par Noham Deshouilleres Battikh. <a href="#presse">Espace presse</a> · <a href="#methode">Méthode</a> · <a href="#mentions">Mentions légales</a></p>`;
   LEGAL.en.apropos = ()=>`<div class="eyebrow">About</div><h2>Why Sankofa exists</h2>
    <p>Sankofa is a word in Akan, a language of Ghana. It means: go back and fetch what was left behind. Its symbol is a bird walking forward with its head turned back.</p>
    <p>Some crises make headlines for months. Others affect millions of people and almost nobody talks about them. Sankofa brings them together on a globe: ${FEATURED.length} countries and peoples, each explained in 3 minutes, then in depth for those who want more.</p>
@@ -10599,7 +10614,7 @@ Object.assign(EN, {
    <p>When sources disagree, Sankofa gives the range or both figures. When a party disputes a finding, it says so. The texts describe the facts without shocking images.</p>
    <h3>In numbers</h3><ul><li>${FEATURED.length} countries and peoples</li><li>${NQ()} quiz questions, in French and English</li><li>${NM()} full courses with a Master level</li><li>40 levels to climb in your passport</li></ul>
    <h3>Spotted an error?</h3><p>Every page has a “Report an error” button. Every report is read and checked, and corrections are dated. You can also write to <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>.</p>
-   <h3>Who makes Sankofa</h3><p>An independent, non-commercial project run by one person. <a href="#presse">Press area</a> · <a href="#methode">Method</a> · <a href="#mentions">Legal notice</a></p>`;
+   <h3>Who makes Sankofa</h3><p>An independent, non-commercial project created by Noham Deshouilleres Battikh. <a href="#presse">Press area</a> · <a href="#methode">Method</a> · <a href="#mentions">Legal notice</a></p>`;
   const kit = en=>[["/icons/icon-512.png", en?"Logo (PNG, 512 px)":"Logo (PNG, 512 px)"],["/og-image.jpg", en?"Share image (1200 × 630)":"Image de partage (1200 × 630)"],["/presse/globe.jpg", en?"Screenshot: the globe":"Capture : le globe"],["/presse/fiche.jpg", en?"Screenshot: a country page":"Capture : une fiche pays"],["/presse/passeport.jpg", en?"Screenshot: the passport":"Capture : le passeport"]];
   const kitHTML = en=>`<div class="kit">${kit(en).map(([u,n])=>`<a class="kitit" href="${u}" download><img src="${u}" alt="" loading="lazy"><span>${n}</span></a>`).join("")}</div>`;
   LEGAL.fr.presse = ()=>`<div class="eyebrow">Presse</div><h2>Espace presse</h2>
@@ -10626,6 +10641,13 @@ Object.assign(EN, {
   const _ape2 = addPaysExtras;
   addPaysExtras = function(){ _ape2.apply(this, arguments); setTimeout(quizPill, 60); };
   addEventListener("hashchange", ()=>setTimeout(quizPill, 80));
+  /* Fenêtres ouvertes : on bloque le défilement de la page derrière (sans sélecteur :has, plus léger) */
+  const syncLock = ()=>{ const m = document.getElementById("modal"), h = document.documentElement;
+    h.classList.toggle("skf-lock", !!(m && m.classList.contains("show")) || document.body.classList.contains("sheeton") || !!document.getElementById("skfLive"));
+    h.classList.toggle("skf-tuto", !!document.getElementById("skfTuto")); };
+  const mo = new MutationObserver(syncLock);
+  const md = document.getElementById("modal"); if(md) mo.observe(md, {attributes:true, attributeFilter:["class"]});
+  mo.observe(document.body, {attributes:true, attributeFilter:["class"], childList:true});
   const _rl = renderLegal;
   renderLegal = function(k){
     const v = LEGAL[LANG][k];
@@ -10712,32 +10734,36 @@ Object.assign(EN, {
     const pr = d3.geoOrthographic().translate([size/2, size/2]).scale(size/2 - 10).clipAngle(90), pa = d3.geoPath(pr, x);
     const sea = dark ? "#14171C" : "#E4E6E2", land = dark ? "#2A2E35" : "#C9CCC8", line = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)";
     let hot = null;
+    const GEO = {}; won.forEach(id=>{ GEO[id] = (typeof DATA_LITE !== "undefined" && DATA_LITE.find(f=>f.id === id)) || featById[id]; });
     function draw(){
       pr.rotate(rotG); x.clearRect(0, 0, size, size);
       x.beginPath(); pa({type:"Sphere"}); x.fillStyle = sea; x.fill();
-      x.beginPath(); for(const f of F50) pa(f); x.fillStyle = land; x.fill(); x.strokeStyle = line; x.lineWidth = .5; x.stroke();
-      for(const id of won){ const r = state.stamps[id].r, col = RARITY[r].col;
-        x.save(); if(r >= 4){ x.shadowColor = col; x.shadowBlur = r*3; }
-        x.beginPath(); pa(featById[id]); x.fillStyle = col; x.fill(); x.restore();
-        x.beginPath(); pa(featById[id]); x.strokeStyle = id === hot ? (dark ? "#fff" : "#121315") : "rgba(255,255,255,.85)"; x.lineWidth = id === hot ? 2 : .8; x.stroke(); }
+      try{ initBase(); }catch(e){} x.beginPath(); if(typeof LAND110 !== "undefined" && LAND110){ pa(LAND110); x.fillStyle = land; x.fill(); x.beginPath(); pa(MESH110); } else { for(const f of F110) pa(f); x.fillStyle = land; x.fill(); } x.strokeStyle = line; x.lineWidth = .5; x.stroke();
+      const ctr = [-rotG[0], -rotG[1]], vis = won.filter(id=>d3.geoDistance(centroid(id), ctr) < 2.1);
+      for(const r of [1,2,3,4,5]){ const ids = vis.filter(id=>state.stamps[id].r === r); if(!ids.length) continue; const col = RARITY[r].col;
+        x.beginPath(); for(const id of ids) pa(GEO[id]); x.fillStyle = col; x.fill();
+        if(r >= 4){ x.save(); x.strokeStyle = col; x.globalAlpha = .35; x.lineWidth = r === 5 ? 7 : 5; x.lineJoin = "round"; x.stroke(); x.restore(); } }
+      x.beginPath(); for(const id of vis) if(id !== hot) pa(GEO[id]); x.strokeStyle = "rgba(255,255,255,.85)"; x.lineWidth = .8; x.stroke();
+      if(hot){ x.beginPath(); pa(featById[hot]); x.strokeStyle = dark ? "#fff" : "#121315"; x.lineWidth = 2; x.stroke(); }
       x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = line; x.lineWidth = 1.2; x.stroke();
     }
     const pick = e=>{ const b = cv.getBoundingClientRect(), ll = pr.invert([e.clientX - b.left, e.clientY - b.top]); if(!ll) return null;
       return won.find(id=>d3.geoContains(featById[id], ll)) || null; };
     const show = id=>{ if(id === hot) return; hot = id; lab.innerHTML = id ? `<b>${esc(C[id].short)}</b> · ${t("Tampon {r}", {r:RARITY[state.stamps[id].r].name})}` : ""; lab.classList.toggle("on", !!id); draw(); };
-    let drag = null, idle = true, moved = false;
+    let drag = null, idle = true, moved = false, pend = 0;
     cv.onpointerdown = e=>{ drag = [e.clientX, e.clientY, rotG[0], rotG[1]]; moved = false; idle = false; try{ cv.setPointerCapture(e.pointerId); }catch(x){} };
     cv.onpointermove = e=>{
       if(!drag){ if(e.pointerType === "mouse") show(pick(e)); return; }
       const dx = e.clientX - drag[0], dy = e.clientY - drag[1]; if(Math.abs(dx) + Math.abs(dy) > 5) moved = true;
-      rotG = [drag[2] + dx*.45, Math.max(-70, Math.min(70, drag[3] - dy*.45))]; draw(); };
+      rotG = [drag[2] + dx*.45, Math.max(-70, Math.min(70, drag[3] - dy*.45))]; if(!pend){ pend = requestAnimationFrame(()=>{ pend = 0; draw(); }); } };
     cv.onpointerup = e=>{ if(drag && !moved) show(pick(e)); drag = null; };
     cv.onpointercancel = ()=>{ drag = null; };
     cv.onpointerleave = e=>{ if(e.pointerType === "mouse" && !drag) show(null); };
     cancelAnimationFrame(raf);
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let last = 0;
-    (function spin(ts){ if(!document.body.contains(cv)) return; if(idle && !still && cv.offsetParent && ts - last > 40){ last = ts; rotG = [rotG[0] + .25, rotG[1]]; draw(); } raf = requestAnimationFrame(spin); })(0);
+    let last = 0, t0 = performance.now();
+    /* Un petit tour d'accueil de 5 secondes, puis le globe ne bouge plus que sous ton doigt */
+    (function spin(ts){ if(!document.body.contains(cv) || !idle || ts - t0 > 5000) return; if(!still && cv.offsetParent && !document.hidden && ts - last > 40){ last = ts; rotG = [rotG[0] + .35, rotG[1]]; draw(); } raf = requestAnimationFrame(spin); })(t0);
     draw();
   }
 
