@@ -1557,3 +1557,13 @@ body.livemode{overflow:hidden}
 @keyframes nvRing{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(1.28)}}
 @keyframes nvUp{from{opacity:0;transform:translateY(8px)}}
 @media (prefers-reduced-motion:reduce){.nvcard,.nvpress,.nvring,.nvstamp b,.nvstamp>span,.nvlevel,.nvbig{animation:none!important}.nvring{display:none}}
+
+/* ---------- Niveau Maître, tampon Mythique ---------- */
+.stampwrap.r5{filter:drop-shadow(0 6px 20px rgba(180,35,58,.5))}
+.stampwrap.r5::after{content:"";position:absolute;inset:3%;border-radius:50%;background:conic-gradient(from var(--a,0deg),rgba(180,35,58,.28),rgba(200,150,46,.22),rgba(120,20,40,.28),rgba(200,150,46,.22),rgba(180,35,58,.28));mix-blend-mode:color;animation:holo 5s linear infinite;pointer-events:none}
+.tier.r5 b{background:linear-gradient(90deg,#B4233A,#C8962E);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tiers{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.lvl.master{background:linear-gradient(135deg,rgba(180,35,58,.07),var(--surface))}
+.lvl.master:not([disabled]){border-color:rgba(180,35,58,.45)}
+[data-theme="dark"] .lvl.master{background:linear-gradient(135deg,rgba(180,35,58,.16),var(--surface))}
+@media (prefers-reduced-motion:reduce){.stampwrap.r5::after{animation:none}}

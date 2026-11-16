@@ -3050,8 +3050,8 @@ function renderPays(id){
   const st = state.stamps[id], r = st?.r||0;
   const parcours = c.quiz?`<div class="sect"><div class="card parcours">
       <div class="pinfo"><div class="eyebrow">${t("Parcours")}</div><h2>${t("Teste ce que tu as appris.")}</h2>
-        <p>${t("Quatre niveaux, de la Découverte au Défi légendaire. Les questions s'ouvrent sur un écran à part, sans la fiche sous les yeux.")}</p>
-        <div class="pips big">${[1,2,3,4].map(k=>`<span class="pip ${r>=k?"on":""}" style="--c:${RARITY[k].col}">${RARITY[k].name}</span>`).join("")}</div>
+        <p>${hasM(id)?t("Cinq niveaux, de la Découverte au niveau Maître. Les questions s'ouvrent sur un écran à part, sans la fiche sous les yeux."):t("Quatre niveaux, de la Découverte au Défi légendaire. Les questions s'ouvrent sur un écran à part, sans la fiche sous les yeux.")}</p>
+        <div class="pips big">${rList(id).map(k=>`<span class="pip ${r>=k?"on":""}" style="--c:${RARITY[k].col}">${RARITY[k].name}</span>`).join("")}</div>
         <a class="cta" href="#quiz-${c.slug}">${r?t("Continuer le parcours"):t("Commencer le parcours")}</a></div>
       <div class="pstamp">${st?stampSVG(id,st.r,st.d):GHOST(id)}</div>
     </div></div>`:"";
@@ -3120,13 +3120,13 @@ function renderQuizView(id){
     <div class="lvls" id="lvls"></div><div class="card quiz" id="quizBox"></div>`;
   requestAnimationFrame(()=>silhouette($("#qSil"),id,main.hex,{pad:.08,step:4}));
   const r = state.stamps[id]?.r||0;
-  renderLevels(id, Math.min(3, r));
+  renderLevels(id, Math.min(topLv(id), r));
 }
 function renderLevels(id,sel){
   const r = state.stamps[id]?.r || 0;
-  $("#lvls").innerHTML = LEVELS.map((lv,i)=>{
+  $("#lvls").innerHTML = LEVELS.slice(0, topLv(id)+1).map((lv,i)=>{
     const open = i===0 || r>=i, rr = RARITY[i+1];
-    return `<button class="lvl ${i===3?"legend":""}" data-i="${i}" aria-pressed="${i===sel}" ${open?"":"disabled"}>
+    return `<button class="lvl ${i===3?"legend":""}${i===4?" master":""}" data-i="${i}" aria-pressed="${i===sel}" ${open?"":"disabled"}>
       <span class="lvn">${open?"":LOCK}${lv.name}${r>=i+1?` <span class="done">✓</span>`:""}</span>
       <span class="lvr" style="color:${rr.col}">${t("Tampon {r}",{r:rr.name})}</span>
       <span class="lvx">${lv.desc} · ${lv.xp} XP</span></button>`;
@@ -3197,6 +3197,7 @@ function runQuiz(box, qs0, opt={}){
       if(newR>prev){ state.stamps[opt.id] = {r:newR,d:new Date().toLocaleDateString(LOC)}; queueCelebration({stamp:opt.id}); }
       msg = newR>prev ? t("Tampon {r} obtenu.",{r:RARITY[newR].name}) : won ? t("Niveau réussi. Ton meilleur tampon est conservé.") : lv===3 ? t("Le Défi légendaire n'admet aucune erreur. Les questions changent à chaque essai.") : t("Il faut {p} bonnes réponses sur {n}. Les questions changent à chaque essai.",{p:LV.pass,n:LV.n});
       if(newR>prev && newR===2) msg += " "+t("Le niveau Expert est débloqué.");
+      if(newR>prev && newR===4 && hasM(opt.id)) msg += " "+t("Le niveau Maître est débloqué.");
       if(newR>prev && newR===3) msg += " "+t("Le Défi légendaire est débloqué.");
       if(won){ learned("country", opt.id); bump("lvl"); if(lv===0) bump("disc", opt.id); if(lv>=2) bump("expert"); }
     }
@@ -3211,7 +3212,7 @@ function runQuiz(box, qs0, opt={}){
       msg = score===1 ? t("Notion validée.") : t("Relis la leçon et réessaie.");
     }
     if(opt.id && LV && window.skfEvent) skfEvent("quiz", C[opt.id].slug+":"+lv+":"+(score>=LV.pass?1:0));
-    if(opt.id && LV){ const rr = state.stamps[opt.id]?.r || 0; state.resumeQ = rr>=4 ? null : {id:opt.id, lv:Math.min(3,rr), d:Date.now()}; }
+    if(opt.id && LV){ const rr = state.stamps[opt.id]?.r || 0; state.resumeQ = rr>=topLv(opt.id)+1 ? null : {id:opt.id, lv:Math.min(topLv(opt.id),rr), d:Date.now()}; }
     save();
     const up = levelInfo().l>lvBefore; if(up) queueCelebration({level:levelInfo().l});
     box.innerHTML = `<div class="result">
@@ -3278,7 +3279,7 @@ function xpFor(opt, score, won){
   if(!opt.id) return 0;
   const key = opt.id+":"+opt.lv; state.cleared = state.cleared||[];
   const first = !state.cleared.includes(key);
-  if(won && first){ state.cleared.push(key); return score*LEVELS[opt.lv].xp + [20,40,80,160][opt.lv]; }
+  if(won && first){ state.cleared.push(key); return score*LEVELS[opt.lv].xp + [20,40,80,160,240][opt.lv]; }
   return first ? score*Math.ceil(LEVELS[opt.lv].xp/2) : score;
 }
 MISSION_POOL.splice(0, MISSION_POOL.length,
@@ -3383,8 +3384,8 @@ function renderLearn(){
   $("#courses").innerHTML = FEATURED.map(id=>{
     const c = C[id], r = state.stamps[id]?.r||0;
     return `<a class="course" href="#quiz-${c.slug}"><canvas data-sil="${id}" data-col="${mainLayer(c).hex}"></canvas>
-      <span><b>${esc(c.short)}</b><span class="pips">${[1,2,3,4].map(k=>`<i style="background:${r>=k?RARITY[k].col:"rgba(var(--ink-rgb),.1)"}"></i>`).join("")} ${r?RARITY[r].name:t("Pas encore de tampon")}</span></span>
-      <span class="st">${r>=4?RARITY[4].name:r?t("Continuer"):t("Commencer")}</span></a>`;
+      <span><b>${esc(c.short)}</b><span class="pips">${rList(id).map(k=>`<i style="background:${r>=k?RARITY[k].col:"rgba(var(--ink-rgb),.1)"}"></i>`).join("")} ${r?RARITY[r].name:t("Pas encore de tampon")}</span></span>
+      <span class="st">${r>=topLv(id)+1?RARITY[r].name:r?t("Continuer"):t("Commencer")}</span></a>`;
   }).join("");
   $("#courses").querySelectorAll("canvas[data-sil]").forEach(cv=>silhouette(cv,cv.dataset.sil,cv.dataset.col,{pad:.1,step:4}));
   const nv = state.notions||[];
@@ -3407,7 +3408,7 @@ function openNotion(i){
 /* ---------- Passeport ---------- */
 function renderPass(){
   const n = Object.keys(state.stamps).length, LI = levelInfo(), lv = LI.l, into = LI.into;
-  const counts = [1,2,3,4].map(r=>Object.values(state.stamps).filter(s=>s.r===r).length);
+  const counts = [1,2,3,4,5].map(r=>Object.values(state.stamps).filter(s=>s.r===r).length);
   $("#passHead").innerHTML = `<div class="pcover">
       <div class="phid">${state.profile?avatarSVG(state.profile,64):""}<div><div class="eyebrow">${t("Passeport Sankofa")}${state.profile?" · "+esc(state.profile.name):""}</div><h2>${esc(title())}</h2>
       <div class="lvline"><span>${t("Niveau {n}",{n:lv})}</span><div class="xpbar"><i style="width:${into/LI.need*100}%"></i></div><span>${into} / ${LI.need} XP${lv<XP_THR.length?" · "+t("avant {x}",{x:esc(TITLES[Math.min(TITLES.length-1,lv)])}):""}</span></div></div></div>
@@ -3420,7 +3421,7 @@ function renderPass(){
   const pc=$("#pCreate"); if(pc) pc.onclick=()=>openOnboarding(false);
   const pe=$("#pEdit"); if(pe) pe.onclick=()=>openOnboarding(true);
   const psh=$("#pShare"); if(psh) psh.onclick=()=>shareCard("id",state.profile.heart||FEATURED[0]);
-  $("#tiers").innerHTML = [1,2,3,4].map(r=>`<div class="tier r${r}"><i style="background:${RARITY[r].col}"></i><b>${RARITY[r].name}</b><span>${RARITY[r].how}</span><em>${counts[r-1]}</em></div>`).join("");
+  $("#tiers").innerHTML = [1,2,3,4,5].map(r=>`<div class="tier r${r}"><i style="background:${RARITY[r].col}"></i><b>${RARITY[r].name}</b><span>${RARITY[r].how}</span><em>${counts[r-1]}</em></div>`).join("");
   $("#stamps").innerHTML = FEATURED.map(id=>{
     const c=C[id], s=state.stamps[id];
     return s?`<div class="slot">${stampSVG(id,s.r,s.d)}<span>${esc(c.short)}</span><button class="slotshare" data-id="${id}">${t("Partager")}</button></div>`
@@ -6391,6 +6392,1579 @@ setHist("764",[["1932","Fin de la monarchie absolue."],["2014","Dernier coup d'�
 
 /* ---------- Les 20 nouveaux pays rejoignent la liste complète ---------- */
 ["804","728","706","566","232","364","408","170","484","643","384","478","682","784","414","792","050","608","762","764"].forEach(id=>{ if(!FEATURED.includes(id) && DOSSIERS[id] && Q[id]) FEATURED.push(id); });
+
+/* ---------- Niveau Maître (pays au cours complet) et banque de questions élargie ---------- */
+LEVELS.push({k:"m",name:"Maître",xp:45,time:25,n:6,pass:5,desc:"6 questions sur le cours complet, 25 secondes"});
+RARITY.push({id:5,name:"Mythique",col:"#B4233A",how:"Réussir le niveau Maître"});
+if(LANG==="en"){ LEVELS[4].name = "Master"; LEVELS[4].desc = "6 questions on the full course, 25 seconds"; RARITY[5].name = "Mythic"; RARITY[5].how = "Pass the Master level"; }
+function hasM(id){ const q = (C[id] && C[id].quiz) || Q[id]; return !!(q && q.m && q.m.length >= 6); }
+function topLv(id){ return hasM(id) ? 4 : 3; }
+function rList(id){ return hasM(id) ? [1,2,3,4,5] : [1,2,3,4]; }
+/* moreQ(id, fr, en) : fr = {d,i,e,m:[[question, [options], index de la bonne réponse, explication]]}, en = mêmes clés sans l'index */
+function moreQ(id, fr, en){
+  const Qx = Q[id]; if(!Qx) return;
+  const mk = a=>a.map(x=>({q:x[0], o:x[1], a:x[2], e:x[3]}));
+  for(const k of ["d","i","e","m"]){
+    if(!fr[k]) continue;
+    const add = mk(fr[k]);
+    if(LANG==="en" && en && en[k]) add.forEach((q,j)=>{ const x = en[k][j]; if(x){ q.q = x[0]; q.o = x[1]; q.e = x[2]; } });
+    Qx[k] = (Qx[k] || []).concat(add);
+  }
+  if(C[id]) C[id].quiz = Qx;
+}
+Object.assign(EN, {
+ "Le niveau Maître est débloqué.":"The Master level is unlocked.",
+ "Cinq niveaux, de la Découverte au niveau Maître. Les questions s'ouvrent sur un écran à part, sans la fiche sous les yeux.":"Five levels, from Discovery to Master. Questions open on a separate screen, without the page in front of you."
+});
+
+/* ---------- Questions supplémentaires, lot 1 : Palestine, Congo ---------- */
+moreQ("275",{
+ d:[["En quelle année l'État d'Israël est-il proclamé ?",["1917","1948","1967","1993"],1,"Le 14 mai 1948. La guerre qui suit provoque la Nakba."],
+    ["Quel mouvement prend le contrôle de Gaza en 2007 ?",["Le Fatah","Le Hamas","Le Hezbollah","L'OLP"],1,"Le Hamas, après sa victoire aux élections de 2006. Un blocus suit."],
+    ["Pendant quelle guerre Israël occupe-t-il la Cisjordanie et Gaza en 1967 ?",["La guerre du Kippour","La guerre des Six Jours","La guerre de Suez","La guerre du Golfe"],1,"La guerre des Six Jours, en juin 1967."],
+    ["Quelle agence de l'ONU est créée en 1949 pour les réfugiés palestiniens ?",["L'UNICEF","Le HCR","L'UNRWA","Le PAM"],2,"L'UNRWA, créée l'année qui suit la Nakba."],
+    ["Depuis quelle année Gaza est-elle sous blocus ?",["1948","1993","2007","2023"],2,"Depuis 2007, avec un blocus israélien et égyptien."]],
+ i:[["En quelle année la déclaration Balfour promet-elle un « foyer national juif » en Palestine ?",["1897","1917","1947","1967"],1,"En 1917, alors que la Palestine est peuplée en grande majorité d'Arabes."],
+    ["Combien de personnes sont tuées lors de l'attaque du 7 octobre 2023 ?",["205","1 205","5 200","12 500"],1,"1 205 personnes, en majorité des civils. 251 sont prises en otage."],
+    ["En quelle année éclate la première Intifada ?",["1967","1987","2000","2007"],1,"En 1987. Le Hamas naît la même année."],
+    ["Qu'ont créé les accords d'Oslo ?",["Un État palestinien membre de l'ONU","L'Autorité palestinienne","L'UNRWA","Le Hamas"],1,"L'Autorité palestinienne, entre 1993 et 1995."],
+    ["En quelle année Israël retire-t-il ses colons de Gaza ?",["1993","2000","2005","2014"],2,"En 2005. Le blocus commence deux ans plus tard."]],
+ e:[["Qui visent les mandats d'arrêt émis par la Cour pénale internationale en novembre 2024 ?",["Benyamin Netanyahou, Yoav Gallant et le chef militaire du Hamas","Uniquement des dirigeants du Hamas","Le président de l'Autorité palestinienne","Personne : la Cour s'est déclarée incompétente"],0,"Le Premier ministre israélien, son ancien ministre de la Défense et le chef militaire du Hamas."],
+    ["Quelle résolution de l'ONU demande en 1967 le retrait des territoires occupés en échange de la paix ?",["181","194","242","338"],2,"La résolution 242 du Conseil de sécurité, en novembre 1967."]],
+ m:[["Quelle révolte est écrasée en Palestine juste avant la Seconde Guerre mondiale ?",["La première Intifada","La grande révolte arabe de 1936-1939","La révolte arabe de 1916","La seconde Intifada"],1,"La grande révolte arabe de 1936-1939, contre le mandat britannique et l'immigration."],
+    ["Que prévoyait la résolution 181 pour Jérusalem ?",["La capitale de l'État juif","La capitale de l'État arabe","Un régime international","Un partage en deux moitiés"],2,"Un régime international, à côté d'un État juif et d'un État arabe."],
+    ["Quelle organisation confie le mandat sur la Palestine au Royaume-Uni en 1922 ?",["L'ONU","La Société des Nations","L'Empire ottoman","La Ligue arabe"],1,"La Société des Nations, l'ancêtre de l'ONU."],
+    ["En juin 1967, quels territoires Israël occupe-t-il en plus de la Cisjordanie, de Jérusalem-Est et de Gaza ?",["Le Sinaï et le Golan","Le sud du Liban et Chypre","Toute la Jordanie","Damas et Alep"],0,"Le Sinaï égyptien et le Golan syrien."],
+    ["Quel Premier ministre israélien est assassiné en 1995, en plein processus d'Oslo ?",["Ariel Sharon","Yitzhak Rabin","Menahem Begin","Shimon Peres"],1,"Yitzhak Rabin, tué par un extrémiste israélien opposé aux accords."],
+    ["Quel sommet échoue en 2000, juste avant la seconde Intifada ?",["Oslo","Camp David","Madrid","Annapolis"],1,"Le sommet de Camp David, aux États-Unis."],
+    ["Qu'a jugé la Cour internationale de Justice en 2004 à propos du mur en Cisjordanie ?",["Son tracé est illégal là où il entre en territoire occupé","Il est légal partout","Il doit être prolongé jusqu'à Gaza","Elle a refusé de se prononcer"],0,"Le tracé est illégal là où il entre en territoire occupé."],
+    ["Quel pays a saisi la Cour internationale de Justice contre Israël, qui ordonne des mesures provisoires en janvier 2024 ?",["L'Afrique du Sud","La Gambie","La Turquie","L'Égypte"],0,"L'Afrique du Sud. La Gambie, elle, a saisi la Cour contre le Myanmar."],
+    ["En combien de zones les accords d'Oslo découpent-ils la Cisjordanie ?",["Deux","Trois","Quatre","Cinq"],1,"Trois : A, B et C. La zone C, la plus grande, reste sous contrôle israélien total."],
+    ["Quel pays impose le blocus de Gaza avec Israël à partir de 2007 ?",["La Jordanie","L'Égypte","Le Liban","La Syrie"],1,"L'Égypte, qui contrôle le point de passage de Rafah."]]
+},{
+ d:[["In which year was the State of Israel proclaimed?",["1917","1948","1967","1993"],"On 14 May 1948. The war that followed caused the Nakba."],
+    ["Which movement took control of Gaza in 2007?",["Fatah","Hamas","Hezbollah","The PLO"],"Hamas, after winning the 2006 elections. A blockade followed."],
+    ["During which war did Israel occupy the West Bank and Gaza in 1967?",["The Yom Kippur War","The Six-Day War","The Suez War","The Gulf War"],"The Six-Day War, in June 1967."],
+    ["Which UN agency was created in 1949 for Palestinian refugees?",["UNICEF","UNHCR","UNRWA","WFP"],"UNRWA, created the year after the Nakba."],
+    ["Since which year has Gaza been under blockade?",["1948","1993","2007","2023"],"Since 2007, under an Israeli and Egyptian blockade."]],
+ i:[["In which year did the Balfour Declaration promise a “national home for the Jewish people” in Palestine?",["1897","1917","1947","1967"],"In 1917, when Palestine was overwhelmingly Arab."],
+    ["How many people were killed in the 7 October 2023 attack?",["205","1,205","5,200","12,500"],"1,205 people, mostly civilians. 251 were taken hostage."],
+    ["In which year did the first Intifada break out?",["1967","1987","2000","2007"],"In 1987. Hamas was founded the same year."],
+    ["What did the Oslo Accords create?",["A Palestinian state that is a UN member","The Palestinian Authority","UNRWA","Hamas"],"The Palestinian Authority, between 1993 and 1995."],
+    ["In which year did Israel withdraw its settlers from Gaza?",["1993","2000","2005","2014"],"In 2005. The blockade began two years later."]],
+ e:[["Who was targeted by the arrest warrants issued by the International Criminal Court in November 2024?",["Benjamin Netanyahu, Yoav Gallant and Hamas's military chief","Only Hamas leaders","The President of the Palestinian Authority","No one: the Court declared it had no jurisdiction"],"The Israeli Prime Minister, his former defence minister and Hamas's military chief."],
+    ["Which UN resolution called in 1967 for withdrawal from the occupied territories in exchange for peace?",["181","194","242","338"],"Security Council Resolution 242, in November 1967."]],
+ m:[["Which revolt was crushed in Palestine just before the Second World War?",["The first Intifada","The great Arab revolt of 1936–1939","The Arab revolt of 1916","The second Intifada"],"The great Arab revolt of 1936–1939, against the British mandate and immigration."],
+    ["What did Resolution 181 plan for Jerusalem?",["Capital of the Jewish state","Capital of the Arab state","An international regime","A split into two halves"],"An international regime, alongside a Jewish state and an Arab state."],
+    ["Which organisation entrusted the mandate over Palestine to the United Kingdom in 1922?",["The UN","The League of Nations","The Ottoman Empire","The Arab League"],"The League of Nations, the UN's predecessor."],
+    ["In June 1967, which territories did Israel occupy in addition to the West Bank, East Jerusalem and Gaza?",["Sinai and the Golan","Southern Lebanon and Cyprus","All of Jordan","Damascus and Aleppo"],"Egypt's Sinai and Syria's Golan."],
+    ["Which Israeli Prime Minister was assassinated in 1995, in the middle of the Oslo process?",["Ariel Sharon","Yitzhak Rabin","Menachem Begin","Shimon Peres"],"Yitzhak Rabin, killed by an Israeli extremist opposed to the accords."],
+    ["Which summit failed in 2000, just before the second Intifada?",["Oslo","Camp David","Madrid","Annapolis"],"The Camp David summit, in the United States."],
+    ["What did the International Court of Justice rule in 2004 about the wall in the West Bank?",["Its route is illegal where it enters occupied territory","It is legal everywhere","It must be extended to Gaza","It refused to rule"],"The route is illegal where it enters occupied territory."],
+    ["Which country brought a case against Israel at the International Court of Justice, which ordered provisional measures in January 2024?",["South Africa","The Gambia","Turkey","Egypt"],"South Africa. The Gambia brought a case against Myanmar."],
+    ["Into how many zones did the Oslo Accords divide the West Bank?",["Two","Three","Four","Five"],"Three: A, B and C. Area C, the largest, remains under full Israeli control."],
+    ["Which country has enforced the blockade of Gaza with Israel since 2007?",["Jordan","Egypt","Lebanon","Syria"],"Egypt, which controls the Rafah crossing."]]
+});
+
+moreQ("180",{
+ d:[["Quelle est la capitale de la République démocratique du Congo ?",["Lubumbashi","Kinshasa","Goma","Brazzaville"],1,"Kinshasa. Brazzaville est la capitale du Congo voisin."],
+    ["En quelle année le Congo devient-il indépendant ?",["1945","1960","1971","1997"],1,"Le 30 juin 1960."],
+    ["De quel pays européen le Congo était-il la colonie avant 1960 ?",["La France","La Belgique","Le Portugal","Le Royaume-Uni"],1,"La Belgique, qui l'annexe en 1908."],
+    ["Quelle ressource le régime de Léopold II forçait-il les villages à récolter ?",["Le café","Le caoutchouc","Le cacao","Le coton"],1,"Le caoutchouc, très demandé par l'industrie, avec des quotas imposés par la terreur."],
+    ["Qui prend le pouvoir au Congo en 1965 ?",["Patrice Lumumba","Mobutu","Laurent-Désiré Kabila","Moïse Tshombe"],1,"Mobutu, qui rebaptise le pays Zaïre en 1971."]],
+ i:[["En quelle année Patrice Lumumba est-il exécuté ?",["1960","1961","1965","1997"],1,"Le 17 janvier 1961, au Katanga."],
+    ["Combien de Congolais étaient en insécurité alimentaire aiguë en janvier 2026 ?",["2,6 millions","9,7 millions","26,6 millions","60 millions"],2,"26,6 millions de personnes."],
+    ["Qui renverse Mobutu en mai 1997 ?",["Patrice Lumumba","Laurent-Désiré Kabila","Moïse Tshombe","Joseph Kasa-Vubu"],1,"Laurent-Désiré Kabila, soutenu par le Rwanda et l'Ouganda."],
+    ["Quelle grande ville le M23 prend-il en 2025, après Goma ?",["Kinshasa","Bukavu","Kisangani","Lubumbashi"],1,"Bukavu, la capitale du Sud-Kivu."],
+    ["De quoi sont mortes la plupart des victimes des guerres du Congo ?",["Des combats directs","De la faim et des maladies","De bombardements aériens","De catastrophes naturelles"],1,"De la faim et des maladies, plus que des combats eux-mêmes."]],
+ e:[["Lors de quelle conférence les puissances européennes reconnaissent-elles le Congo à Léopold II ?",["La conférence de Berlin","Le congrès de Vienne","La conférence de Versailles","La conférence de Yalta"],0,"La conférence de Berlin, en 1884-1885."],
+    ["Où est signé l'accord entre la RDC et le Rwanda en juin 2025 ?",["À Doha","À Washington","À Luanda","À Paris"],1,"À Washington. L'accord-cadre avec le M23 est signé à Doha en novembre."]],
+ m:[["Comment s'appelait officiellement le territoire de Léopold II ?",["Le Congo belge","L'État indépendant du Congo","Le Zaïre","Le royaume du Kongo"],1,"L'« État indépendant du Congo » : la propriété personnelle du roi, pas une colonie belge."],
+    ["Quelle force armée imposait les quotas de caoutchouc par la terreur ?",["La Force publique","La MONUSCO","La Légion étrangère","La Garde républicaine"],0,"La Force publique : prises d'otages, villages brûlés, mains coupées."],
+    ["Qui mène notamment la campagne internationale contre les atrocités de l'État indépendant du Congo ?",["E. D. Morel","Henry Morton Stanley","Joseph Conrad","David Livingstone"],0,"E. D. Morel, après le rapport de Roger Casement en 1904."],
+    ["Devant quel roi Lumumba dénonce-t-il l'humiliation coloniale le jour de l'indépendance ?",["Léopold II","Albert Ier","Baudouin","Philippe"],2,"Le roi Baudouin, le 30 juin 1960."],
+    ["Qu'a reconnu une commission parlementaire belge en 2002 à propos de la mort de Lumumba ?",["La « responsabilité morale » de membres du gouvernement de l'époque","L'innocence totale de la Belgique","Un accident","La seule responsabilité de l'ONU"],0,"La « responsabilité morale » de membres du gouvernement belge de l'époque."],
+    ["Combien de temps Mobutu reste-t-il au pouvoir ?",["12 ans","22 ans","32 ans","42 ans"],2,"Trente-deux ans, de 1965 à 1997, avec l'appui occidental."],
+    ["Quel événement pousse plus d'un million de réfugiés hutus vers le Kivu en 1994 ?",["Le génocide des Tutsis au Rwanda","L'indépendance du Burundi","La chute de Mobutu","Une éruption du Nyiragongo"],0,"Le génocide des Tutsis au Rwanda. Des responsables du génocide se trouvent parmi eux."],
+    ["Quels pays soutiennent Kinshasa pendant la deuxième guerre du Congo ?",["L'Angola, le Zimbabwe et la Namibie","Le Rwanda, l'Ouganda et le Burundi","La France, la Belgique et les États-Unis","Le Kenya, la Tanzanie et la Zambie"],0,"L'Angola, le Zimbabwe et la Namibie, face au Rwanda et à l'Ouganda."],
+    ["Comment surnomme-t-on la deuxième guerre du Congo ?",["La guerre froide africaine","La « guerre mondiale africaine »","La guerre du coltan","La guerre des Grands Lacs"],1,"La « guerre mondiale africaine » : neuf armées étrangères ont combattu au Congo."],
+    ["D'où naît le M23 en 2012 ?",["D'une mutinerie d'anciens rebelles intégrés à l'armée","D'un parti politique de Kinshasa","D'une milice de chasseurs","D'un mouvement étudiant"],0,"D'une mutinerie d'anciens rebelles qui avaient été intégrés à l'armée congolaise."]]
+},{
+ d:[["What is the capital of the Democratic Republic of the Congo?",["Lubumbashi","Kinshasa","Goma","Brazzaville"],"Kinshasa. Brazzaville is the capital of the neighbouring Republic of the Congo."],
+    ["In which year did the Congo become independent?",["1945","1960","1971","1997"],"On 30 June 1960."],
+    ["Which European country was the Congo a colony of before 1960?",["France","Belgium","Portugal","The United Kingdom"],"Belgium, which annexed it in 1908."],
+    ["Which resource did Leopold II's regime force villages to harvest?",["Coffee","Rubber","Cocoa","Cotton"],"Rubber, in high demand by industry, with quotas enforced through terror."],
+    ["Who seized power in the Congo in 1965?",["Patrice Lumumba","Mobutu","Laurent-Désiré Kabila","Moïse Tshombe"],"Mobutu, who renamed the country Zaire in 1971."]],
+ i:[["In which year was Patrice Lumumba executed?",["1960","1961","1965","1997"],"On 17 January 1961, in Katanga."],
+    ["How many Congolese faced acute food insecurity in January 2026?",["2.6 million","9.7 million","26.6 million","60 million"],"26.6 million people."],
+    ["Who overthrew Mobutu in May 1997?",["Patrice Lumumba","Laurent-Désiré Kabila","Moïse Tshombe","Joseph Kasa-Vubu"],"Laurent-Désiré Kabila, backed by Rwanda and Uganda."],
+    ["Which major city did the M23 take in 2025, after Goma?",["Kinshasa","Bukavu","Kisangani","Lubumbashi"],"Bukavu, the capital of South Kivu."],
+    ["What did most victims of the Congo wars die from?",["Direct fighting","Hunger and disease","Air strikes","Natural disasters"],"Hunger and disease, more than the fighting itself."]],
+ e:[["At which conference did European powers recognise the Congo as Leopold II's?",["The Berlin Conference","The Congress of Vienna","The Versailles conference","The Yalta conference"],"The Berlin Conference, in 1884–1885."],
+    ["Where was the agreement between the DRC and Rwanda signed in June 2025?",["Doha","Washington","Luanda","Paris"],"In Washington. The framework agreement with the M23 was signed in Doha in November."]],
+ m:[["What was Leopold II's territory officially called?",["The Belgian Congo","The Congo Free State","Zaire","The Kingdom of Kongo"],"The “Congo Free State”: the king's personal property, not a Belgian colony."],
+    ["Which armed force enforced the rubber quotas through terror?",["The Force Publique","MONUSCO","The Foreign Legion","The Republican Guard"],"The Force Publique: hostage-taking, burned villages, severed hands."],
+    ["Who notably led the international campaign against the atrocities of the Congo Free State?",["E. D. Morel","Henry Morton Stanley","Joseph Conrad","David Livingstone"],"E. D. Morel, after Roger Casement's 1904 report."],
+    ["Before which king did Lumumba denounce colonial humiliation on independence day?",["Leopold II","Albert I","Baudouin","Philippe"],"King Baudouin, on 30 June 1960."],
+    ["What did a Belgian parliamentary commission acknowledge in 2002 about Lumumba's death?",["The “moral responsibility” of members of the government of the time","Belgium's complete innocence","An accident","The UN's sole responsibility"],"The “moral responsibility” of members of the Belgian government of the time."],
+    ["How long did Mobutu stay in power?",["12 years","22 years","32 years","42 years"],"Thirty-two years, from 1965 to 1997, with Western support."],
+    ["Which event drove more than a million Hutu refugees into Kivu in 1994?",["The genocide of the Tutsi in Rwanda","Burundi's independence","Mobutu's fall","An eruption of Nyiragongo"],"The genocide of the Tutsi in Rwanda. Those responsible for the genocide were among them."],
+    ["Which countries backed Kinshasa during the second Congo war?",["Angola, Zimbabwe and Namibia","Rwanda, Uganda and Burundi","France, Belgium and the United States","Kenya, Tanzania and Zambia"],"Angola, Zimbabwe and Namibia, against Rwanda and Uganda."],
+    ["What is the second Congo war often called?",["The African cold war","The “African world war”","The coltan war","The Great Lakes war"],"The “African world war”: nine foreign armies fought in the Congo."],
+    ["Where did the M23 come from in 2012?",["A mutiny of former rebels integrated into the army","A political party in Kinshasa","A hunters' militia","A student movement"],"A mutiny of former rebels who had been integrated into the Congolese army."]]
+});
+
+/* ---------- Questions supplémentaires, lot 2 : Liban, Soudan ---------- */
+moreQ("422",{
+ d:[["En quelle année commence la guerre civile libanaise ?",["1958","1975","1982","2006"],1,"Le 13 avril 1975. Elle dure quinze ans."],
+    ["Quel mouvement armé naît au Liban en 1982 avec l'appui de l'Iran ?",["Le Hamas","Le Hezbollah","Le Fatah","L'OLP"],1,"Le Hezbollah, face à l'occupation israélienne du sud."],
+    ["Quel pays voisin garde la tutelle du Liban jusqu'en 2005 ?",["Israël","La Syrie","La Jordanie","L'Égypte"],1,"La Syrie, dont les troupes partent après l'assassinat de Rafic Hariri."],
+    ["Quel produit stocké au port de Beyrouth explose le 4 août 2020 ?",["Du pétrole","Du nitrate d'ammonium","Du gaz","Des munitions"],1,"Des tonnes de nitrate d'ammonium. L'enquête judiciaire reste bloquée."],
+    ["Qui est élu président du Liban en janvier 2025 ?",["Michel Aoun","Joseph Aoun","Rafic Hariri","Saad Hariri"],1,"Joseph Aoun, ancien chef de l'armée."]],
+ i:[["Quelle organisation s'installe au Liban après avoir été chassée de Jordanie, vers 1970 ?",["Le Hezbollah","L'Organisation de libération de la Palestine","Le Hamas","Les Frères musulmans"],1,"L'OLP, dont la présence pèse dans le déclenchement de la guerre civile."],
+    ["Quel ancien Premier ministre est assassiné le 14 février 2005 ?",["Rafic Hariri","Hassan Nasrallah","Michel Aoun","Bachir Gemayel"],0,"Rafic Hariri. Les manifestations qui suivent obtiennent le départ des troupes syriennes."],
+    ["Quel accord, signé en 1989, met fin à la guerre civile ?",["L'accord de Taëf","Les accords d'Oslo","L'accord de Doha","Les accords de Camp David"],0,"L'accord de Taëf, signé en Arabie saoudite. La guerre s'arrête en 1990."],
+    ["Quel chef du Hezbollah est tué le 27 septembre 2024 ?",["Hassan Nasrallah","Rafic Hariri","Naïm Qassem","Moussa Sadr"],0,"Hassan Nasrallah, lors d'une campagne de frappes israéliennes."],
+    ["Combien de communautés religieuses le Liban reconnaît-il ?",["3","8","18","28"],2,"18 communautés religieuses."]],
+ e:[["Quel événement du 13 avril 1975 déclenche la guerre civile ?",["L'attaque d'un autobus à Aïn el-Remmaneh","L'explosion du port de Beyrouth","L'assassinat de Rafic Hariri","L'invasion israélienne du sud"],0,"L'attaque d'un autobus à Aïn el-Remmaneh, dans la banlieue de Beyrouth."],
+    ["En quel mois de 2024 une trêve est-elle conclue entre Israël et le Hezbollah ?",["Mars","Juin","Septembre","Novembre"],3,"En novembre 2024. La guerre reprend le 2 mars 2026."]],
+ m:[["Selon le Pacte national de 1943, à quelle communauté revient la tête du gouvernement ?",["Aux maronites","Aux sunnites","Aux chiites","Aux druzes"],1,"À un musulman sunnite. La présidence revient à un maronite."],
+    ["Selon ce même pacte, à quelle communauté revient la présidence du Parlement ?",["Aux maronites","Aux sunnites","Aux chiites","Aux grecs-orthodoxes"],2,"À un musulman chiite."],
+    ["Quelle forme a le Pacte national de 1943 ?",["Une constitution écrite","Un accord non écrit","Un traité international","Un référendum"],1,"Un accord non écrit, qui fige la répartition du pouvoir entre communautés."],
+    ["En quelle année les États-Unis envoient-ils des marines à Beyrouth, lors d'une première crise ?",["1948","1958","1975","1982"],1,"En 1958, quand les tensions entre communautés éclatent une première fois."],
+    ["Qui commet le massacre de Sabra et Chatila, en septembre 1982 ?",["Des miliciens phalangistes","L'armée syrienne","Le Hezbollah","L'OLP"],0,"Des miliciens phalangistes, dans une zone contrôlée par l'armée israélienne."],
+    ["Jusqu'en quelle année dure l'occupation israélienne du sud du Liban ?",["1990","2000","2005","2006"],1,"Jusqu'en 2000."],
+    ["Quelle juridiction condamne en 2020 un membre du Hezbollah pour l'assassinat de Rafic Hariri ?",["La Cour pénale internationale","La Cour internationale de Justice","Le Tribunal spécial pour le Liban","La Cour de cassation libanaise"],2,"Le Tribunal spécial pour le Liban, par contumace."],
+    ["Quelle opération vise le Hezbollah en septembre 2024, avant une campagne de frappes ?",["Un blocus du port","L'explosion de bipeurs piégés","Une cyberattaque contre l'électricité","Un débarquement à Tyr"],1,"L'explosion de bipeurs piégés utilisés par ses membres."],
+    ["Quel jour de 2026 est signé un cessez-le-feu conditionnel entre Israël et le Liban ?",["Le 2 mars","Le 3 juin","Le 26 juin","Le 4 août"],1,"Le 3 juin. L'accord-cadre de Washington suit le 26 juin."],
+    ["Qu'annonce Israël après l'accord de juin 2026 ?",["Son armée restera dans le sud jusqu'au désarmement du Hezbollah","Son retrait immédiat","La fin de toute présence au Liban","Un référendum au Liban"],0,"Son armée restera dans le sud tant que le Hezbollah ne sera pas désarmé."]]
+},{
+ d:[["In which year did the Lebanese civil war begin?",["1958","1975","1982","2006"],"On 13 April 1975. It lasted fifteen years."],
+    ["Which armed movement was founded in Lebanon in 1982 with Iran's backing?",["Hamas","Hezbollah","Fatah","The PLO"],"Hezbollah, in response to the Israeli occupation of the south."],
+    ["Which neighbouring country kept Lebanon under its control until 2005?",["Israel","Syria","Jordan","Egypt"],"Syria, whose troops left after Rafic Hariri's assassination."],
+    ["What was stored at the port of Beirut and exploded on 4 August 2020?",["Oil","Ammonium nitrate","Gas","Ammunition"],"Tonnes of ammonium nitrate. The judicial investigation remains blocked."],
+    ["Who was elected President of Lebanon in January 2025?",["Michel Aoun","Joseph Aoun","Rafic Hariri","Saad Hariri"],"Joseph Aoun, the former army chief."]],
+ i:[["Which organisation settled in Lebanon after being driven out of Jordan around 1970?",["Hezbollah","The Palestine Liberation Organisation","Hamas","The Muslim Brotherhood"],"The PLO, whose presence weighed in the outbreak of the civil war."],
+    ["Which former Prime Minister was assassinated on 14 February 2005?",["Rafic Hariri","Hassan Nasrallah","Michel Aoun","Bachir Gemayel"],"Rafic Hariri. The protests that followed forced Syrian troops to leave."],
+    ["Which agreement, signed in 1989, ended the civil war?",["The Taif Agreement","The Oslo Accords","The Doha Agreement","The Camp David Accords"],"The Taif Agreement, signed in Saudi Arabia. The war stopped in 1990."],
+    ["Which Hezbollah leader was killed on 27 September 2024?",["Hassan Nasrallah","Rafic Hariri","Naim Qassem","Musa al-Sadr"],"Hassan Nasrallah, during a campaign of Israeli strikes."],
+    ["How many religious communities does Lebanon recognise?",["3","8","18","28"],"18 religious communities."]],
+ e:[["Which event on 13 April 1975 triggered the civil war?",["An attack on a bus in Ain el-Remmaneh","The Beirut port explosion","Rafic Hariri's assassination","The Israeli invasion of the south"],"An attack on a bus in Ain el-Remmaneh, on the outskirts of Beirut."],
+    ["In which month of 2024 was a truce reached between Israel and Hezbollah?",["March","June","September","November"],"In November 2024. War resumed on 2 March 2026."]],
+ m:[["Under the 1943 National Pact, which community holds the head of government?",["The Maronites","The Sunnis","The Shia","The Druze"],"A Sunni Muslim. The presidency goes to a Maronite."],
+    ["Under the same pact, which community holds the speakership of Parliament?",["The Maronites","The Sunnis","The Shia","The Greek Orthodox"],"A Shia Muslim."],
+    ["What form does the 1943 National Pact take?",["A written constitution","An unwritten agreement","An international treaty","A referendum"],"An unwritten agreement that froze the sharing of power between communities."],
+    ["In which year did the United States send marines to Beirut during a first crisis?",["1948","1958","1975","1982"],"In 1958, when tensions between communities first erupted."],
+    ["Who carried out the Sabra and Shatila massacre in September 1982?",["Phalangist militiamen","The Syrian army","Hezbollah","The PLO"],"Phalangist militiamen, in an area controlled by the Israeli army."],
+    ["Until which year did the Israeli occupation of southern Lebanon last?",["1990","2000","2005","2006"],"Until 2000."],
+    ["Which court convicted a Hezbollah member in 2020 for Rafic Hariri's assassination?",["The International Criminal Court","The International Court of Justice","The Special Tribunal for Lebanon","Lebanon's Court of Cassation"],"The Special Tribunal for Lebanon, in absentia."],
+    ["Which operation targeted Hezbollah in September 2024, before a campaign of strikes?",["A blockade of the port","Exploding booby-trapped pagers","A cyberattack on the power grid","A landing at Tyre"],"The explosion of booby-trapped pagers used by its members."],
+    ["On which day in 2026 was a conditional ceasefire signed between Israel and Lebanon?",["2 March","3 June","26 June","4 August"],"On 3 June. The Washington framework agreement followed on 26 June."],
+    ["What did Israel announce after the June 2026 agreement?",["Its army would stay in the south until Hezbollah is disarmed","An immediate withdrawal","The end of any presence in Lebanon","A referendum in Lebanon"],"Its army would stay in the south as long as Hezbollah is not disarmed."]]
+});
+
+moreQ("729",{
+ d:[["En quelle année le Soudan devient-il indépendant ?",["1956","1960","1989","2011"],0,"Le 1er janvier 1956."],
+    ["Quel pays se sépare du Soudan en 2011 ?",["L'Érythrée","Le Soudan du Sud","Le Tchad","L'Éthiopie"],1,"Le Soudan du Sud, après l'accord de paix de 2005."],
+    ["Quel dirigeant est renversé par l'armée en avril 2019 ?",["Omar el-Béchir","Abdallah Hamdok","Hemetti","Le général al-Burhan"],0,"Omar el-Béchir, au pouvoir depuis 1989."],
+    ["Quelle hausse déclenche la révolte populaire de décembre 2018 ?",["Celle du prix de l'essence","Celle du prix du pain","Celle des loyers","Celle des impôts"],1,"La hausse du prix du pain."],
+    ["De quelles milices sont issues les Forces de soutien rapide ?",["Des shebab","Des janjawid","De Boko Haram","Du M23"],1,"Des janjawid, qui ont massacré des civils au Darfour à partir de 2003."]],
+ i:[["Combien de déplacés internes le Soudan comptait-il fin 2025 ?",["910 000","3,1 millions","9,1 millions","19 millions"],2,"9,1 millions, la plus grande situation au monde."],
+    ["Qui commande l'armée soudanaise face aux Forces de soutien rapide ?",["Le général al-Burhan","Hemetti","Abdallah Hamdok","Omar el-Béchir"],0,"Le général Abdel Fattah al-Burhan."],
+    ["Qui dirige le gouvernement civil après la chute de Béchir ?",["Hassan al-Tourabi","Abdallah Hamdok","Hemetti","Salva Kiir"],1,"Abdallah Hamdok, jusqu'au coup d'État d'octobre 2021."],
+    ["Quelle ville du Darfour les FSR prennent-elles en 2023, avec des massacres de Massalit ?",["El-Geneina","El-Fasher","Khartoum","Port-Soudan"],0,"El-Geneina, dans l'ouest du Darfour."],
+    ["Quand les États-Unis concluent-ils que les FSR ont commis un génocide ?",["En avril 2023","En janvier 2025","En octobre 2025","En juillet 2026"],1,"En janvier 2025."]],
+ e:[["En quelle année la Cour pénale internationale émet-elle son premier mandat d'arrêt contre Omar el-Béchir ?",["2004","2009","2013","2019"],1,"En 2009, pour crimes de guerre et crimes contre l'humanité. Le second, pour génocide, suit en 2010."],
+    ["Quelle mesure relance la guerre avec le sud en 1983 ?",["L'imposition de la charia","La découverte du pétrole","Un coup d'État","La sécheresse"],0,"L'imposition de la charia par le pouvoir central."]],
+ m:[["Dès quelle année les États-Unis qualifient-ils de génocide les violences au Darfour ?",["2003","2004","2009","2023"],1,"Dès 2004."],
+    ["Avec qui Omar el-Béchir prend-il le pouvoir en 1989 ?",["Les islamistes de Hassan al-Tourabi","Les rebelles du sud","Les janjawid","Les communistes"],0,"Avec les islamistes de Hassan al-Tourabi, par un coup d'État."],
+    ["Quelles communautés les janjawid attaquent-elles au Darfour à partir de 2003 ?",["Les Four, les Massalit et les Zaghawa","Les Dinka et les Nuer","Les Amhara et les Tigréens","Les Peuls et les Haoussas"],0,"Les communautés non arabes : Four, Massalit et Zaghawa."],
+    ["Pourquoi les poursuites contre Béchir sont-elles une première pour la CPI ?",["C'est le premier chef d'État en exercice qu'elle poursuit","C'est son premier procès","C'est la première affaire en Afrique","C'est le premier mandat pour terrorisme"],0,"C'est le premier chef d'État en exercice poursuivi par la Cour."],
+    ["En quelle année les janjawid deviennent-ils les Forces de soutien rapide ?",["2003","2009","2013","2019"],2,"En 2013."],
+    ["Quand se termine la première guerre civile soudanaise ?",["1956","1972","1983","2005"],1,"En 1972. Une deuxième guerre reprend en 1983."],
+    ["En quelle année est signé l'accord de paix qui ouvre la voie à l'indépendance du Soudan du Sud ?",["1972","1989","2005","2011"],2,"En 2005. L'indépendance suit en 2011."],
+    ["Qui mène ensemble le coup d'État d'octobre 2021 ?",["Le général al-Burhan et Hemetti","Omar el-Béchir et Hassan al-Tourabi","Abdallah Hamdok et al-Burhan","Hemetti seul"],0,"Le chef de l'armée et le chef des FSR, avant de s'affronter en 2023."],
+    ["Sur quoi les deux généraux se divisent-ils avant la guerre d'avril 2023 ?",["L'intégration des FSR dans l'armée","Le partage du pétrole","Le retour de Béchir","La date des élections"],0,"L'intégration des Forces de soutien rapide dans l'armée."],
+    ["Combien de morts fait la dispersion du sit-in de Khartoum, le 3 juin 2019 ?",["Une dizaine","Plus d'une centaine","Plus de 1 000","6 000"],1,"Plus d'une centaine de morts. Elle est attribuée en grande partie aux FSR."]]
+},{
+ d:[["In which year did Sudan become independent?",["1956","1960","1989","2011"],"On 1 January 1956."],
+    ["Which country separated from Sudan in 2011?",["Eritrea","South Sudan","Chad","Ethiopia"],"South Sudan, after the 2005 peace agreement."],
+    ["Which leader was overthrown by the army in April 2019?",["Omar al-Bashir","Abdalla Hamdok","Hemedti","General al-Burhan"],"Omar al-Bashir, in power since 1989."],
+    ["Which price rise triggered the popular revolt of December 2018?",["Petrol","Bread","Rents","Taxes"],"The rise in the price of bread."],
+    ["Which militias did the Rapid Support Forces grow out of?",["Al-Shabaab","The Janjaweed","Boko Haram","The M23"],"The Janjaweed, who massacred civilians in Darfur from 2003."]],
+ i:[["How many internally displaced people did Sudan have at the end of 2025?",["910,000","3.1 million","9.1 million","19 million"],"9.1 million, the largest such situation in the world."],
+    ["Who commands the Sudanese army against the Rapid Support Forces?",["General al-Burhan","Hemedti","Abdalla Hamdok","Omar al-Bashir"],"General Abdel Fattah al-Burhan."],
+    ["Who led the civilian government after Bashir's fall?",["Hassan al-Turabi","Abdalla Hamdok","Hemedti","Salva Kiir"],"Abdalla Hamdok, until the October 2021 coup."],
+    ["Which Darfur city did the RSF take in 2023, with massacres of Masalit?",["El-Geneina","El-Fasher","Khartoum","Port Sudan"],"El-Geneina, in West Darfur."],
+    ["When did the United States conclude that the RSF had committed genocide?",["April 2023","January 2025","October 2025","July 2026"],"In January 2025."]],
+ e:[["In which year did the International Criminal Court issue its first arrest warrant for Omar al-Bashir?",["2004","2009","2013","2019"],"In 2009, for war crimes and crimes against humanity. The second, for genocide, followed in 2010."],
+    ["Which measure relaunched the war with the south in 1983?",["The imposition of sharia","The discovery of oil","A coup","Drought"],"The imposition of sharia by the central government."]],
+ m:[["From which year did the United States call the violence in Darfur genocide?",["2003","2004","2009","2023"],"From 2004."],
+    ["With whom did Omar al-Bashir seize power in 1989?",["Hassan al-Turabi's Islamists","Southern rebels","The Janjaweed","The communists"],"With Hassan al-Turabi's Islamists, in a coup."],
+    ["Which communities did the Janjaweed attack in Darfur from 2003?",["The Fur, the Masalit and the Zaghawa","The Dinka and the Nuer","The Amhara and the Tigrayans","The Fulani and the Hausa"],"The non-Arab communities: Fur, Masalit and Zaghawa."],
+    ["Why was the case against Bashir a first for the ICC?",["He was the first sitting head of state it prosecuted","It was its first trial","It was the first case in Africa","It was the first warrant for terrorism"],"He was the first sitting head of state prosecuted by the Court."],
+    ["In which year did the Janjaweed become the Rapid Support Forces?",["2003","2009","2013","2019"],"In 2013."],
+    ["When did Sudan's first civil war end?",["1956","1972","1983","2005"],"In 1972. A second war began in 1983."],
+    ["In which year was the peace agreement signed that paved the way for South Sudan's independence?",["1972","1989","2005","2011"],"In 2005. Independence followed in 2011."],
+    ["Who jointly led the October 2021 coup?",["General al-Burhan and Hemedti","Omar al-Bashir and Hassan al-Turabi","Abdalla Hamdok and al-Burhan","Hemedti alone"],"The army chief and the RSF chief, before they turned on each other in 2023."],
+    ["What divided the two generals before the April 2023 war?",["Integrating the RSF into the army","Sharing oil revenue","Bashir's return","The election date"],"Integrating the Rapid Support Forces into the army."],
+    ["How many people were killed when the Khartoum sit-in was dispersed on 3 June 2019?",["About ten","More than a hundred","More than 1,000","6,000"],"More than a hundred. It is largely attributed to the RSF."]]
+});
+
+/* ---------- Questions supplémentaires, lot 3 : Syrie, Afghanistan ---------- */
+moreQ("760",{
+ d:[["Dans quelle ville commence la contestation de mars 2011 ?",["Deraa","Alep","Homs","Raqqa"],0,"À Deraa, dans le sud, après l'arrestation d'adolescents qui avaient tagué des slogans."],
+    ["Qui hérite du pouvoir de son père en Syrie en 2000 ?",["Hafez al-Assad","Bachar al-Assad","Ahmed al-Charaa","Maher al-Assad"],1,"Bachar al-Assad, fils de Hafez al-Assad."],
+    ["En quelle année la Syrie devient-elle indépendante ?",["1920","1946","1963","1970"],1,"En 1946, quand les dernières troupes françaises partent."],
+    ["Où Bachar al-Assad s'enfuit-il en décembre 2024 ?",["À Téhéran","À Moscou","À Beyrouth","À Ankara"],1,"À Moscou, après la chute de Damas le 8 décembre."],
+    ["Quel groupe proclame un califat depuis Raqqa en 2014 ?",["Al-Qaïda","L'État islamique","Le Hezbollah","Hayat Tahrir al-Cham"],1,"L'État islamique."]],
+ i:[["Qui devient président de transition après la chute de Bachar al-Assad ?",["Ahmed al-Charaa","Hafez al-Assad","Abdallah Hamdok","Michel Aoun"],0,"Ahmed al-Charaa, chef de Hayat Tahrir al-Cham."],
+    ["Quel pays intervient militairement en 2015 pour soutenir le régime ?",["La Russie","La Turquie","Les États-Unis","La France"],0,"La Russie. Son intervention permet au régime de reprendre Alep."],
+    ["Quelle grande ville le régime reprend-il en décembre 2016 ?",["Alep","Deraa","Raqqa","Idlib"],0,"Alep, grâce à l'intervention russe."],
+    ["Depuis quelle ville Hayat Tahrir al-Cham lance-t-il son offensive en novembre 2024 ?",["Idlib","Raqqa","Deraa","Lattaquié"],0,"Depuis Idlib, le 27 novembre 2024."],
+    ["En combien de temps le régime Assad tombe-t-il fin 2024 ?",["En douze jours","En trois mois","En un an","En 48 heures"],0,"En douze jours : du 27 novembre au 8 décembre 2024."]],
+ e:[["Combien de temps dure l'état d'urgence en Syrie ?",["5 ans","20 ans","Près de 50 ans","Un siècle"],2,"De 1963 à 2011 : près de cinquante ans d'arrestations et de procès d'exception."],
+    ["Quel parti prend le pouvoir en Syrie en 1963 ?",["Le parti Baas","Les Frères musulmans","Le Parti communiste","Le Parti social nationaliste"],0,"Le parti Baas. Hafez al-Assad s'en empare en 1970."]],
+ m:[["Quels États la France crée-t-elle en divisant la Syrie après 1920 ?",["Notamment un État alaouite et un État druze","Un État kurde et un État arménien","Un État chrétien et un État juif","Aucun : elle garde la Syrie unie"],0,"Notamment un État alaouite et un État druze."],
+    ["Quelle révolte, durement réprimée, voit Damas bombardée par la France ?",["La grande révolte syrienne de 1925-1927","Le soulèvement de 2011","La révolte de Hama en 1982","La révolte arabe de 1916"],0,"La grande révolte syrienne de 1925-1927."],
+    ["Quel territoire la Syrie perd-elle en 1967, occupé depuis par Israël ?",["Le plateau du Golan","Le Sinaï","La plaine de la Bekaa","Le Hatay"],0,"Le plateau du Golan."],
+    ["Quelle insurrection l'armée écrase-t-elle à Hama en février 1982 ?",["Celle des communistes","Celle des Frères musulmans","Celle des Kurdes","Celle des druzes"],1,"Celle des Frères musulmans. Des milliers de civils sont tués."],
+    ["Pendant combien de temps la Syrie occupe-t-elle le Liban ?",["5 ans","10 ans","Près de 30 ans","50 ans"],2,"Près de trente ans, jusqu'en 2005."],
+    ["Comment appelle-t-on la brève ouverture politique qui suit l'arrivée de Bachar al-Assad ?",["Le « printemps de Damas »","Le « printemps arabe »","La « révolution du cèdre »","Le « dégel d'Alep »"],0,"Le « printemps de Damas », refermé en moins d'un an."],
+    ["Qui a documenté en 2014 la mort de milliers de détenus avec ses photos ?",["Un déserteur surnommé « César »","Un journaliste de l'ONU","Un ancien ministre","Un médecin d'Alep"],0,"Un déserteur, surnommé « César »."],
+    ["Quand a lieu l'attaque au sarin dans la Ghouta ?",["En mars 2011","Le 21 août 2013","En décembre 2016","En mars 2025"],1,"Le 21 août 2013. L'ONU confirme l'usage du sarin."],
+    ["Où des massacres d'Alaouites ont-ils lieu en mars 2025 ?",["Sur la côte","À Alep","À Deraa","À Raqqa"],0,"Sur la côte, où vit une grande partie de la communauté alaouite."],
+    ["Quelle part des Syriens a dû quitter son foyer pendant la guerre ?",["Un dixième","Un quart","Plus de la moitié","Presque tous"],2,"Plus de la moitié des Syriens."]]
+},{
+ d:[["In which city did the protests of March 2011 begin?",["Daraa","Aleppo","Homs","Raqqa"],"In Daraa, in the south, after teenagers who had sprayed slogans were arrested."],
+    ["Who inherited power from his father in Syria in 2000?",["Hafez al-Assad","Bashar al-Assad","Ahmed al-Sharaa","Maher al-Assad"],"Bashar al-Assad, son of Hafez al-Assad."],
+    ["In which year did Syria become independent?",["1920","1946","1963","1970"],"In 1946, when the last French troops left."],
+    ["Where did Bashar al-Assad flee in December 2024?",["Tehran","Moscow","Beirut","Ankara"],"To Moscow, after Damascus fell on 8 December."],
+    ["Which group proclaimed a caliphate from Raqqa in 2014?",["Al-Qaeda","The Islamic State","Hezbollah","Hayat Tahrir al-Sham"],"The Islamic State."]],
+ i:[["Who became transitional president after Bashar al-Assad's fall?",["Ahmed al-Sharaa","Hafez al-Assad","Abdalla Hamdok","Michel Aoun"],"Ahmed al-Sharaa, leader of Hayat Tahrir al-Sham."],
+    ["Which country intervened militarily in 2015 to support the regime?",["Russia","Turkey","The United States","France"],"Russia. Its intervention let the regime retake Aleppo."],
+    ["Which major city did the regime retake in December 2016?",["Aleppo","Daraa","Raqqa","Idlib"],"Aleppo, thanks to the Russian intervention."],
+    ["From which city did Hayat Tahrir al-Sham launch its offensive in November 2024?",["Idlib","Raqqa","Daraa","Latakia"],"From Idlib, on 27 November 2024."],
+    ["How long did it take for the Assad regime to fall in late 2024?",["Twelve days","Three months","A year","48 hours"],"Twelve days: from 27 November to 8 December 2024."]],
+ e:[["How long did the state of emergency last in Syria?",["5 years","20 years","Nearly 50 years","A century"],"From 1963 to 2011: nearly fifty years of arrests and special courts."],
+    ["Which party took power in Syria in 1963?",["The Baath party","The Muslim Brotherhood","The Communist Party","The Social Nationalist Party"],"The Baath party. Hafez al-Assad seized control of it in 1970."]],
+ m:[["Which states did France create by dividing Syria after 1920?",["Notably an Alawite state and a Druze state","A Kurdish state and an Armenian state","A Christian state and a Jewish state","None: it kept Syria united"],"Notably an Alawite state and a Druze state."],
+    ["Which revolt, harshly put down, saw Damascus bombarded by France?",["The great Syrian revolt of 1925–1927","The 2011 uprising","The 1982 Hama revolt","The Arab revolt of 1916"],"The great Syrian revolt of 1925–1927."],
+    ["Which territory did Syria lose in 1967, occupied by Israel since?",["The Golan Heights","Sinai","The Bekaa Valley","Hatay"],"The Golan Heights."],
+    ["Which insurrection did the army crush in Hama in February 1982?",["The communists'","The Muslim Brotherhood's","The Kurds'","The Druze's"],"The Muslim Brotherhood's. Thousands of civilians were killed."],
+    ["For how long did Syria occupy Lebanon?",["5 years","10 years","Nearly 30 years","50 years"],"Nearly thirty years, until 2005."],
+    ["What is the brief political opening after Bashar al-Assad took power called?",["The “Damascus Spring”","The “Arab Spring”","The “Cedar Revolution”","The “Aleppo thaw”"],"The “Damascus Spring”, closed down in less than a year."],
+    ["Who documented the deaths of thousands of detainees with his photos in 2014?",["A defector nicknamed “Caesar”","A UN journalist","A former minister","An Aleppo doctor"],"A defector, nicknamed “Caesar”."],
+    ["When did the sarin attack in Ghouta take place?",["March 2011","21 August 2013","December 2016","March 2025"],"On 21 August 2013. The UN confirmed the use of sarin."],
+    ["Where did massacres of Alawites take place in March 2025?",["On the coast","In Aleppo","In Daraa","In Raqqa"],"On the coast, where much of the Alawite community lives."],
+    ["What share of Syrians had to leave their homes during the war?",["A tenth","A quarter","More than half","Almost all"],"More than half of Syrians."]]
+});
+
+moreQ("004",{
+ d:[["Qui a combattu l'armée soviétique en Afghanistan pendant dix ans ?",["Les moudjahidines","Les talibans","L'État islamique","Les Gardiens de la révolution"],0,"Les moudjahidines, soutenus notamment par les États-Unis et le Pakistan."],
+    ["Quel président fuit Kaboul le 15 août 2021 ?",["Hamid Karzaï","Ashraf Ghani","Le mollah Omar","Hibatullah Akhundzada"],1,"Ashraf Ghani, le jour où les talibans entrent dans la capitale."],
+    ["Quel événement entraîne l'intervention menée par les États-Unis en 2001 ?",["Les attentats du 11 septembre","L'invasion soviétique","La destruction des bouddhas","Un tremblement de terre"],0,"Les attentats du 11 septembre 2001. Les talibans abritaient Al-Qaïda."],
+    ["Quelle organisation les talibans abritent-ils avant 2001 ?",["Al-Qaïda","L'État islamique","Le Hezbollah","Le Hamas"],0,"Al-Qaïda."],
+    ["Quel pays devient en 2025 le premier à reconnaître le gouvernement taliban ?",["La Chine","La Russie","Le Pakistan","L'Iran"],1,"La Russie."]],
+ i:[["Autour de quelle ville les talibans naissent-ils en 1994 ?",["Kaboul","Kandahar","Hérat","Mazar-e-Charif"],1,"Autour de Kandahar, dans des écoles religieuses."],
+    ["Pendant combien de temps les moudjahidines combattent-ils l'armée soviétique ?",["Un an","Trois ans","Dix ans","Vingt ans"],2,"Dix ans, de 1979 à 1989."],
+    ["Quelle conférence organise la transition en décembre 2001 ?",["La conférence de Bonn","La conférence de Doha","La conférence de Genève","La conférence de Paris"],0,"La conférence de Bonn, en Allemagne."],
+    ["Quels commerces les talibans ont-ils fermés dans leur politique contre les femmes ?",["Les salons de beauté","Les boulangeries","Les pharmacies","Les librairies"],0,"Les salons de beauté, parmi d'autres interdits."],
+    ["En quelle année l'Afghanistan obtient-il sa pleine indépendance ?",["1747","1842","1919","1979"],2,"En 1919."]],
+ e:[["Que fait la loi talibane de 2024 sur « la promotion de la vertu » ?",["Elle encadre jusqu'à la voix des femmes en public","Elle rouvre les écoles aux filles","Elle autorise les femmes à travailler à l'ONU","Elle crée des élections"],0,"Elle encadre jusqu'à la voix des femmes en public."],
+    ["En quelle année un coup d'État communiste prend-il le pouvoir à Kaboul ?",["1973","1978","1989","1996"],1,"En 1978. L'URSS envahit le pays en décembre 1979."]],
+ m:[["Avec quel empire naît l'Afghanistan moderne, en 1747 ?",["Celui d'Ahmad Shah Durrani","L'Empire moghol","L'Empire perse safavide","L'Empire britannique des Indes"],0,"L'empire d'Ahmad Shah Durrani."],
+    ["Comment appelle-t-on la rivalité entre Britanniques et Russes en Asie centrale au XIXe siècle ?",["La guerre froide","Le « Grand Jeu »","La Question d'Orient","La guerre de l'opium"],1,"Le « Grand Jeu »."],
+    ["Comment se termine la première guerre anglo-afghane, en 1842 ?",["Par la destruction de l'armée britannique en retraite","Par l'annexion de l'Afghanistan","Par un traité de partage avec la Russie","Par la prise de Kaboul par les Russes"],0,"Par la destruction de l'armée britannique en retraite."],
+    ["Quel peuple la ligne Durand coupe-t-elle en deux ?",["Les Pachtounes","Les Hazaras","Les Ouzbeks","Les Tadjiks"],0,"Les Pachtounes, de part et d'autre de la frontière avec le Pakistan."],
+    ["Quels pays soutiennent les moudjahidines contre l'URSS ?",["Les États-Unis, le Pakistan et l'Arabie saoudite","La Chine, l'Inde et l'Iran","La France, l'Allemagne et l'Italie","La Turquie, l'Égypte et Israël"],0,"Les États-Unis, le Pakistan et l'Arabie saoudite."],
+    ["Que prévoit l'accord de Doha, signé en février 2020 ?",["Le retrait des troupes étrangères, sans le gouvernement afghan","Un partage du pouvoir entre Kaboul et les talibans","Le retour du roi","Des élections sous contrôle de l'ONU"],0,"Le retrait des troupes étrangères, négocié sans le gouvernement afghan."],
+    ["Pendant les vingt ans de république, quels postes des femmes occupent-elles ?",["Juges, députées, journalistes","Aucun poste public","Seulement des postes dans l'armée","Uniquement des postes à l'étranger"],0,"Des femmes deviennent juges, députées, journalistes."],
+    ["Qu'est-ce qui mine la république afghane entre 2001 et 2021 ?",["La corruption, la dépendance à l'aide et l'insurrection talibane","Une invasion iranienne","Une guerre avec l'Inde","Une famine due à la sécheresse seule"],0,"La corruption, la dépendance à l'aide et l'insurrection talibane."],
+    ["Qui la CPI vise-t-elle en juillet 2025, en plus du chef suprême des talibans ?",["Leur ministre des Affaires étrangères","Le président de leur Cour suprême","L'ancien président Ashraf Ghani","Le chef d'Al-Qaïda"],1,"Le président de leur Cour suprême, pour persécution fondée sur le genre."],
+    ["D'où sont souvent renvoyés de force les Afghans rentrés en 2025 ?",["D'Iran et du Pakistan","D'Europe","De Russie","D'Inde"],0,"D'Iran et du Pakistan : environ 2,9 millions de retours en 2025."]]
+},{
+ d:[["Who fought the Soviet army in Afghanistan for ten years?",["The mujahideen","The Taliban","The Islamic State","The Revolutionary Guards"],"The mujahideen, backed notably by the United States and Pakistan."],
+    ["Which president fled Kabul on 15 August 2021?",["Hamid Karzai","Ashraf Ghani","Mullah Omar","Hibatullah Akhundzada"],"Ashraf Ghani, the day the Taliban entered the capital."],
+    ["Which event led to the US-led intervention in 2001?",["The 11 September attacks","The Soviet invasion","The destruction of the Buddhas","An earthquake"],"The 11 September 2001 attacks. The Taliban were sheltering Al-Qaeda."],
+    ["Which organisation did the Taliban shelter before 2001?",["Al-Qaeda","The Islamic State","Hezbollah","Hamas"],"Al-Qaeda."],
+    ["Which country became the first to recognise the Taliban government in 2025?",["China","Russia","Pakistan","Iran"],"Russia."]],
+ i:[["Around which city did the Taliban emerge in 1994?",["Kabul","Kandahar","Herat","Mazar-i-Sharif"],"Around Kandahar, in religious schools."],
+    ["For how long did the mujahideen fight the Soviet army?",["One year","Three years","Ten years","Twenty years"],"Ten years, from 1979 to 1989."],
+    ["Which conference organised the transition in December 2001?",["The Bonn conference","The Doha conference","The Geneva conference","The Paris conference"],"The Bonn conference, in Germany."],
+    ["Which businesses did the Taliban close as part of their policy against women?",["Beauty salons","Bakeries","Pharmacies","Bookshops"],"Beauty salons, among other bans."],
+    ["In which year did Afghanistan gain full independence?",["1747","1842","1919","1979"],"In 1919."]],
+ e:[["What does the Taliban's 2024 law on “the promotion of virtue” do?",["It regulates even women's voices in public","It reopens schools to girls","It lets women work at the UN","It creates elections"],"It regulates even women's voices in public."],
+    ["In which year did a communist coup take power in Kabul?",["1973","1978","1989","1996"],"In 1978. The USSR invaded in December 1979."]],
+ m:[["With which empire did modern Afghanistan emerge in 1747?",["Ahmad Shah Durrani's","The Mughal Empire","The Safavid Persian Empire","British India"],"Ahmad Shah Durrani's empire."],
+    ["What is the 19th-century rivalry between Britain and Russia in Central Asia called?",["The Cold War","The “Great Game”","The Eastern Question","The Opium War"],"The “Great Game”."],
+    ["How did the first Anglo-Afghan war end in 1842?",["With the destruction of the retreating British army","With the annexation of Afghanistan","With a partition treaty with Russia","With Russia taking Kabul"],"With the destruction of the retreating British army."],
+    ["Which people does the Durand Line cut in two?",["The Pashtuns","The Hazaras","The Uzbeks","The Tajiks"],"The Pashtuns, on both sides of the border with Pakistan."],
+    ["Which countries backed the mujahideen against the USSR?",["The United States, Pakistan and Saudi Arabia","China, India and Iran","France, Germany and Italy","Turkey, Egypt and Israel"],"The United States, Pakistan and Saudi Arabia."],
+    ["What did the Doha agreement, signed in February 2020, provide for?",["The withdrawal of foreign troops, without the Afghan government","Power-sharing between Kabul and the Taliban","The king's return","UN-supervised elections"],"The withdrawal of foreign troops, negotiated without the Afghan government."],
+    ["During the twenty years of the republic, which positions did women hold?",["Judges, MPs, journalists","No public positions","Only army posts","Only posts abroad"],"Women became judges, MPs and journalists."],
+    ["What undermined the Afghan republic between 2001 and 2021?",["Corruption, aid dependence and the Taliban insurgency","An Iranian invasion","A war with India","A famine caused by drought alone"],"Corruption, aid dependence and the Taliban insurgency."],
+    ["Whom did the ICC target in July 2025, besides the Taliban supreme leader?",["Their foreign minister","Their chief justice","Former president Ashraf Ghani","Al-Qaeda's leader"],"Their chief justice, for gender persecution."],
+    ["Where were many of the Afghans who returned in 2025 forcibly sent back from?",["Iran and Pakistan","Europe","Russia","India"],"Iran and Pakistan: about 2.9 million returns in 2025."]]
+});
+
+/* ---------- Questions supplémentaires, lot 4 : Haïti, Rohingyas ---------- */
+moreQ("332",{
+ d:[["Comment s'appelait Haïti quand c'était une colonie française ?",["Saint-Domingue","La Martinique","La Guyane","La Louisiane"],0,"Saint-Domingue, la partie ouest de l'île d'Hispaniola."],
+    ["Quelles productions faisaient de Saint-Domingue la colonie la plus rentable du monde ?",["Le sucre et le café","L'or et l'argent","Le coton et le tabac","Le cacao et la vanille"],0,"Le sucre et le café, produits par des centaines de milliers d'esclaves."],
+    ["Quelle épidémie se répand en Haïti en 2010, depuis un camp de casques bleus ?",["Le choléra","Ebola","Le paludisme","La rougeole"],0,"Le choléra. L'ONU reconnaît son rôle en 2016."],
+    ["Quelle famille dirige Haïti de 1957 à 1986 ?",["Les Duvalier","Les Aristide","Les Moïse","Les Louverture"],0,"Les Duvalier, père puis fils, avec leurs milices."],
+    ["Quel pays mène la mission multinationale déployée en Haïti à partir de juin 2024 ?",["Les États-Unis","Le Kenya","La France","Le Brésil"],1,"Le Kenya."]],
+ i:[["En quelle année la République française abolit-elle l'esclavage, sous la pression de l'insurrection ?",["1791","1794","1804","1848"],1,"En 1794. Napoléon le rétablit en 1802 dans d'autres colonies."],
+    ["Quelle coalition réunit les gangs haïtiens en 2024 ?",["Viv Ansanm","Lavalas","Les tontons macoutes","Bois-Caïman"],0,"Viv Ansanm, « Vivre ensemble » en créole."],
+    ["Quel Premier ministre démissionne en avril 2024 ?",["Ariel Henry","Jovenel Moïse","Jean-Bertrand Aristide","René Préval"],0,"Ariel Henry. Un Conseil présidentiel de transition lui succède."],
+    ["Quel pays occupe Haïti de 1915 à 1934 ?",["La France","Les États-Unis","L'Espagne","Le Royaume-Uni"],1,"Les États-Unis."],
+    ["Comment s'appelaient les milices des Duvalier ?",["Les tontons macoutes","Les marrons","Les zinglins","Les cacos"],0,"Les tontons macoutes."]],
+ e:[["Quel roi de France impose par ordonnance l'indemnité de 1825 ?",["Louis XVIII","Charles X","Louis-Philippe","Napoléon III"],1,"Charles X, sous la menace d'une flotte de guerre."],
+    ["En quelle année l'ONU reconnaît-elle son rôle dans l'épidémie de choléra ?",["2010","2013","2016","2021"],2,"En 2016, en présentant des excuses."]],
+ m:[["En quelle année la partie ouest d'Hispaniola est-elle cédée à la France ?",["1492","1697","1791","1825"],1,"En 1697. Elle devient Saint-Domingue."],
+    ["Quel texte encadrait l'esclavage dans les colonies françaises ?",["Le Code noir","Le Code civil","La Déclaration des droits de l'homme","Le traité de Ryswick"],0,"Le Code noir."],
+    ["Quelle expédition Napoléon envoie-t-il en 1802 pour rétablir l'ordre colonial ?",["L'expédition Leclerc","L'expédition d'Égypte","L'expédition du Mexique","L'expédition Rochambeau"],0,"L'expédition Leclerc."],
+    ["Où meurt Toussaint Louverture ?",["Au fort de Joux","À la Bastille","Sur l'île d'Elbe","À Cayenne"],0,"Au fort de Joux, dans le Jura, en 1803."],
+    ["Qu'appelle-t-on la « double dette » d'Haïti ?",["L'indemnité, plus les emprunts aux banques françaises pour la payer","Deux indemnités versées à la France et à l'Espagne","Une dette envers les États-Unis et le FMI","La dette de deux présidents successifs"],0,"L'indemnité exigée par la France, plus les emprunts contractés auprès de banques françaises pour la payer."],
+    ["Sous quelle menace l'ordonnance de 1825 est-elle imposée ?",["Une flotte de guerre","Un embargo américain","Une révolte des colons","L'excommunication"],0,"Sous la menace d'une flotte de guerre française."],
+    ["Qu'annonce la France en 2025 à propos de cette dette ?",["Une commission d'historiens franco-haïtienne","Son remboursement intégral","L'annulation de la dette d'Haïti envers le FMI","Rien"],0,"Une commission d'historiens franco-haïtienne."],
+    ["Quel jour le président Jovenel Moïse est-il assassiné ?",["Le 12 janvier 2010","Le 7 juillet 2021","Le 1er janvier 2004","Le 18 novembre 2003"],1,"Le 7 juillet 2021, chez lui."],
+    ["Qui succède au Premier ministre Ariel Henry en 2024 ?",["Un Conseil présidentiel de transition","Un président élu","Le chef des gangs","Un gouverneur de l'ONU"],0,"Un Conseil présidentiel de transition."],
+    ["Quelle mission de l'ONU était présente lors de l'épidémie de choléra ?",["La MINUSTAH","La MONUSCO","La MINUSMA","La FINUL"],0,"La MINUSTAH, la mission des Nations unies pour la stabilisation en Haïti."]]
+},{
+ d:[["What was Haiti called when it was a French colony?",["Saint-Domingue","Martinique","French Guiana","Louisiana"],"Saint-Domingue, the western part of the island of Hispaniola."],
+    ["Which products made Saint-Domingue the most profitable colony in the world?",["Sugar and coffee","Gold and silver","Cotton and tobacco","Cocoa and vanilla"],"Sugar and coffee, produced by hundreds of thousands of enslaved people."],
+    ["Which epidemic spread in Haiti in 2010 from a peacekeepers' camp?",["Cholera","Ebola","Malaria","Measles"],"Cholera. The UN acknowledged its role in 2016."],
+    ["Which family ruled Haiti from 1957 to 1986?",["The Duvaliers","The Aristides","The Moïses","The Louvertures"],"The Duvaliers, father then son, with their militias."],
+    ["Which country led the multinational mission deployed in Haiti from June 2024?",["The United States","Kenya","France","Brazil"],"Kenya."]],
+ i:[["In which year did the French Republic abolish slavery, under pressure from the uprising?",["1791","1794","1804","1848"],"In 1794. Napoleon restored it in 1802 in other colonies."],
+    ["Which coalition brought Haiti's gangs together in 2024?",["Viv Ansanm","Lavalas","The Tontons Macoutes","Bois Caïman"],"Viv Ansanm, “Living together” in Creole."],
+    ["Which Prime Minister resigned in April 2024?",["Ariel Henry","Jovenel Moïse","Jean-Bertrand Aristide","René Préval"],"Ariel Henry. A Transitional Presidential Council succeeded him."],
+    ["Which country occupied Haiti from 1915 to 1934?",["France","The United States","Spain","The United Kingdom"],"The United States."],
+    ["What were the Duvaliers' militias called?",["The Tontons Macoutes","The maroons","The zinglins","The cacos"],"The Tontons Macoutes."]],
+ e:[["Which French king imposed the 1825 indemnity by ordinance?",["Louis XVIII","Charles X","Louis-Philippe","Napoleon III"],"Charles X, under the threat of a war fleet."],
+    ["In which year did the UN acknowledge its role in the cholera epidemic?",["2010","2013","2016","2021"],"In 2016, with an apology."]],
+ m:[["In which year was the western part of Hispaniola ceded to France?",["1492","1697","1791","1825"],"In 1697. It became Saint-Domingue."],
+    ["Which text governed slavery in the French colonies?",["The Code Noir","The Civil Code","The Declaration of the Rights of Man","The Treaty of Ryswick"],"The Code Noir."],
+    ["Which expedition did Napoleon send in 1802 to restore colonial order?",["The Leclerc expedition","The Egyptian expedition","The Mexican expedition","The Rochambeau expedition"],"The Leclerc expedition."],
+    ["Where did Toussaint Louverture die?",["At the Fort de Joux","In the Bastille","On Elba","In Cayenne"],"At the Fort de Joux, in the Jura, in 1803."],
+    ["What is Haiti's “double debt”?",["The indemnity, plus the loans from French banks to pay it","Two indemnities paid to France and Spain","A debt to the United States and the IMF","The debt of two successive presidents"],"The indemnity demanded by France, plus the loans taken from French banks to pay it."],
+    ["Under what threat was the 1825 ordinance imposed?",["A war fleet","A US embargo","A settlers' revolt","Excommunication"],"Under the threat of a French war fleet."],
+    ["What did France announce in 2025 about this debt?",["A Franco-Haitian commission of historians","Full repayment","Cancelling Haiti's debt to the IMF","Nothing"],"A Franco-Haitian commission of historians."],
+    ["On which day was President Jovenel Moïse assassinated?",["12 January 2010","7 July 2021","1 January 2004","18 November 2003"],"On 7 July 2021, at his home."],
+    ["Who succeeded Prime Minister Ariel Henry in 2024?",["A Transitional Presidential Council","An elected president","The gang leader","A UN governor"],"A Transitional Presidential Council."],
+    ["Which UN mission was present during the cholera epidemic?",["MINUSTAH","MONUSCO","MINUSMA","UNIFIL"],"MINUSTAH, the UN Stabilization Mission in Haiti."]]
+});
+
+moreQ("104",{
+ d:[["Comment les autorités birmanes appellent-elles les Rohingyas ?",["Des « Bengalis »","Des « Arakanais »","Des « Karens »","Des « Chins »"],0,"Des « Bengalis », pour les présenter comme des immigrés récents. Elles refusent le nom de Rohingya."],
+    ["En quel mois de 2017 commence l'exode des Rohingyas ?",["Janvier","Avril","Août","Décembre"],2,"Le 25 août 2017."],
+    ["Quelle dirigeante vient défendre la Birmanie devant la Cour internationale de Justice en 2019 ?",["Aung San Suu Kyi","Sheikh Hasina","Benazir Bhutto","Indira Gandhi"],0,"Aung San Suu Kyi, prix Nobel de la paix."],
+    ["Que se passe-t-il en Birmanie le 1er février 2021 ?",["Des élections libres","Un coup d'État militaire","Un séisme","Un accord de paix"],1,"Un coup d'État : le général Min Aung Hlaing prend le pouvoir."],
+    ["Quel réseau social reconnaît avoir servi à propager la haine contre les Rohingyas ?",["Facebook","TikTok","X","YouTube"],0,"Facebook."]],
+ i:[["Quel groupe attaque des postes de police le 25 août 2017 ?",["L'Armée d'Arakan","L'Armée du salut des Rohingyas de l'Arakan","L'armée du Bangladesh","Le Front de libération karen"],1,"L'Armée du salut des Rohingyas de l'Arakan. L'armée birmane répond par des « opérations de nettoyage »."],
+    ["Combien de Rohingyas sont enfermés dans des camps près de Sittwe après les violences de 2012 ?",["10 000","Plus de 100 000","700 000","1 million"],1,"Plus de 100 000."],
+    ["Quand la Cour internationale de Justice ordonne-t-elle des mesures provisoires pour protéger les Rohingyas ?",["En novembre 2019","En janvier 2020","En février 2021","En janvier 2026"],1,"En janvier 2020."],
+    ["Quel groupe armé contrôle aujourd'hui une grande partie de l'Arakan ?",["L'Armée d'Arakan","L'armée du Bangladesh","Les Nations unies","L'Armée du salut des Rohingyas"],0,"L'Armée d'Arakan, elle aussi accusée d'exactions contre les Rohingyas."],
+    ["Quelle part des Rohingyas déplacés vit au Bangladesh ?",["30 %","50 %","Près de 90 %","100 %"],2,"Près de 90 % des 1,28 million de Rohingyas déplacés."]],
+ e:[["Dans quel village a lieu l'un des massacres de 2017 cités par les enquêtes ?",["Tula Toli","Sittwe","Mrauk U","Cox's Bazar"],0,"Tula Toli."],
+    ["Quel pays émet en 2025 des mandats d'arrêt au nom de la compétence universelle ?",["L'Argentine","La Gambie","La France","La Belgique"],0,"L'Argentine, dont la justice peut juger certains crimes commis ailleurs."]],
+ m:[["En quelle année les Britanniques s'emparent-ils de l'Arakan ?",["1784","1826","1942","1962"],1,"En 1826, après la conquête birmane de 1784."],
+    ["D'où viennent les travailleurs installés en Arakan sous l'Empire britannique des Indes ?",["Du Bengale","De Chine","De Thaïlande","Du Népal"],0,"Du Bengale. Ce passé est aujourd'hui instrumentalisé contre tous les Rohingyas."],
+    ["Quel général prend le pouvoir par un coup d'État en 1962 ?",["Ne Win","Min Aung Hlaing","Aung San","Than Shwe"],0,"Le général Ne Win. Les Rohingyas sont ensuite progressivement exclus."],
+    ["Combien de personnes fuient au Bangladesh lors de l'opération Nagamin, en 1978 ?",["20 000","Environ 200 000","700 000","2 millions"],1,"Environ 200 000 personnes."],
+    ["Comment l'opération Nagamin est-elle présentée par le pouvoir ?",["Comme un contrôle des étrangers","Comme une campagne de vaccination","Comme un recensement agricole","Comme une opération contre la drogue"],0,"Comme un contrôle des étrangers."],
+    ["Quelles restrictions subissent les Rohingyas devenus apatrides ?",["Mariage, circulation, accès aux études","Aucune","Seulement le droit de vote","Seulement le service militaire"],0,"Des restrictions de mariage, de circulation et d'accès aux études."],
+    ["En quelle année des violences opposent déjà musulmans et bouddhistes de l'Arakan ?",["1826","1942","1962","1978"],1,"En 1942, pendant la Seconde Guerre mondiale."],
+    ["Comment l'armée birmane appelle-t-elle ses opérations de 2017 ?",["Des « opérations de nettoyage »","Une « opération de paix »","Un « recensement »","Une « évacuation humanitaire »"],0,"Des « opérations de nettoyage » : villages incendiés, massacres, viols de masse."],
+    ["Que demande en 2018 la mission d'établissement des faits de l'ONU ?",["Une enquête pour génocide visant des hauts gradés, dont Min Aung Hlaing","La dissolution de l'armée birmane","L'indépendance de l'Arakan","Le rattachement de l'Arakan au Bangladesh"],0,"Une enquête pour génocide visant des hauts gradés, dont le général Min Aung Hlaing."],
+    ["Que demande le procureur de la CPI en novembre 2024 ?",["Un mandat d'arrêt contre Min Aung Hlaing","La libération d'Aung San Suu Kyi","Des élections en Birmanie","Le retour des réfugiés"],0,"Un mandat d'arrêt contre Min Aung Hlaing."]]
+},{
+ d:[["What do the Burmese authorities call the Rohingya?",["“Bengalis”","“Arakanese”","“Karens”","“Chins”"],"“Bengalis”, to present them as recent immigrants. They reject the name Rohingya."],
+    ["In which month of 2017 did the Rohingya exodus begin?",["January","April","August","December"],"On 25 August 2017."],
+    ["Which leader came to defend Myanmar before the International Court of Justice in 2019?",["Aung San Suu Kyi","Sheikh Hasina","Benazir Bhutto","Indira Gandhi"],"Aung San Suu Kyi, Nobel Peace Prize laureate."],
+    ["What happened in Myanmar on 1 February 2021?",["Free elections","A military coup","An earthquake","A peace agreement"],"A coup: General Min Aung Hlaing seized power."],
+    ["Which social network admitted it had been used to spread hatred against the Rohingya?",["Facebook","TikTok","X","YouTube"],"Facebook."]],
+ i:[["Which group attacked police posts on 25 August 2017?",["The Arakan Army","The Arakan Rohingya Salvation Army","Bangladesh's army","The Karen Liberation Front"],"The Arakan Rohingya Salvation Army. The Burmese army responded with “clearance operations”."],
+    ["How many Rohingya were confined to camps near Sittwe after the 2012 violence?",["10,000","More than 100,000","700,000","1 million"],"More than 100,000."],
+    ["When did the International Court of Justice order provisional measures to protect the Rohingya?",["November 2019","January 2020","February 2021","January 2026"],"In January 2020."],
+    ["Which armed group now controls much of Arakan?",["The Arakan Army","Bangladesh's army","The United Nations","The Arakan Rohingya Salvation Army"],"The Arakan Army, also accused of abuses against the Rohingya."],
+    ["What share of displaced Rohingya live in Bangladesh?",["30%","50%","Nearly 90%","100%"],"Nearly 90% of the 1.28 million displaced Rohingya."]],
+ e:[["In which village did one of the 2017 massacres cited by investigators take place?",["Tula Toli","Sittwe","Mrauk U","Cox's Bazar"],"Tula Toli."],
+    ["Which country issued arrest warrants in 2025 under universal jurisdiction?",["Argentina","The Gambia","France","Belgium"],"Argentina, whose courts can try certain crimes committed elsewhere."]],
+ m:[["In which year did the British take Arakan?",["1784","1826","1942","1962"],"In 1826, after the Burmese conquest of 1784."],
+    ["Where did the workers who settled in Arakan under British India come from?",["Bengal","China","Thailand","Nepal"],"Bengal. This past is now used against all Rohingya."],
+    ["Which general seized power in a coup in 1962?",["Ne Win","Min Aung Hlaing","Aung San","Than Shwe"],"General Ne Win. The Rohingya were then gradually excluded."],
+    ["How many people fled to Bangladesh during Operation Nagamin in 1978?",["20,000","About 200,000","700,000","2 million"],"About 200,000 people."],
+    ["How was Operation Nagamin presented by the authorities?",["As a check on foreigners","As a vaccination campaign","As an agricultural census","As an anti-drug operation"],"As a check on foreigners."],
+    ["Which restrictions do the stateless Rohingya face?",["Marriage, movement, access to education","None","Only the right to vote","Only military service"],"Restrictions on marriage, movement and access to education."],
+    ["In which year did violence already pit Muslims against Buddhists in Arakan?",["1826","1942","1962","1978"],"In 1942, during the Second World War."],
+    ["What did the Burmese army call its 2017 operations?",["“Clearance operations”","A “peace operation”","A “census”","A “humanitarian evacuation”"],"“Clearance operations”: villages burned, massacres, mass rape."],
+    ["What did the UN Fact-Finding Mission call for in 2018?",["A genocide investigation of senior officers, including Min Aung Hlaing","The dissolution of the Burmese army","Independence for Arakan","Arakan joining Bangladesh"],"A genocide investigation of senior officers, including General Min Aung Hlaing."],
+    ["What did the ICC prosecutor request in November 2024?",["An arrest warrant for Min Aung Hlaing","Aung San Suu Kyi's release","Elections in Myanmar","The refugees' return"],"An arrest warrant for Min Aung Hlaing."]]
+});
+
+/* ---------- Questions supplémentaires, lot 5 : Cameroun, Ouïghours, Colombie, Éthiopie ---------- */
+moreQ("120",{
+ d:[["Comment s'appellent les deux régions anglophones du Cameroun ?",["Le Nord et le Sud","Le Nord-Ouest et le Sud-Ouest","L'Est et l'Ouest","Le Centre et le Littoral"],1,"Le Nord-Ouest et le Sud-Ouest."],
+    ["Entre quels pays le Cameroun est-il partagé après la colonisation allemande ?",["La Belgique et le Portugal","L'Espagne et l'Italie","La France et le Royaume-Uni","Les États-Unis et la France"],2,"La France et le Royaume-Uni, d'où les deux langues."],
+    ["Quel jour de la semaine les groupes armés imposent-ils les « villes mortes » ?",["Le lundi","Le mercredi","Le vendredi","Le dimanche"],0,"Le lundi : tout doit s'arrêter."],
+    ["Qu'ont imposé les séparatistes aux écoles ?",["Un uniforme","Des cours en allemand","Des cours le dimanche","Un boycott"],3,"Un boycott, et des établissements ont été attaqués."],
+    ["Où beaucoup de familles envoient-elles leurs enfants étudier ?",["En Europe","Dans les villes francophones","Dans des camps","Sur les côtes"],1,"Dans les villes francophones, plus sûres."]],
+ i:[["En quelle année la partie française du Cameroun devient-elle indépendante ?",["1945","1960","1961","1972"],1,"En 1960. La partie britannique du Sud la rejoint en 1961."],
+    ["Comment le Cameroun britannique du Sud choisit-il de rejoindre le Cameroun ?",["Par référendum","Par une guerre","Par un traité secret","Par décision de l'Allemagne"],0,"Par référendum, en 1961."],
+    ["Combien d'incidents sont enregistrés dans les régions anglophones entre janvier et mars 2026 ?",["67","278","676","6 760"],2,"676 incidents, qui ont fait 278 morts."],
+    ["Qu'est-ce qui a durci le mouvement de protestation de 2016 ?",["Une victoire électorale","La répression","Une crise pétrolière","L'arrivée de Boko Haram"],1,"La répression des grèves a radicalisé une partie du mouvement."],
+    ["Que dénoncent depuis longtemps les régions anglophones ?",["Un impôt trop lourd","L'absence de routes","Un excès de touristes","Une marginalisation linguistique et culturelle"],3,"Une marginalisation linguistique et culturelle."]],
+ e:[["Avec les avocats, quels professionnels lancent les grèves de 2016 ?",["Les médecins","Les militaires","Les enseignants","Les journalistes"],2,"Les enseignants, contre l'envoi de professeurs francophones."],
+    ["Comment s'appelait la colonie allemande ?",["Kamerun","Ambazonie","Togoland","Biafra"],0,"Le Kamerun."],
+    ["Que subissent parfois les agents de santé dans les régions anglophones ?",["Des primes","Des enlèvements ou des arrestations","Des formations à l'étranger","Rien de particulier"],1,"Ils sont parfois enlevés ou arrêtés."],
+    ["Quelle mesure, en plus des « villes mortes », les groupes armés imposent-ils ?",["Un service militaire","Une taxe sur le pétrole","Une langue unique","Des confinements"],3,"Des confinements, qui paralysent la vie quotidienne."],
+    ["Quelles violences contre les civils les ONG décrivent-elles ?",["Des villages incendiés, des enlèvements et des exécutions","Seulement des amendes","Des expulsions vers l'Europe","Aucune, la zone est calme"],0,"Villages incendiés, enlèvements, exécutions, attribués aux deux camps."]]
+},{
+ d:[["What are the names of Cameroon's two anglophone regions?",["North and South","North-West and South-West","East and West","Centre and Littoral"],"North-West and South-West."],
+    ["Between which countries was Cameroon divided after German colonisation?",["Belgium and Portugal","Spain and Italy","France and the United Kingdom","The United States and France"],"France and the United Kingdom, hence the two languages."],
+    ["On which day of the week do armed groups impose “ghost towns”?",["Monday","Wednesday","Friday","Sunday"],"Monday: everything must stop."],
+    ["What did the separatists impose on schools?",["A uniform","Lessons in German","Sunday lessons","A boycott"],"A boycott, and some schools were attacked."],
+    ["Where do many families send their children to study?",["To Europe","To francophone cities","To camps","To the coast"],"To francophone cities, which are safer."]],
+ i:[["In which year did French Cameroon become independent?",["1945","1960","1961","1972"],"In 1960. British Southern Cameroons joined it in 1961."],
+    ["How did British Southern Cameroons choose to join Cameroon?",["By referendum","Through a war","Through a secret treaty","By decision of Germany"],"By referendum, in 1961."],
+    ["How many incidents were recorded in the anglophone regions between January and March 2026?",["67","278","676","6,760"],"676 incidents, which killed 278 people."],
+    ["What hardened the 2016 protest movement?",["An election victory","Repression","An oil crisis","The arrival of Boko Haram"],"Repression of the strikes radicalised part of the movement."],
+    ["What have the anglophone regions long denounced?",["Heavy taxes","A lack of roads","Too many tourists","Linguistic and cultural marginalisation"],"Linguistic and cultural marginalisation."]],
+ e:[["Together with lawyers, which professionals launched the 2016 strikes?",["Doctors","Soldiers","Teachers","Journalists"],"Teachers, against the posting of francophone teachers."],
+    ["What was the German colony called?",["Kamerun","Ambazonia","Togoland","Biafra"],"Kamerun."],
+    ["What do health workers in the anglophone regions sometimes face?",["Bonuses","Kidnapping or arrest","Training abroad","Nothing in particular"],"They are sometimes kidnapped or arrested."],
+    ["Besides “ghost towns”, what measure do armed groups impose?",["Military service","An oil tax","A single language","Lockdowns"],"Lockdowns, which paralyse daily life."],
+    ["What violence against civilians do NGOs describe?",["Burned villages, kidnappings and executions","Only fines","Expulsions to Europe","None, the area is calm"],"Burned villages, kidnappings, executions, attributed to both sides."]]
+});
+
+moreQ("156",{
+ d:[["Les Ouïghours sont un peuple…",["Sinophone","Tibétain","Turcophone","Persanophone"],2,"Turcophone et majoritairement musulman."],
+    ["Où vivent les Tibétains ?",["Sur le haut plateau himalayen","Sur la côte chinoise","Dans le désert de Gobi","À Hong Kong"],0,"Sur le haut plateau himalayen."],
+    ["De qui le dalaï-lama est-il le chef spirituel ?",["Des musulmans ouïghours","Des bouddhistes tibétains","Des chrétiens de Chine","Des hindous du Népal"],1,"Des bouddhistes tibétains."],
+    ["Comment la Chine réagit-elle au rapport de l'ONU de 2022 ?",["Elle l'accepte","Elle ferme tous les camps","Elle s'excuse","Elle le rejette"],3,"Pékin rejette le rapport."],
+    ["Quel pays adopte en 2021 une loi contre les produits issus du travail forcé ?",["Les États-Unis","La Russie","La Chine","L'Inde"],0,"Les États-Unis, suivis par l'Union européenne en 2024."]],
+ i:[["En quelle année la région autonome ouïghoure du Xinjiang est-elle créée ?",["1949","1955","1959","2017"],1,"En 1955."],
+    ["Quel soulèvement précède l'exil du dalaï-lama en 1959 ?",["Celui de Pékin","Celui de Shanghai","Celui de Lhassa","Celui de Kachgar"],2,"Le soulèvement de Lhassa, au Tibet."],
+    ["Quel organisme de l'ONU publie le rapport de 2022 sur le Xinjiang ?",["Le Haut-Commissariat aux droits de l'homme","Le Conseil de sécurité","L'UNESCO","L'OMS"],0,"Le Haut-Commissariat aux droits de l'homme."],
+    ["Comment Human Rights Watch désigne-t-il les camps du Xinjiang ?",["Des camps de vacances","Des hôpitaux","Des casernes","Des camps dits d'« éducation politique »"],3,"Des camps dits d'« éducation politique »."],
+    ["Combien de responsables ont été jugés pour ces crimes ?",["Plusieurs centaines","Une dizaine","Aucun","Un seul"],2,"Aucun. L'impunité demeure."]],
+ e:[["En quelle année la région passe-t-elle sous le contrôle de la République populaire de Chine ?",["1911","1949","1955","1966"],1,"En 1949. Elle devient région autonome en 1955."],
+    ["Que disent ignorer des familles ouïghoures de la diaspora ?",["La langue de leurs proches","Le nom de leur ville","La date des élections","Où sont leurs proches, et même s'ils sont vivants"],3,"Beaucoup ne savent pas où sont leurs proches, ni s'ils sont vivants."],
+    ["Même si certains camps semblent fermés, combien de personnes restent emprisonnées ?",["Quelques dizaines","Quelques milliers","Des centaines de milliers","Plus de 100 millions"],2,"Des centaines de milliers, selon les chiffres officiels disponibles."],
+    ["Que demandent les ONG aux États ?",["De rompre tout commerce avec l'Asie","Des sanctions ciblées et l'application des recommandations de l'ONU","Une guerre contre la Chine","De ne rien faire"],1,"Des sanctions ciblées et l'application des recommandations de l'ONU."],
+    ["Qui, en plus des Ouïghours, est visé par la détention de masse au Xinjiang ?",["Les Tibétains seuls","Les touristes étrangers","Les Chinois han","D'autres musulmans turcophones"],3,"D'autres musulmans turcophones."]]
+},{
+ d:[["The Uyghurs are a… people",["Chinese-speaking","Tibetan","Turkic-speaking","Persian-speaking"],"Turkic-speaking and mostly Muslim."],
+    ["Where do Tibetans live?",["On the high Himalayan plateau","On the Chinese coast","In the Gobi desert","In Hong Kong"],"On the high Himalayan plateau."],
+    ["Who does the Dalai Lama lead spiritually?",["Uyghur Muslims","Tibetan Buddhists","Chinese Christians","Nepalese Hindus"],"Tibetan Buddhists."],
+    ["How did China respond to the 2022 UN report?",["It accepted it","It closed all the camps","It apologised","It rejected it"],"Beijing rejected the report."],
+    ["Which country passed a law against forced-labour products in 2021?",["The United States","Russia","China","India"],"The United States, followed by the European Union in 2024."]],
+ i:[["In which year was the Xinjiang Uyghur Autonomous Region created?",["1949","1955","1959","2017"],"In 1955."],
+    ["Which uprising preceded the Dalai Lama's exile in 1959?",["Beijing","Shanghai","Lhasa","Kashgar"],"The Lhasa uprising, in Tibet."],
+    ["Which UN body published the 2022 report on Xinjiang?",["The Office of the High Commissioner for Human Rights","The Security Council","UNESCO","The WHO"],"The Office of the High Commissioner for Human Rights."],
+    ["What does Human Rights Watch call the Xinjiang camps?",["Holiday camps","Hospitals","Barracks","So-called “political education” camps"],"So-called “political education” camps."],
+    ["How many officials have been tried for these crimes?",["Several hundred","About ten","None","Just one"],"None. Impunity remains."]],
+ e:[["In which year did the region come under the control of the People's Republic of China?",["1911","1949","1955","1966"],"In 1949. It became an autonomous region in 1955."],
+    ["What do Uyghur families in the diaspora say they do not know?",["Their relatives' language","The name of their town","The election date","Where their relatives are, or even if they are alive"],"Many don't know where their relatives are, or whether they are alive."],
+    ["Even if some camps seem closed, how many people remain in prison?",["A few dozen","A few thousand","Hundreds of thousands","More than 100 million"],"Hundreds of thousands, according to available official figures."],
+    ["What do NGOs ask states to do?",["Cut all trade with Asia","Impose targeted sanctions and apply the UN's recommendations","Go to war with China","Do nothing"],"Targeted sanctions and applying the UN's recommendations."],
+    ["Besides Uyghurs, who is targeted by mass detention in Xinjiang?",["Only Tibetans","Foreign tourists","Han Chinese","Other Turkic Muslims"],"Other Turkic Muslims."]]
+});
+
+moreQ("170",{
+ d:[["Qui s'affronte pendant « la Violencia » ?",["Les FARC et l'armée","Les libéraux et les conservateurs","Les cartels entre eux","La Colombie et le Venezuela"],1,"Libéraux et conservateurs, de 1948 à 1958."],
+    ["Les FARC sont une guérilla…",["D'extrême gauche","D'extrême droite","Religieuse","Indépendantiste"],0,"D'extrême gauche, née en 1964."],
+    ["Où la violence du conflit frappe-t-elle surtout ?",["Dans les grandes villes","Dans les îles","Dans les campagnes","Dans les ambassades"],2,"Dans les campagnes."],
+    ["Quel autre groupe de guérilla naît dans les années 1960, à côté des FARC ?",["Le Sentier lumineux","Les zapatistes","Les Tupamaros","L'ELN"],3,"L'ELN, toujours active aujourd'hui."],
+    ["Qui a été assassiné par centaines depuis l'accord de paix ?",["Des leaders sociaux et d'anciens combattants","Des touristes","Des diplomates","Des footballeurs"],0,"Des centaines de leaders sociaux et d'anciens combattants."]],
+ i:[["Combien de temps durent les négociations de La Havane ?",["Un an","Quatre ans","Dix ans","Vingt ans"],1,"Quatre ans, jusqu'à l'accord de 2016."],
+    ["Contre qui se forment les groupes paramilitaires d'extrême droite ?",["Les cartels","L'armée","Les guérillas","Les États-Unis"],2,"Contre les guérillas."],
+    ["À qui les paramilitaires sont-ils souvent liés ?",["Aux syndicats","À l'Église","Aux étudiants","À des propriétaires terriens et au trafic de drogue"],3,"À des propriétaires terriens et au trafic de drogue."],
+    ["Qui occupe les territoires laissés libres par les FARC après 2016 ?",["L'ELN et des dissidents des FARC","Des casques bleus","L'armée vénézuélienne","Personne"],0,"L'ELN et des dissidents des FARC."],
+    ["Quelles armes cachées touchent les campagnes colombiennes ?",["Les drones","Les mines antipersonnel","Les armes chimiques","Les missiles"],1,"Les mines antipersonnel."]],
+ e:[["Quelle violence contre les enfants le conflit a-t-il entraînée ?",["Leur recrutement par les groupes armés","Leur adoption à l'étranger","L'interdiction des jouets","Leur vote forcé"],0,"Le recrutement d'enfants par les groupes armés."],
+    ["Quelle part des déplacés internes du monde la Colombie, le Soudan, la Syrie, le Yémen et l'Afghanistan réunissent-ils ?",["16 %","46 %","66 %","86 %"],1,"46 % à eux cinq, fin 2025."],
+    ["Pendant quelles années dure « la Violencia » ?",["1900-1910","1930-1940","1964-2016","1948-1958"],3,"De 1948 à 1958."],
+    ["Quelle place la Colombie occupe-t-elle comme pays d'accueil dans la région ?",["L'un des premiers","Le dernier","Elle n'accueille personne","Elle n'accueille que des Européens"],0,"L'un des premiers, avec près de 3 millions de Vénézuéliens."],
+    ["Qui, en plus des cartels, finance sa guerre par la drogue ?",["L'ONU","L'Église","Les guérillas et les paramilitaires","Les syndicats"],2,"Guérillas et paramilitaires."]]
+},{
+ d:[["Who fought each other during “La Violencia”?",["The FARC and the army","Liberals and Conservatives","The cartels","Colombia and Venezuela"],"Liberals and Conservatives, from 1948 to 1958."],
+    ["The FARC are a… guerrilla",["Far-left","Far-right","Religious","Separatist"],"Far-left, founded in 1964."],
+    ["Where did the conflict's violence strike most?",["In big cities","On islands","In the countryside","In embassies"],"In the countryside."],
+    ["Which other guerrilla group was born in the 1960s, alongside the FARC?",["The Shining Path","The Zapatistas","The Tupamaros","The ELN"],"The ELN, still active today."],
+    ["Who has been killed by the hundreds since the peace deal?",["Social leaders and former fighters","Tourists","Diplomats","Footballers"],"Hundreds of social leaders and former fighters."]],
+ i:[["How long did the Havana negotiations last?",["One year","Four years","Ten years","Twenty years"],"Four years, until the 2016 deal."],
+    ["Against whom were the far-right paramilitary groups formed?",["The cartels","The army","The guerrillas","The United States"],"Against the guerrillas."],
+    ["Who were the paramilitaries often linked to?",["Trade unions","The Church","Students","Landowners and drug trafficking"],"Landowners and drug trafficking."],
+    ["Who took over the territories left by the FARC after 2016?",["The ELN and FARC dissidents","UN peacekeepers","The Venezuelan army","Nobody"],"The ELN and FARC dissidents."],
+    ["Which hidden weapons affect Colombia's countryside?",["Drones","Anti-personnel mines","Chemical weapons","Missiles"],"Anti-personnel mines."]],
+ e:[["What violence against children did the conflict involve?",["Recruitment by armed groups","Adoption abroad","A ban on toys","Forced voting"],"Recruitment of children by armed groups."],
+    ["What share of the world's IDPs do Colombia, Sudan, Syria, Yemen and Afghanistan hold together?",["16%","46%","66%","86%"],"46% between the five of them, at the end of 2025."],
+    ["In which years did “La Violencia” take place?",["1900-1910","1930-1940","1964-2016","1948-1958"],"From 1948 to 1958."],
+    ["What is Colombia's place as a host country in the region?",["One of the first","The last","It hosts no one","It hosts only Europeans"],"One of the first, with nearly 3 million Venezuelans."],
+    ["Besides the cartels, who financed their war with drugs?",["The UN","The Church","Guerrillas and paramilitaries","Trade unions"],"Guerrillas and paramilitaries."]]
+});
+
+moreQ("231",{
+ d:[["L'Éthiopie a-t-elle été durablement colonisée ?",["Oui, par la France","Oui, par le Royaume-Uni","Non, jamais durablement","Oui, par l'Allemagne"],2,"Non. C'est l'un des plus anciens États d'Afrique."],
+    ["Quelle catastrophe marque l'Éthiopie dans les années 1980 ?",["Une terrible famine","Un tsunami","Une éruption volcanique","Une épidémie de choléra"],0,"Une terrible famine."],
+    ["Qui devient Premier ministre de l'Éthiopie en 2018 ?",["Haïlé Sélassié","Abiy Ahmed","Kofi Annan","Paul Kagame"],1,"Abiy Ahmed."],
+    ["Parmi ces peuples, lequel vit en Éthiopie ?",["Les Ouïghours","Les Rohingyas","Les Kurdes","Les Oromos"],3,"Les Oromos, avec les Amharas, les Tigréens, les Somalis et bien d'autres."],
+    ["Quels phénomènes climatiques aggravent la situation ?",["Les sécheresses et les inondations","La neige et le verglas","Les typhons","Les tremblements de terre"],0,"Sécheresses et inondations."]],
+ i:[["Quand la guerre du Tigré éclate-t-elle ?",["En mars 2018","En janvier 2019","En novembre 2020","En novembre 2022"],2,"En novembre 2020."],
+    ["Quelle méthode prive le Tigré de nourriture et de soins pendant la guerre ?",["Un embargo sur Internet","Un siège","Un blocus maritime","Une interdiction de voyager"],1,"Un siège."],
+    ["En plus de l'Amhara, quelle région connaît des violences depuis 2023 ?",["L'Oromia","Le Tigré seulement","Addis-Abeba","Aucune"],0,"L'Oromia."],
+    ["Comment évoluent les financements humanitaires pour l'Éthiopie ?",["Ils doublent","Ils restent stables","Ils triplent","Ils baissent"],3,"Ils baissent, alors que les besoins augmentent."],
+    ["Qui s'affronte pendant la guerre du Tigré ?",["L'Éthiopie et la Somalie","Le gouvernement fédéral et les autorités du Tigré","L'Érythrée et le Soudan","Les Oromos et les Somalis"],1,"Le gouvernement fédéral et les autorités du Tigré."]],
+ e:[["Qui étaient les milices Fano avant 2023 ?",["Des rebelles tigréens","Des soldats érythréens","Des alliées du gouvernement contre le Tigré","Des casques bleus"],2,"Elles étaient alliées du gouvernement contre le Tigré."],
+    ["En plus des massacres, quelles violences marquent la guerre du Tigré ?",["Des violences sexuelles","Des expulsions vers l'Europe","Des amendes","Aucune autre"],0,"Des violences sexuelles, et un siège."],
+    ["Quel âge a l'État éthiopien ?",["Il est né en 1991","Il est né en 1960","Il est né en 2018","C'est l'un des plus anciens États d'Afrique"],3,"L'un des plus anciens États d'Afrique."],
+    ["Combien de temps dure environ la guerre du Tigré ?",["Six mois","Deux ans","Cinq ans","Dix ans"],1,"Deux ans, de novembre 2020 à novembre 2022."],
+    ["Combien de peuples l'Éthiopie réunit-elle ?",["Deux","Trois","Des dizaines","Un seul"],2,"Des dizaines de peuples."]]
+},{
+ d:[["Was Ethiopia ever lastingly colonised?",["Yes, by France","Yes, by the United Kingdom","No, never lastingly","Yes, by Germany"],"No. It is one of Africa's oldest states."],
+    ["Which disaster struck Ethiopia in the 1980s?",["A terrible famine","A tsunami","A volcanic eruption","A cholera epidemic"],"A terrible famine."],
+    ["Who became Ethiopia's Prime Minister in 2018?",["Haile Selassie","Abiy Ahmed","Kofi Annan","Paul Kagame"],"Abiy Ahmed."],
+    ["Which of these peoples lives in Ethiopia?",["The Uyghurs","The Rohingya","The Kurds","The Oromo"],"The Oromo, with the Amhara, Tigrayans, Somalis and many others."],
+    ["Which climate events make the situation worse?",["Droughts and floods","Snow and ice","Typhoons","Earthquakes"],"Droughts and floods."]],
+ i:[["When did the Tigray war break out?",["March 2018","January 2019","November 2020","November 2022"],"In November 2020."],
+    ["Which method deprived Tigray of food and care during the war?",["An internet embargo","A siege","A naval blockade","A travel ban"],"A siege."],
+    ["Besides Amhara, which region has seen violence since 2023?",["Oromia","Only Tigray","Addis Ababa","None"],"Oromia."],
+    ["How is humanitarian funding for Ethiopia changing?",["It is doubling","It is stable","It is tripling","It is falling"],"It is falling, while needs are rising."],
+    ["Who fought each other in the Tigray war?",["Ethiopia and Somalia","The federal government and the Tigray authorities","Eritrea and Sudan","The Oromo and the Somalis"],"The federal government and the Tigray authorities."]],
+ e:[["Who were the Fano militias before 2023?",["Tigrayan rebels","Eritrean soldiers","Allies of the government against Tigray","UN peacekeepers"],"They were allies of the government against Tigray."],
+    ["Besides massacres, what violence marked the Tigray war?",["Sexual violence","Expulsions to Europe","Fines","No other"],"Sexual violence, and a siege."],
+    ["How old is the Ethiopian state?",["Born in 1991","Born in 1960","Born in 2018","One of Africa's oldest states"],"One of Africa's oldest states."],
+    ["Roughly how long did the Tigray war last?",["Six months","Two years","Five years","Ten years"],"Two years, from November 2020 to November 2022."],
+    ["How many peoples does Ethiopia bring together?",["Two","Three","Dozens","Just one"],"Dozens of peoples."]]
+});
+
+/* ---------- Questions supplémentaires, lot 6 : Érythrée, Papouasie, Iran ---------- */
+moreQ("232",{
+ d:[["Combien de temps dure la guerre d'indépendance de l'Érythrée ?",["Deux ans","Dix ans","Trente ans","Cent ans"],2,"Trente ans, de 1961 à l'indépendance."],
+    ["Existe-t-il une presse indépendante en Érythrée ?",["Oui, très libre","Oui, mais seulement en ligne","Oui, depuis 2001","Non"],3,"Non. Il n'y a ni presse indépendante ni partis d'opposition."],
+    ["Combien de temps des jeunes passent-ils parfois au service national ?",["Un mois","Dix ans ou plus","Six mois","Une semaine"],1,"Dix ans ou plus, alors qu'il devait durer 18 mois."],
+    ["Comment l'indépendance est-elle décidée en 1993 ?",["Par référendum","Par un tirage au sort","Par décision de l'Italie","Par un coup d'État"],0,"Par référendum."],
+    ["Par quel pays d'Afrique du Nord passent beaucoup d'Érythréens avant la Méditerranée ?",["Le Maroc","L'Algérie","La Libye","La Tunisie"],2,"La Libye, après le Soudan ou l'Éthiopie."]],
+ i:[["À quoi les jeunes du service national sont-ils souvent affectés ?",["À des chantiers ou à des entreprises","À des études à l'étranger","À des missions de l'ONU","À des clubs de sport"],0,"À des chantiers ou à des entreprises."],
+    ["Comment les jeunes du service national sont-ils payés ?",["Très bien","Comme en Europe","En terres agricoles","Très faiblement"],3,"Pour un salaire très faible."],
+    ["Combien de partis d'opposition sont autorisés en Érythrée ?",["Une dizaine","Aucun","Deux","Un seul"],1,"Aucun."],
+    ["Quand l'Érythrée est-elle rattachée à l'Éthiopie, avant son annexion ?",["Après la Première Guerre mondiale","Au XIXe siècle","Après la Seconde Guerre mondiale","En 1993"],2,"Après la Seconde Guerre mondiale. L'annexion suit en 1962."],
+    ["Quelle source mesure l'esclavage moderne en Érythrée ?",["Le Global Slavery Index","La Banque mondiale","Le FMI","L'UNESCO"],0,"Le Global Slavery Index."]],
+ e:[["En quelle année commence la guerre d'indépendance ?",["1945","1961","1962","1993"],1,"En 1961, un an avant l'annexion par l'Éthiopie."],
+    ["Quel crime contre l'humanité l'ONU relie-t-elle au service national ?",["Le génocide","La déportation","La torture seule","La réduction en esclavage"],3,"La réduction en esclavage, selon la commission de 2016."],
+    ["Où les Érythréens comptent-ils parmi les nationalités les plus nombreuses ?",["Chez les réfugiés d'Afrique de l'Est et les demandeurs d'asile en Europe","Chez les touristes en Asie","Chez les étudiants en Amérique","Nulle part"],0,"Chez les réfugiés d'Afrique de l'Est et les demandeurs d'asile en Europe."],
+    ["Quelle est la situation de la Constitution érythréenne ?",["Elle vient d'être réformée","Elle a été votée en 2020","Elle n'est pas appliquée","Elle n'existe que pour les étrangers"],2,"Elle n'est pas appliquée."],
+    ["Comment se situe le taux d'esclavage moderne de l'Érythrée dans le monde ?",["Parmi les plus bas","Parmi les plus élevés","Dans la moyenne","Il est nul"],1,"L'un des plus élevés au monde."]]
+},{
+ d:[["How long did Eritrea's war of independence last?",["Two years","Ten years","Thirty years","A hundred years"],"Thirty years, from 1961 to independence."],
+    ["Is there an independent press in Eritrea?",["Yes, very free","Yes, but only online","Yes, since 2001","No"],"No. There is no independent press and no opposition parties."],
+    ["How long do some young people spend in national service?",["One month","Ten years or more","Six months","One week"],"Ten years or more, though it was meant to last 18 months."],
+    ["How was independence decided in 1993?",["By referendum","By lottery","By decision of Italy","By coup"],"By referendum."],
+    ["Which North African country do many Eritreans cross before the Mediterranean?",["Morocco","Algeria","Libya","Tunisia"],"Libya, after Sudan or Ethiopia."]],
+ i:[["Where are young conscripts often assigned?",["Building sites or companies","Studies abroad","UN missions","Sports clubs"],"Building sites or companies."],
+    ["How are national-service conscripts paid?",["Very well","As in Europe","In farmland","Very poorly"],"A very low wage."],
+    ["How many opposition parties are allowed in Eritrea?",["About ten","None","Two","One"],"None."],
+    ["When was Eritrea attached to Ethiopia, before its annexation?",["After the First World War","In the 19th century","After the Second World War","In 1993"],"After the Second World War. Annexation followed in 1962."],
+    ["Which source measures modern slavery in Eritrea?",["The Global Slavery Index","The World Bank","The IMF","UNESCO"],"The Global Slavery Index."]],
+ e:[["In which year did the war of independence begin?",["1945","1961","1962","1993"],"In 1961, one year before annexation by Ethiopia."],
+    ["Which crime against humanity does the UN link to national service?",["Genocide","Deportation","Torture only","Enslavement"],"Enslavement, according to the 2016 commission."],
+    ["Where are Eritreans among the most numerous nationalities?",["Among refugees in East Africa and asylum seekers in Europe","Among tourists in Asia","Among students in America","Nowhere"],"Among refugees in East Africa and asylum seekers in Europe."],
+    ["What is the status of Eritrea's Constitution?",["It was just reformed","It was voted in 2020","It is not applied","It exists only for foreigners"],"It is not applied."],
+    ["How does Eritrea's modern slavery rate rank worldwide?",["Among the lowest","Among the highest","Average","It is zero"],"One of the highest in the world."]]
+});
+
+moreQ("360",{
+ d:[["Quelle partie de la Nouvelle-Guinée est la Papouasie occidentale ?",["La moitié est","La moitié ouest","Le nord seulement","Une petite île au large"],1,"La moitié ouest de l'île."],
+    ["Quels métaux extrait-on à la mine de Grasberg ?",["L'or et le cuivre","Le fer et le charbon","L'uranium","Le lithium"],0,"L'or et le cuivre."],
+    ["Que dénoncent beaucoup de Papous autochtones ?",["Le manque de touristes","Des impôts trop bas","Le froid","Des discriminations et du racisme"],3,"Des discriminations et du racisme."],
+    ["Que réclament beaucoup de Papous ?",["Plus de mines","Rejoindre l'Australie","Pouvoir décider de leur avenir","Le retour des Néerlandais"],2,"Pouvoir décider de leur avenir."],
+    ["De quoi manquent les villageois réfugiés dans la forêt ?",["Seulement d'Internet","De nourriture, de soins et d'école","De voitures","De rien"],1,"De nourriture, de soins et d'école."]],
+ i:[["Qui des programmes de migration ont-ils installé en Papouasie ?",["Des Indonésiens venus d'autres îles","Des Néerlandais","Des Australiens","Des Japonais"],0,"De nombreux Indonésiens venus d'autres îles."],
+    ["Où l'armée renforce-t-elle sa présence après décembre 2018 ?",["Sur les côtes","À Jakarta","Dans les hauts plateaux","Sur les îles du sud"],2,"Dans les hauts plateaux."],
+    ["Quel type de lutte mène le mouvement armé indépendantiste ?",["Une guerre éclair","Une guerre navale","Une campagne électorale","Une lutte de basse intensité depuis des décennies"],3,"Une lutte de basse intensité, depuis des décennies."],
+    ["Selon les experts de l'ONU, qu'arrive-t-il à l'aide humanitaire pour les déplacés ?",["Elle est abondante","Elle est entravée","Elle est gérée par les Pays-Bas","Elle n'est pas nécessaire"],1,"Elle est entravée."],
+    ["Dans quelle région du monde se trouve la Papouasie occidentale ?",["L'Afrique","L'Amérique du Sud","L'Océanie","L'Europe"],2,"L'Océanie."]],
+ e:[["À quelle date des Papous hissent-ils le drapeau de l'Étoile du matin ?",["Le 1er janvier 1950","Le 15 août 1945","Le 1er décembre 1961","Le 1er mai 1969"],2,"Le 1er décembre 1961."],
+    ["Combien de personnes au moins ont été déplacées de force, selon les abus dénoncés par l'ONU en 2022 ?",["50","5 000","500 000","5 millions"],1,"Au moins 5 000 personnes."],
+    ["Qui participe au vote de 1969 ?",["Tous les adultes","Seulement des Néerlandais","Des Indonésiens d'autres îles","Des représentants désignés"],3,"Des représentants désignés, environ un millier."],
+    ["Qui supervise le vote de 1969 ?",["Les Pays-Bas","L'Australie","L'ONU","Personne"],2,"L'ONU. Sa légitimité reste contestée."],
+    ["En quelle année des experts de l'ONU dénoncent-ils les abus contre les Papous autochtones ?",["2022","1969","2001","2018"],0,"En 2022."]]
+},{
+ d:[["Which part of New Guinea is West Papua?",["The eastern half","The western half","Only the north","A small offshore island"],"The western half of the island."],
+    ["Which metals are mined at Grasberg?",["Gold and copper","Iron and coal","Uranium","Lithium"],"Gold and copper."],
+    ["What do many Indigenous Papuans denounce?",["A lack of tourists","Taxes that are too low","The cold","Discrimination and racism"],"Discrimination and racism."],
+    ["What do many Papuans demand?",["More mines","To join Australia","To decide their own future","The return of the Dutch"],"To decide their own future."],
+    ["What do villagers who fled into the forest lack?",["Only internet","Food, care and school","Cars","Nothing"],"Food, care and school."]],
+ i:[["Who did migration programmes settle in West Papua?",["Indonesians from other islands","Dutch people","Australians","Japanese people"],"Many Indonesians from other islands."],
+    ["Where did the army strengthen its presence after December 2018?",["On the coasts","In Jakarta","In the highlands","On the southern islands"],"In the highlands."],
+    ["What kind of struggle does the armed independence movement wage?",["A lightning war","A naval war","An election campaign","A low-intensity struggle for decades"],"A low-intensity struggle, for decades."],
+    ["According to UN experts, what happens to humanitarian aid for the displaced?",["It is plentiful","It is obstructed","It is run by the Netherlands","It is not needed"],"It is obstructed."],
+    ["In which region of the world is West Papua?",["Africa","South America","Oceania","Europe"],"Oceania."]],
+ e:[["On what date did Papuans raise the Morning Star flag?",["1 January 1950","15 August 1945","1 December 1961","1 May 1969"],"On 1 December 1961."],
+    ["How many people at least were forcibly displaced, according to the abuses denounced by the UN in 2022?",["50","5,000","500,000","5 million"],"At least 5,000 people."],
+    ["Who took part in the 1969 vote?",["All adults","Only Dutch people","Indonesians from other islands","Appointed representatives"],"Appointed representatives, about a thousand."],
+    ["Who supervised the 1969 vote?",["The Netherlands","Australia","The UN","Nobody"],"The UN. Its legitimacy is still disputed."],
+    ["In which year did UN experts denounce abuses against Indigenous Papuans?",["2022","1969","2001","2018"],"In 2022."]]
+});
+
+moreQ("364",{
+ d:[["Qui la révolution de 1979 renverse-t-elle ?",["Le président","Le chah","Le Premier ministre","Le roi d'Irak"],1,"Le chah, un monarque autoritaire."],
+    ["Qui dirige l'Irak pendant la guerre contre l'Iran ?",["Saddam Hussein","Bachar el-Assad","Khomeini","Hosni Moubarak"],0,"Saddam Hussein."],
+    ["Pourquoi Mahsa Amini est-elle arrêtée ?",["Pour un vol","Pour une manifestation","Pour un article de presse","Pour un voile jugé mal porté"],3,"Pour un voile jugé mal porté, par la police des mœurs."],
+    ["Quels exilés l'Iran accueille-t-il par millions ?",["Des Syriens","Des Turcs","Des Afghans","Des Indiens"],2,"Des Afghans, dont beaucoup ont été renvoyés de force."],
+    ["Parmi ces peuples, lequel vit en Iran ?",["Les Tamouls","Les Azéris","Les Ouïghours","Les Mayas"],1,"Les Azéris, avec les Persans, les Kurdes, les Baloutches, les Arabes et les Turkmènes."]],
+ i:[["Quel âge avait Mahsa Amini ?",["16 ans","19 ans","22 ans","35 ans"],2,"22 ans."],
+    ["De quel peuple Mahsa Amini était-elle ?",["Kurde","Baloutche","Arabe","Azérie"],0,"Elle était kurde. Son prénom kurde était Jina."],
+    ["Par qui le chah était-il soutenu ?",["Par l'URSS","Par l'Irak","Par la Chine","Par les Occidentaux"],3,"Par les Occidentaux."],
+    ["Qu'arrive-t-il à beaucoup d'Afghans en Iran ces dernières années ?",["Ils obtiennent la nationalité","Ils sont renvoyés de force","Ils deviennent ministres","Rien"],1,"Beaucoup sont renvoyés de force vers l'Afghanistan."],
+    ["Combien de morts fait la guerre Iran-Irak ?",["Quelques centaines","Quelques milliers","Des centaines de milliers","Plus de 50 millions"],2,"Des centaines de milliers dans les deux pays."]],
+ e:[["Quel bilan fait la répression des manifestations de 2022 ?",["Aucun mort","Des centaines de morts et des milliers d'arrestations","Une dizaine d'arrestations","Un seul mort"],1,"Des centaines de morts et des milliers d'arrestations."],
+    ["Comment les autorités iraniennes répondent-elles à la mission d'enquête de l'ONU ?",["Elles l'acceptent","Elles jugent les coupables","Elles s'excusent","Elles rejettent ses conclusions"],3,"Elles rejettent ses conclusions."],
+    ["Qui sont surtout les déplacés de 2026 ?",["Des habitants de Téhéran et des grandes villes","Des nomades du désert","Des pêcheurs du Golfe","Des touristes"],0,"Des habitants de Téhéran et des grandes villes partis vers les campagnes."],
+    ["Quel événement précède la guerre de 2026 ?",["Une révolution en 1990","Un séisme","Les frappes de 2025","Des élections en 2026"],2,"Les frappes de 2025, qui provoquent déjà des déplacements."],
+    ["En quel mois de 2022 Mahsa Amini meurt-elle ?",["En janvier","En septembre","En mars","En décembre"],1,"En septembre 2022."]]
+},{
+ d:[["Who did the 1979 revolution overthrow?",["The president","The shah","The prime minister","The king of Iraq"],"The shah, an authoritarian monarch."],
+    ["Who led Iraq during the war against Iran?",["Saddam Hussein","Bashar al-Assad","Khomeini","Hosni Mubarak"],"Saddam Hussein."],
+    ["Why was Mahsa Amini arrested?",["For theft","For protesting","For a press article","For a headscarf deemed improperly worn"],"For a headscarf deemed improperly worn, by the morality police."],
+    ["Which exiles does Iran host by the millions?",["Syrians","Turks","Afghans","Indians"],"Afghans, many of whom have been forcibly returned."],
+    ["Which of these peoples lives in Iran?",["The Tamils","The Azeris","The Uyghurs","The Maya"],"The Azeris, with Persians, Kurds, Baloch, Arabs and Turkmens."]],
+ i:[["How old was Mahsa Amini?",["16","19","22","35"],"22."],
+    ["Which people did Mahsa Amini belong to?",["Kurdish","Baloch","Arab","Azeri"],"She was Kurdish. Her Kurdish name was Jina."],
+    ["Who supported the shah?",["The USSR","Iraq","China","Western countries"],"Western countries."],
+    ["What has happened to many Afghans in Iran in recent years?",["They got citizenship","They were forcibly returned","They became ministers","Nothing"],"Many were forcibly returned to Afghanistan."],
+    ["How many people died in the Iran–Iraq war?",["A few hundred","A few thousand","Hundreds of thousands","More than 50 million"],"Hundreds of thousands in both countries."]],
+ e:[["What was the toll of the 2022 crackdown?",["No deaths","Hundreds dead and thousands arrested","About ten arrests","One death"],"Hundreds dead and thousands arrested."],
+    ["How did the Iranian authorities respond to the UN fact-finding mission?",["They accepted it","They tried those responsible","They apologised","They rejected its findings"],"They rejected its findings."],
+    ["Who were most of those displaced in 2026?",["Residents of Tehran and big cities","Desert nomads","Gulf fishermen","Tourists"],"Residents of Tehran and big cities who left for the countryside."],
+    ["Which event came before the 2026 war?",["A revolution in 1990","An earthquake","The 2025 strikes","Elections in 2026"],"The 2025 strikes, which already caused displacement."],
+    ["In which month of 2022 did Mahsa Amini die?",["January","September","March","December"],"In September 2022."]]
+});
+
+/* ---------- Questions supplémentaires, lot 7 : Yézidis, Côte d'Ivoire, Corée du Nord ---------- */
+moreQ("368",{
+ d:[["Quel type de religion pratiquent les Yézidis ?",["Une religion née en 2000","Une forme de bouddhisme","Une religion monothéiste très ancienne","Aucune religion"],2,"Une religion monothéiste très ancienne, transmise de génération en génération."],
+    ["Combien de Yézidis ont été tués en 2014, selon le gouvernement régional du Kurdistan ?",["50","5 000","50 000","500 000"],1,"5 000 tués, et 6 417 enlevés."],
+    ["Qu'arrive-t-il aux femmes et aux filles enlevées par l'État islamique ?",["Elles sont libérées aussitôt","Elles sont envoyées à l'école","Elles fuient en Europe","Elles sont réduites en esclavage"],3,"Elles sont réduites en esclavage."],
+    ["Que veulent faire les autorités des camps de déplacés ?",["Les fermer","Les agrandir","Les transformer en villes","Les confier à l'Allemagne"],0,"Les fermer, mais beaucoup de familles hésitent à rentrer."],
+    ["Dans quel état est le Sinjar aujourd'hui ?",["Entièrement reconstruit","Devenu touristique","En grande partie détruit","Abandonné par tous"],2,"Il reste en grande partie détruit."]],
+ i:[["Combien de Yézidis vivaient en Irak avant 2014 ?",["Environ 50 000","Environ 500 000","Environ 5 millions","Environ 50 millions"],1,"Environ 500 000."],
+    ["Où se trouve le Sinjar par rapport à Mossoul ?",["Au sud","À l'est","Dans Mossoul même","À l'ouest"],3,"À l'ouest de Mossoul."],
+    ["Qu'arrive-t-il aux garçons enlevés ?",["Ils sont endoctrinés","Ils sont libérés","Ils sont adoptés en Europe","Ils sont envoyés en Iran"],0,"Ils sont endoctrinés par l'État islamique."],
+    ["Pour quel combat Nadia Murad reçoit-elle le prix Nobel de la paix ?",["Pour l'écologie","Pour l'éducation des filles","Contre les violences sexuelles en temps de guerre","Contre la faim"],2,"Contre les violences sexuelles en temps de guerre."],
+    ["Combien de camps de déplacés accueillent encore des Yézidis au Kurdistan irakien ?",["Trois","Treize","Trente","Cent"],1,"Treize camps."]],
+ e:[["Combien de Yézidis vivent hors des camps ?",["Environ 1 800","Environ 18 000","Environ 1,8 million","Environ 180 000"],3,"Environ 180 000, en plus des 90 000 dans les camps."],
+    ["Quelle autorité donne le bilan des Yézidis enlevés et disparus ?",["Le gouvernement régional du Kurdistan","L'Union européenne","L'État islamique","La Turquie"],0,"Le gouvernement régional du Kurdistan."],
+    ["Pourquoi beaucoup de familles hésitent-elles à rentrer au Sinjar ?",["Parce qu'il fait trop froid","Parce que la région manque de services et de sécurité","Parce qu'elles ont perdu leur langue","Parce que le voyage est interdit"],1,"La région manque de services et de sécurité."],
+    ["Que deviennent les restes des victimes retrouvés ?",["Ils restent sur place","Ils sont envoyés à l'ONU","Ils sont identifiés et rendus aux familles","On ne les cherche plus"],2,"Ils continuent d'être identifiés et rendus aux familles."],
+    ["Par qui le Sinjar est-il disputé aujourd'hui ?",["Par l'Iran seul","Par les Nations unies","Par la Turquie seule","Par plusieurs forces armées"],3,"Par plusieurs forces armées."]]
+},{
+ d:[["What kind of religion do Yazidis practise?",["A religion born in 2000","A form of Buddhism","A very ancient monotheistic religion","No religion"],"A very ancient monotheistic religion, passed down through generations."],
+    ["How many Yazidis were killed in 2014, according to the Kurdistan Regional Government?",["50","5,000","50,000","500,000"],"5,000 killed, and 6,417 abducted."],
+    ["What happened to the women and girls abducted by the Islamic State?",["They were freed at once","They were sent to school","They fled to Europe","They were enslaved"],"They were enslaved."],
+    ["What do the authorities want to do with the displacement camps?",["Close them","Expand them","Turn them into towns","Hand them to Germany"],"Close them, but many families hesitate to return."],
+    ["What state is Sinjar in today?",["Fully rebuilt","A tourist spot","Largely destroyed","Abandoned by all"],"It is still largely destroyed."]],
+ i:[["How many Yazidis lived in Iraq before 2014?",["About 50,000","About 500,000","About 5 million","About 50 million"],"About 500,000."],
+    ["Where is Sinjar in relation to Mosul?",["To the south","To the east","Inside Mosul","To the west"],"West of Mosul."],
+    ["What happened to the abducted boys?",["They were indoctrinated","They were freed","They were adopted in Europe","They were sent to Iran"],"They were indoctrinated by the Islamic State."],
+    ["For which cause did Nadia Murad receive the Nobel Peace Prize?",["Ecology","Girls' education","Against sexual violence in war","Against hunger"],"Against sexual violence in war."],
+    ["How many displacement camps in Iraqi Kurdistan still house Yazidis?",["Three","Thirteen","Thirty","A hundred"],"Thirteen camps."]],
+ e:[["How many Yazidis live outside the camps?",["About 1,800","About 18,000","About 1.8 million","About 180,000"],"About 180,000, in addition to 90,000 in the camps."],
+    ["Which authority gives the figures for abducted and missing Yazidis?",["The Kurdistan Regional Government","The European Union","The Islamic State","Turkey"],"The Kurdistan Regional Government."],
+    ["Why do many families hesitate to return to Sinjar?",["It is too cold","The region lacks services and security","They lost their language","Travel is banned"],"The region lacks services and security."],
+    ["What happens to the victims' remains that are found?",["They stay where they are","They are sent to the UN","They are identified and returned to families","Nobody looks for them"],"They are still being identified and returned to families."],
+    ["Who disputes control of Sinjar today?",["Iran alone","The United Nations","Turkey alone","Several armed forces"],"Several armed forces."]]
+});
+
+moreQ("384",{
+ d:[["De quel pays la Côte d'Ivoire devient-elle indépendante ?",["Du Royaume-Uni","De la France","Du Portugal","De la Belgique"],1,"De la France, en 1960."],
+    ["Qu'est-ce qui devient difficile sans nationalité ?",["Rien","Faire du sport","Voyager à vélo","Aller à l'école, travailler, ouvrir un compte en banque"],3,"L'école, le travail légal, un compte en banque, des papiers pour ses enfants."],
+    ["Où sont nés les enfants et petits-enfants de beaucoup de travailleurs venus des pays voisins ?",["En Côte d'Ivoire","Au Burkina Faso","En France","Au Mali"],0,"En Côte d'Ivoire, sans en avoir forcément la nationalité."],
+    ["Qui sont surtout les apatrides de Côte d'Ivoire ?",["Des touristes","Des diplomates","Des descendants de migrants et des enfants trouvés","Des soldats"],2,"Des descendants de migrants et des enfants trouvés."],
+    ["Qu'est-ce qui reste incomplet en Côte d'Ivoire ?",["Le réseau de routes","L'enregistrement des naissances","La carte du pays","Le drapeau"],1,"L'enregistrement des naissances."]],
+ i:[["À quelle date la Côte d'Ivoire devient-elle indépendante ?",["Le 1er janvier 1960","Le 14 juillet 1960","Le 7 août 1960","Le 7 août 1962"],2,"Le 7 août 1960."],
+    ["Quand le concept d'« ivoirité » s'impose-t-il ?",["Avant l'indépendance","Après la mort d'Houphouët-Boigny","En 2020","En 1960"],1,"Dans les années 1990, après la mort d'Houphouët-Boigny."],
+    ["À quoi sert l'« ivoirité » en politique ?",["À unir le pays","À choisir l'hymne","À fixer le prix du cacao","À écarter des candidats et des électeurs"],3,"À écarter des candidats et des électeurs."],
+    ["Qui l'« ivoirité » oppose-t-elle ?",["Les Ivoiriens dits « de souche » à ceux d'origine supposée étrangère","Les villes aux campagnes","Les jeunes aux anciens","Le nord au sud de l'Afrique"],0,"Les Ivoiriens dits « de souche » et ceux dont les origines seraient étrangères."],
+    ["Quelles années couvre la crise post-électorale ?",["1990-1995","2002-2003","2010-2011","2020-2021"],2,"2010-2011."]],
+ e:[["Comment se situe la procédure ivoirienne de 2020 en Afrique ?",["L'une des premières","La dernière","Elle a été copiée de l'Europe","Elle a été annulée"],0,"L'une des premières en Afrique à reconnaître le statut d'apatride."],
+    ["Quelle difficulté les apatrides rencontrent-ils pour leurs propres enfants ?",["Les inscrire au sport","Leur donner un prénom","Les faire voyager","Leur obtenir des papiers"],3,"Obtenir des papiers pour eux."],
+    ["Comment se situe la population apatride ivoirienne dans le monde ?",["Parmi les plus petites","L'une des plus grandes hors contexte de déplacement","Dans la moyenne","Elle est la seule d'Afrique"],1,"L'une des plus grandes au monde hors contexte de déplacement."],
+    ["Qui adopte la déclaration d'Abidjan en 2015 ?",["L'Union européenne","Les Nations unies seules","Les pays d'Afrique de l'Ouest","La France"],2,"Les pays d'Afrique de l'Ouest."],
+    ["Que continue-t-il d'arriver malgré les progrès ?",["Le pays perd son indépendance","Des enfants naissent sans papiers","Le cacao disparaît","Rien"],1,"Des enfants continuent de naître sans papiers."]]
+},{
+ d:[["From which country did Côte d'Ivoire become independent?",["The United Kingdom","France","Portugal","Belgium"],"France, in 1960."],
+    ["What becomes difficult without a nationality?",["Nothing","Playing sport","Cycling","Going to school, working, opening a bank account"],"School, legal work, a bank account, papers for your children."],
+    ["Where were the children and grandchildren of many workers from neighbouring countries born?",["In Côte d'Ivoire","In Burkina Faso","In France","In Mali"],"In Côte d'Ivoire, without necessarily having its nationality."],
+    ["Who are most of Côte d'Ivoire's stateless people?",["Tourists","Diplomats","Descendants of migrants and foundlings","Soldiers"],"Descendants of migrants and foundlings."],
+    ["What remains incomplete in Côte d'Ivoire?",["The road network","Birth registration","The map of the country","The flag"],"Birth registration."]],
+ i:[["On what date did Côte d'Ivoire become independent?",["1 January 1960","14 July 1960","7 August 1960","7 August 1962"],"7 August 1960."],
+    ["When did the concept of “ivoirité” take hold?",["Before independence","After Houphouët-Boigny's death","In 2020","In 1960"],"In the 1990s, after Houphouët-Boigny's death."],
+    ["What was “ivoirité” used for in politics?",["To unite the country","To choose the anthem","To set the cocoa price","To exclude candidates and voters"],"To exclude candidates and voters."],
+    ["Whom did “ivoirité” set against each other?",["So-called “native” Ivorians and those of supposedly foreign origin","Cities and countryside","Young and old","North and south Africa"],"So-called “native” Ivorians and those whose origins were said to be foreign."],
+    ["Which years did the post-election crisis cover?",["1990-1995","2002-2003","2010-2011","2020-2021"],"2010-2011."]],
+ e:[["How does Côte d'Ivoire's 2020 procedure rank in Africa?",["One of the first","The last","It was copied from Europe","It was cancelled"],"One of the first in Africa to recognise stateless status."],
+    ["What difficulty do stateless people face for their own children?",["Signing them up for sport","Naming them","Travelling with them","Getting them papers"],"Getting papers for them."],
+    ["How does Côte d'Ivoire's stateless population rank worldwide?",["Among the smallest","One of the largest outside displacement","Average","The only one in Africa"],"One of the largest in the world outside displacement."],
+    ["Who adopted the Abidjan Declaration in 2015?",["The European Union","The United Nations alone","West African countries","France"],"West African countries."],
+    ["What still happens despite the progress?",["The country loses its independence","Children are born without papers","Cocoa disappears","Nothing"],"Children are still born without papers."]]
+});
+
+moreQ("408",{
+ d:[["Qui dirige la Corée du Nord de 1948 à 1994 ?",["Kim Jong-un","Kim Jong-il","Kim Il-sung","Mao Zedong"],2,"Kim Il-sung, le grand-père de Kim Jong-un."],
+    ["Quelle zone de la Corée les Soviétiques occupent-ils en 1945 ?",["Le nord","Le sud","L'est","Les îles"],0,"Le nord. Le sud est sous contrôle américain."],
+    ["Peut-on accéder librement à Internet en Corée du Nord ?",["Oui, partout","Oui, dans les écoles","Oui, le week-end","Non"],3,"Non. Il n'y a ni presse libre ni accès libre à Internet."],
+    ["Qu'est-ce qui entoure la famille Kim ?",["Un parlement élu","Un culte de la personnalité","Une presse critique","Une monarchie constitutionnelle"],1,"Un culte de la personnalité."],
+    ["Que coupe encore la frontière très militarisée entre les deux Corées ?",["Des forêts protégées","Des routes commerciales","Des familles","Rien"],2,"Des familles, séparées depuis la guerre."]],
+ i:[["Depuis quand la Corée est-elle une colonie japonaise avant 1945 ?",["1850","1910","1939","1945"],1,"Depuis 1910."],
+    ["Qui succède à Kim Il-sung en 1994 ?",["Son fils Kim Jong-il","Son petit-fils Kim Jong-un","Un général","Un président élu"],0,"Son fils Kim Jong-il."],
+    ["Combien de morts fait la guerre de Corée ?",["Quelques centaines","Quelques milliers","Une centaine de milliers","Des millions"],3,"Des millions de morts."],
+    ["À qui revient l'essentiel du salaire des Nord-Coréens envoyés travailler à l'étranger ?",["Aux travailleurs","À leurs familles","Au régime","À la Chine"],2,"Au régime."],
+    ["Qui l'État force-t-il aussi à travailler ?",["Personne","Les écoliers et les prisonniers","Les diplomates étrangers","Seulement les soldats"],1,"Les écoliers et les prisonniers."]],
+ e:[["Quels crimes la commission de l'ONU de 2014 décrit-elle ?",["Exterminations, réduction en esclavage, torture, famines provoquées","Fraude fiscale","Pollution","Corruption seulement"],0,"Exterminations, réduction en esclavage, torture et famines provoquées."],
+    ["Combien de morts fait la famine des années 1990 ?",["Quelques dizaines","Quelques milliers","Des centaines de milliers, peut-être bien davantage","Aucun"],2,"Des centaines de milliers, peut-être bien davantage."],
+    ["Quel lien de parenté unit Kim Jong-un à Kim Il-sung ?",["Son frère","Son fils","Son neveu","Son petit-fils"],3,"Il est son petit-fils."],
+    ["En quelle année naissent les deux États coréens ?",["1945","1948","1950","1953"],1,"En 1948, trois ans après la division."],
+    ["Comment se situe la proportion d'esclavage moderne nord-coréenne dans le monde ?",["La plus élevée","Dans la moyenne","Parmi les plus basses","Elle est inconnue"],0,"La plus élevée au monde, selon le Global Slavery Index."]]
+},{
+ d:[["Who led North Korea from 1948 to 1994?",["Kim Jong-un","Kim Jong-il","Kim Il-sung","Mao Zedong"],"Kim Il-sung, Kim Jong-un's grandfather."],
+    ["Which zone of Korea did the Soviets occupy in 1945?",["The north","The south","The east","The islands"],"The north. The south was under US control."],
+    ["Can people freely access the internet in North Korea?",["Yes, everywhere","Yes, in schools","Yes, at weekends","No"],"No. There is no free press and no free internet access."],
+    ["What surrounds the Kim family?",["An elected parliament","A personality cult","A critical press","A constitutional monarchy"],"A personality cult."],
+    ["What does the heavily militarised border between the two Koreas still divide?",["Protected forests","Trade routes","Families","Nothing"],"Families, separated since the war."]],
+ i:[["Since when was Korea a Japanese colony before 1945?",["1850","1910","1939","1945"],"Since 1910."],
+    ["Who succeeded Kim Il-sung in 1994?",["His son Kim Jong-il","His grandson Kim Jong-un","A general","An elected president"],"His son Kim Jong-il."],
+    ["How many people died in the Korean War?",["A few hundred","A few thousand","About a hundred thousand","Millions"],"Millions."],
+    ["Who receives most of the wages of North Koreans sent to work abroad?",["The workers","Their families","The regime","China"],"The regime."],
+    ["Who else does the state force to work?",["Nobody","Schoolchildren and prisoners","Foreign diplomats","Only soldiers"],"Schoolchildren and prisoners."]],
+ e:[["Which crimes did the 2014 UN commission describe?",["Extermination, enslavement, torture, induced famine","Tax fraud","Pollution","Corruption only"],"Extermination, enslavement, torture and induced famine."],
+    ["How many people died in the 1990s famine?",["A few dozen","A few thousand","Hundreds of thousands, perhaps far more","None"],"Hundreds of thousands, perhaps far more."],
+    ["How is Kim Jong-un related to Kim Il-sung?",["His brother","His son","His nephew","His grandson"],"He is his grandson."],
+    ["In which year were the two Korean states born?",["1945","1948","1950","1953"],"In 1948, three years after the division."],
+    ["How does North Korea's modern slavery rate rank worldwide?",["The highest","Average","Among the lowest","Unknown"],"The highest in the world, according to the Global Slavery Index."]]
+});
+
+/* ---------- Questions supplémentaires, lot 8 : Koweït, Mali, Mauritanie ---------- */
+moreQ("414",{
+ d:[["De quel pays le Koweït devient-il indépendant en 1961 ?",["De la France","De l'Italie","Du Royaume-Uni","De la Turquie"],2,"Du Royaume-Uni."],
+    ["Qui libère le Koweït en 1991 ?",["Une coalition internationale","L'Iran","L'armée koweïtienne seule","Les Nations unies sans armée"],0,"Une coalition internationale, pendant la guerre du Golfe."],
+    ["Qui est majoritaire parmi les travailleurs du Koweït ?",["Les Koweïtiens","Les bidoun","Les Européens","Les étrangers"],3,"Les étrangers, majoritaires dans la population active."],
+    ["Où sont nés la plupart des bidoun ?",["En Irak","Au Koweït","En Iran","En Inde"],1,"Au Koweït, où ils ont grandi sans jamais obtenir la nationalité."],
+    ["Que fait le système de la kafala ?",["Il garantit un salaire minimum","Il donne la nationalité","Il lie le titre de séjour du travailleur à son employeur","Il interdit le travail des étrangers"],2,"Il lie le titre de séjour du travailleur à son employeur."]],
+ i:[["Qui dirige l'Irak lorsqu'il envahit le Koweït ?",["Hafez el-Assad","Saddam Hussein","Khomeini","Mouammar Kadhafi"],1,"Saddam Hussein."],
+    ["De quels groupes les bidoun sont-ils souvent issus ?",["De tribus du nord","De familles européennes","De marins indiens","De soldats américains"],0,"Souvent de tribus du nord."],
+    ["Quelles femmes sont visées par les retraits de nationalité ?",["Les étudiantes","Les sportives","Les fonctionnaires","Les femmes naturalisées par mariage"],3,"Les femmes naturalisées par mariage."],
+    ["Comment se situe le Koweït en richesse par habitant ?",["Parmi les plus pauvres","Dans la moyenne","L'un des plus riches du monde","Le plus pauvre du Golfe"],2,"L'un des plus riches du monde, grâce au pétrole."],
+    ["En quel mois de 1990 l'Irak envahit-il le Koweït ?",["En janvier","En août","En mai","En décembre"],1,"En août 1990."]],
+ e:[["En quel mois de 1991 le Koweït est-il libéré ?",["En février","En juin","En septembre","En novembre"],0,"En février 1991."],
+    ["En plus des personnes accusées de fraude, qui est visé par les retraits de nationalité ?",["Les touristes","Les enfants seuls","Des personnalités publiques et des critiques du pouvoir","Personne d'autre"],2,"Des personnalités publiques et des critiques du pouvoir."],
+    ["Quelles démarches du quotidien sont difficiles pour les bidoun ?",["Acheter du pain","Prendre le bus","Aller à la plage","Se marier ou obtenir un permis de conduire"],3,"Se marier, obtenir un permis de conduire, se soigner, travailler légalement."],
+    ["Où existe aussi le système de la kafala ?",["En Europe","Ailleurs dans le Golfe","En Amérique du Sud","Nulle part ailleurs"],1,"Ailleurs dans le Golfe."],
+    ["Quelle école est difficile d'accès pour les enfants bidoun ?",["L'école publique","L'école privée de luxe","L'école coranique","L'université étrangère"],0,"L'école publique, faute de papiers."]]
+},{
+ d:[["From which country did Kuwait become independent in 1961?",["France","Italy","The United Kingdom","Turkey"],"The United Kingdom."],
+    ["Who liberated Kuwait in 1991?",["An international coalition","Iran","Kuwait's army alone","The UN without an army"],"An international coalition, during the Gulf War."],
+    ["Who makes up the majority of Kuwait's workforce?",["Kuwaitis","The Bidoon","Europeans","Foreigners"],"Foreigners, the majority of the workforce."],
+    ["Where were most Bidoon born?",["Iraq","Kuwait","Iran","India"],"In Kuwait, where they grew up without ever getting nationality."],
+    ["What does the kafala system do?",["Guarantees a minimum wage","Grants nationality","Ties a worker's residence permit to the employer","Bans foreign workers"],"It ties a worker's residence permit to the employer."]],
+ i:[["Who led Iraq when it invaded Kuwait?",["Hafez al-Assad","Saddam Hussein","Khomeini","Muammar Gaddafi"],"Saddam Hussein."],
+    ["Which groups are the Bidoon often from?",["Northern tribes","European families","Indian sailors","US soldiers"],"Often from northern tribes."],
+    ["Which women are targeted by nationality revocations?",["Students","Athletes","Civil servants","Women naturalised through marriage"],"Women naturalised through marriage."],
+    ["How does Kuwait rank in wealth per person?",["Among the poorest","Average","One of the richest in the world","The poorest in the Gulf"],"One of the richest in the world, thanks to oil."],
+    ["In which month of 1990 did Iraq invade Kuwait?",["January","August","May","December"],"August 1990."]],
+ e:[["In which month of 1991 was Kuwait liberated?",["February","June","September","November"],"February 1991."],
+    ["Besides people accused of fraud, who is targeted by revocations?",["Tourists","Children alone","Public figures and critics of the government","No one else"],"Public figures and critics of the government."],
+    ["Which everyday steps are difficult for the Bidoon?",["Buying bread","Taking the bus","Going to the beach","Marrying or getting a driving licence"],"Marrying, getting a driving licence, healthcare, legal work."],
+    ["Where else does the kafala system exist?",["In Europe","Elsewhere in the Gulf","In South America","Nowhere else"],"Elsewhere in the Gulf."],
+    ["Which school is hard for Bidoon children to access?",["Public school","Luxury private school","Quranic school","Foreign university"],"Public school, for lack of papers."]]
+});
+
+moreQ("466",{
+ d:[["Quel empire puissant au Moyen Âge a donné son nom au pays ?",["L'Empire romain","L'empire du Mali","L'Empire ottoman","L'Empire perse"],1,"L'empire du Mali, dont Tombouctou fut un grand centre d'études."],
+    ["Sous quel nom le Mali était-il une colonie française ?",["La Haute-Volta","Le Dahomey","Le Gabon","Le Soudan français"],3,"Le Soudan français."],
+    ["De quel pays la junte malienne se rapproche-t-elle ?",["De la Russie","Du Canada","Du Japon","Du Brésil"],0,"De la Russie."],
+    ["Qui est le premier président du Mali indépendant ?",["Félix Houphouët-Boigny","Léopold Sédar Senghor","Modibo Keïta","Thomas Sankara"],2,"Modibo Keïta."],
+    ["Quelle agence de l'ONU a dû réduire ses distributions de nourriture au Mali ?",["L'UNESCO","Le Programme alimentaire mondial","L'OMS","Interpol"],1,"Le Programme alimentaire mondial, faute d'argent."]],
+ i:[["Quelle opération française succède à l'opération Serval ?",["Turquoise","Sangaris","Barkhane","Licorne"],2,"Barkhane."],
+    ["En quelle année l'armée française quitte-t-elle le Mali ?",["2022","2013","2015","2026"],0,"En 2022, poussée au départ par la junte."],
+    ["Qui prend d'abord le contrôle du nord en 2012 ?",["L'armée française","La MINUSMA","L'armée russe","Une rébellion touarègue, vite débordée par des djihadistes"],3,"Une rébellion touarègue, rejointe puis débordée par des groupes djihadistes."],
+    ["Combien de réfugiés le Mali accueille-t-il ?",["Près de 2 800","Près de 280 000","Près de 2,8 millions","Aucun"],1,"Près de 280 000."],
+    ["Qui impose le blocus des routes depuis septembre 2025 ?",["L'armée malienne","La France","Des groupes djihadistes","Le Niger"],2,"Des groupes djihadistes."]],
+ e:[["En quel mois de 2013 l'armée française intervient-elle ?",["En mars","En janvier","En juillet","En octobre"],1,"En janvier 2013."],
+    ["Quand les Touaregs se sont-ils soulevés avant 2012 ?",["En 1963, dans les années 1990 et en 2006","Jamais","Seulement en 1960","En 2020"],0,"En 1963, dans les années 1990 et en 2006."],
+    ["Quel bureau de l'ONU chiffre les besoins humanitaires du Mali ?",["L'UNESCO","Le FMI","La FAO","L'OCHA"],3,"L'OCHA, le Bureau de la coordination des affaires humanitaires."],
+    ["Qu'est-ce que la pénurie de carburant paralyse aussi ?",["Les élections","Le football","L'aide humanitaire","Le tourisme spatial"],2,"L'aide humanitaire."],
+    ["Quand la MINUSMA prend-elle fin ?",["En 2015","Fin 2023","En 2013","En 2026"],1,"Fin 2023, à la demande de la junte."]]
+},{
+ d:[["Which powerful medieval empire gave the country its name?",["The Roman Empire","The Mali Empire","The Ottoman Empire","The Persian Empire"],"The Mali Empire, whose Timbuktu was a great centre of learning."],
+    ["Under what name was Mali a French colony?",["Upper Volta","Dahomey","Gabon","French Sudan"],"French Sudan."],
+    ["Which country did Mali's junta move closer to?",["Russia","Canada","Japan","Brazil"],"Russia."],
+    ["Who was independent Mali's first president?",["Félix Houphouët-Boigny","Léopold Sédar Senghor","Modibo Keïta","Thomas Sankara"],"Modibo Keïta."],
+    ["Which UN agency had to cut its food distributions in Mali?",["UNESCO","The World Food Programme","The WHO","Interpol"],"The World Food Programme, for lack of money."]],
+ i:[["Which French operation followed Operation Serval?",["Turquoise","Sangaris","Barkhane","Licorne"],"Barkhane."],
+    ["In which year did the French army leave Mali?",["2022","2013","2015","2026"],"In 2022, pushed out by the junta."],
+    ["Who first took control of the north in 2012?",["The French army","MINUSMA","The Russian army","A Tuareg rebellion, soon overtaken by jihadists"],"A Tuareg rebellion, joined then overtaken by jihadist groups."],
+    ["How many refugees does Mali host?",["Nearly 2,800","Nearly 280,000","Nearly 2.8 million","None"],"Nearly 280,000."],
+    ["Who has imposed the road blockade since September 2025?",["The Malian army","France","Jihadist groups","Niger"],"Jihadist groups."]],
+ e:[["In which month of 2013 did the French army intervene?",["March","January","July","October"],"January 2013."],
+    ["When did the Tuareg rise up before 2012?",["In 1963, the 1990s and 2006","Never","Only in 1960","In 2020"],"In 1963, in the 1990s and in 2006."],
+    ["Which UN office counts Mali's humanitarian needs?",["UNESCO","The IMF","The FAO","OCHA"],"OCHA, the Office for the Coordination of Humanitarian Affairs."],
+    ["What else does the fuel shortage paralyse?",["Elections","Football","Humanitarian aid","Space tourism"],"Humanitarian aid."],
+    ["When did MINUSMA end?",["In 2015","At the end of 2023","In 2013","In 2026"],"At the end of 2023, at the junta's request."]]
+});
+
+moreQ("478",{
+ d:[["Quelle particularité la Mauritanie a-t-elle dans l'histoire de l'abolition ?",["C'est le dernier pays au monde à avoir aboli l'esclavage","C'est le premier pays d'Afrique","Elle ne l'a jamais aboli","Elle l'a aboli avant la France"],0,"C'est le dernier pays au monde à l'avoir aboli, en 1981."],
+    ["Comment appelle-t-on les populations arabo-berbères de Mauritanie ?",["Les Peuls","Les Touaregs","Les Maures","Les Wolofs"],2,"Les Maures."],
+    ["Parmi ces communautés négro-africaines, laquelle vit en Mauritanie ?",["Les Zoulous","Les Soninkés","Les Masaïs","Les Ashantis"],1,"Les Soninkés, avec les Peuls et les Wolofs."],
+    ["Que subissent certains militants anti-esclavagistes ?",["Ils reçoivent des médailles","Ils deviennent ministres","Ils sont ignorés","Ils sont arrêtés et emprisonnés"],3,"Certains ont été arrêtés et emprisonnés pour leur action."],
+    ["Comment travaillent encore certaines personnes en Mauritanie ?",["Avec un gros salaire","À mi-temps","Sans salaire et sans pouvoir partir","Uniquement le week-end"],2,"Sans salaire, pour une famille, sans pouvoir partir."]],
+ i:[["Par qui une partie des Haratines a-t-elle été réduite en esclavage ?",["Par des colons français","Par des familles maures","Par des marchands portugais","Par l'État"],1,"Par des familles maures, pendant des siècles."],
+    ["Combien de militaires noirs sont tués entre 1989 et 1991 ?",["Des centaines","Deux","Des millions","Aucun"],0,"Des centaines."],
+    ["Que peinent encore à récupérer certains réfugiés rentrés ?",["Leur voiture","Leur langue","Leur religion","Leurs terres et leurs papiers d'identité"],3,"Leurs terres et leurs papiers d'identité."],
+    ["Comment se situe le taux d'esclavage moderne mauritanien en Afrique ?",["Le plus bas","Dans la moyenne","Parmi les plus élevés","Il est nul"],2,"L'un des plus élevés d'Afrique."],
+    ["Depuis combien de temps cet esclavage héréditaire existait-il ?",["Depuis 1960","Depuis des siècles","Depuis 1981","Depuis 2007"],1,"Depuis des siècles."]],
+ e:[["Combien de Mauritaniens noirs sont expulsés entre 1989 et 1991 ?",["Quelques centaines","Quelques milliers","Des dizaines de milliers","Des millions"],2,"Des dizaines de milliers, vers le Sénégal et le Mali."],
+    ["Que certaines personnes asservies ignorent-elles parfois ?",["Qu'elles ont le droit de partir","Le nom de leur pays","Leur âge","La langue arabe"],0,"Qu'elles ont le droit de partir."],
+    ["Que signifie le sigle IRA ?",["Institut de recherche africaine","Initiative pour la réforme agricole","Instance des réfugiés d'Afrique","Initiative pour la résurgence du mouvement abolitionniste"],3,"Initiative pour la résurgence du mouvement abolitionniste."],
+    ["Combien d'années séparent l'abolition (1981) de la loi qui fait de l'esclavage un crime contre l'humanité ?",["26 ans","34 ans","15 ans","7 ans"],1,"34 ans : la loi date de 2015."],
+    ["Les réfugiés expulsés en 1989 sont-ils rentrés ?",["Aucun n'est rentré","Tous sont rentrés en 1990","Beaucoup sont rentrés depuis","Ils sont tous partis en Europe"],2,"Beaucoup sont rentrés, mais certains n'ont pas récupéré leurs terres ni leurs papiers."]]
+},{
+ d:[["What is special about Mauritania in the history of abolition?",["It was the last country in the world to abolish slavery","It was the first in Africa","It never abolished it","It abolished it before France"],"It was the last country in the world to do so, in 1981."],
+    ["What are Mauritania's Arab-Berber populations called?",["The Fulani","The Tuareg","The Moors","The Wolof"],"The Moors."],
+    ["Which of these Black African communities lives in Mauritania?",["The Zulu","The Soninke","The Maasai","The Ashanti"],"The Soninke, with the Fulani and the Wolof."],
+    ["What happens to some anti-slavery activists?",["They get medals","They become ministers","They are ignored","They are arrested and jailed"],"Some have been arrested and jailed for their work."],
+    ["How do some people still work in Mauritania?",["For a big salary","Part-time","Unpaid and unable to leave","Only at weekends"],"Unpaid, for a family, unable to leave."]],
+ i:[["Who enslaved some of the Haratine?",["French settlers","Moorish families","Portuguese merchants","The state"],"Moorish families, for centuries."],
+    ["How many Black soldiers were killed between 1989 and 1991?",["Hundreds","Two","Millions","None"],"Hundreds."],
+    ["What do some returned refugees still struggle to recover?",["Their car","Their language","Their religion","Their land and identity papers"],"Their land and identity papers."],
+    ["How does Mauritania's modern slavery rate rank in Africa?",["The lowest","Average","Among the highest","Zero"],"One of the highest in Africa."],
+    ["How long had this hereditary slavery existed?",["Since 1960","For centuries","Since 1981","Since 2007"],"For centuries."]],
+ e:[["How many Black Mauritanians were expelled between 1989 and 1991?",["A few hundred","A few thousand","Tens of thousands","Millions"],"Tens of thousands, to Senegal and Mali."],
+    ["What do some enslaved people sometimes not know?",["That they have the right to leave","Their country's name","Their age","Arabic"],"That they have the right to leave."],
+    ["What does the acronym IRA stand for?",["African Research Institute","Initiative for Agricultural Reform","African Refugee Body","Initiative for the Resurgence of the Abolitionist Movement"],"Initiative for the Resurgence of the Abolitionist Movement."],
+    ["How many years separate abolition (1981) from the law making slavery a crime against humanity?",["26 years","34 years","15 years","7 years"],"34 years: the law dates from 2015."],
+    ["Did the refugees expelled in 1989 return?",["None returned","All returned in 1990","Many have returned since","All left for Europe"],"Many returned, but some have not recovered their land or papers."]]
+});
+
+/* ---------- Questions supplémentaires, lot 9 : Mexique, Mozambique, Nicaragua ---------- */
+moreQ("484",{
+ d:[["Le Mexique est-il en guerre ?",["Oui, contre les États-Unis","Non","Oui, une guerre civile déclarée","Oui, contre le Guatemala"],1,"Non. Pourtant plus de 130 000 personnes y sont portées disparues."],
+    ["Vers quel pays les cartels contrôlent-ils des routes de trafic ?",["Les États-Unis","Le Canada","Le Brésil","Cuba"],0,"Vers les États-Unis."],
+    ["Que cherchent les « mères chercheuses » en creusant le sol ?",["De l'or","Des armes","Du pétrole","Des fosses clandestines"],3,"Des fosses clandestines, faute d'enquêtes."],
+    ["Par qui les étudiants d'Ayotzinapa sont-ils arrêtés avant de disparaître ?",["Par un cartel","Par l'armée américaine","Par la police locale","Par leurs professeurs"],2,"Par la police locale."],
+    ["Combien des meurtres de journalistes de 2025 ont été élucidés ?",["Tous","La moitié","Aucun","Deux"],2,"Aucun."]],
+ i:[["Dans quel État mexicain se trouve Iguala ?",["Jalisco","Guerrero","Sonora","Chiapas"],1,"Dans l'État de Guerrero."],
+    ["Quel type d'école fréquentaient les 43 étudiants disparus ?",["Une école normale, qui forme des enseignants","Une école militaire","Une école de police","Une université privée"],0,"L'école normale d'Ayotzinapa, qui forme des enseignants."],
+    ["Quels journalistes sont les plus exposés au Mexique ?",["Les correspondants étrangers","Les journalistes sportifs","Les présentateurs télé","Les journalistes locaux qui enquêtent sur le crime organisé ou la corruption"],3,"Les journalistes locaux qui enquêtent sur le crime organisé ou la corruption."],
+    ["En quel mois de 2006 l'armée est-elle envoyée contre les cartels ?",["En janvier","En juin","En décembre","En septembre"],2,"En décembre 2006."],
+    ["Que pensent des familles de l'estimation des 40 000 disparus peut-être en vie ?",["Elles l'approuvent","Elles la contestent","Elles l'ignorent","Elles l'ont proposée"],1,"Des familles la contestent."]],
+ e:[["En quel mois de 2014 les étudiants d'Ayotzinapa disparaissent-ils ?",["En septembre","En mars","En juillet","En décembre"],0,"En septembre 2014."],
+    ["Comment se situe le Mexique pour la sécurité des journalistes ?",["L'un des plus sûrs","Dans la moyenne","L'un des plus dangereux au monde hors zones de guerre","Le seul pays sans danger"],2,"L'un des plus dangereux au monde, hors zones de guerre."],
+    ["Plus de dix ans après, combien des 43 étudiants ont été retrouvés ?",["Tous","Presque tous","La moitié","La plupart n'ont jamais été retrouvés"],3,"La plupart n'ont jamais été retrouvés."],
+    ["Que provoque l'affaire d'Ayotzinapa ?",["Une fête nationale","Une indignation nationale","Une réforme du football","Rien"],1,"Une indignation nationale."],
+    ["En plus des autres cartels, avec qui les cartels s'affrontent-ils ?",["Avec l'ONU","Avec le Canada","Avec les touristes","Avec les forces de l'ordre"],3,"Avec les forces de l'ordre, et ils commettent des exactions contre les civils."]]
+},{
+ d:[["Is Mexico at war?",["Yes, with the United States","No","Yes, a declared civil war","Yes, with Guatemala"],"No. Yet more than 130,000 people are listed as missing."],
+    ["Towards which country do cartels control trafficking routes?",["The United States","Canada","Brazil","Cuba"],"Towards the United States."],
+    ["What are the “searching mothers” looking for when they dig?",["Gold","Weapons","Oil","Clandestine graves"],"Clandestine graves, for lack of investigations."],
+    ["Who arrested the Ayotzinapa students before they disappeared?",["A cartel","The US army","The local police","Their teachers"],"The local police."],
+    ["How many of the 2025 journalist murders have been solved?",["All","Half","None","Two"],"None."]],
+ i:[["In which Mexican state is Iguala?",["Jalisco","Guerrero","Sonora","Chiapas"],"In Guerrero state."],
+    ["What kind of school did the 43 missing students attend?",["A teacher-training college","A military school","A police academy","A private university"],"The Ayotzinapa teacher-training college."],
+    ["Which journalists are most at risk in Mexico?",["Foreign correspondents","Sports journalists","TV presenters","Local journalists investigating organised crime or corruption"],"Local journalists investigating organised crime or corruption."],
+    ["In which month of 2006 was the army sent against the cartels?",["January","June","December","September"],"December 2006."],
+    ["What do some families think of the estimate that 40,000 missing people may be alive?",["They approve","They dispute it","They ignore it","They proposed it"],"Some families dispute it."]],
+ e:[["In which month of 2014 did the Ayotzinapa students disappear?",["September","March","July","December"],"September 2014."],
+    ["How does Mexico rank for journalists' safety?",["One of the safest","Average","One of the most dangerous outside war zones","The only safe country"],"One of the most dangerous in the world, outside war zones."],
+    ["More than ten years on, how many of the 43 students have been found?",["All","Almost all","Half","Most have never been found"],"Most have never been found."],
+    ["What did the Ayotzinapa case provoke?",["A national holiday","National outrage","A football reform","Nothing"],"National outrage."],
+    ["Besides rival cartels, who do cartels clash with?",["The UN","Canada","Tourists","The security forces"],"The security forces, and they commit abuses against civilians."]]
+});
+
+moreQ("508",{
+ d:[["Quelle ville est attaquée en premier, en octobre 2017 ?",["Maputo","Palma","Mocímboa da Praia","Beira"],2,"Mocímboa da Praia."],
+    ["Avec quel pays la province de Cabo Delgado a-t-elle une frontière ?",["La Tanzanie","L'Afrique du Sud","Madagascar","L'Angola"],0,"La Tanzanie, au nord."],
+    ["Quelle part des personnes touchées par le conflit sont des enfants ?",["Un dixième","Un quart","Un tiers","Plus de la moitié"],3,"Plus de la moitié."],
+    ["Quel groupe pétrolier suspend son projet de gaz après l'attaque de Palma ?",["Shell","TotalEnergies","BP","Gazprom"],1,"TotalEnergies."],
+    ["Le conflit de Cabo Delgado attire-t-il l'attention internationale ?",["Énormément","Plus que toute autre guerre","Très peu","Seulement en Europe"],2,"Très peu : c'est une guerre oubliée."]],
+ i:[["Quand commence la guerre civile mozambicaine ?",["En 1960","En 1977","En 1992","En 2017"],1,"En 1977. Elle dure jusqu'en 1992."],
+    ["Qui vient appuyer l'armée après les troupes rwandaises ?",["Une force régionale d'Afrique australe","L'armée française","L'OTAN","Des casques bleus chinois"],0,"Une force régionale d'Afrique australe."],
+    ["Quand les gisements de gaz sont-ils découverts au large de Cabo Delgado ?",["Dans les années 1950","Dans les années 1970","En 2021","Au début des années 2010"],3,"Au début des années 2010."],
+    ["Sur combien de sites vivent les déplacés de la province en octobre 2026 ?",["8","48","84","840"],2,"84 sites."],
+    ["Quel soutien les ONG mettent-elles en avant ?",["Le soutien juridique","Le soutien psychologique","Le soutien sportif","Le soutien bancaire"],1,"Le soutien psychologique."]],
+ e:[["Combien de personnes ont participé aux activités collectives de Médecins sans frontières ?",["Près de 210 000","Près de 2 100","Près de 21 000","Près de 2,1 millions"],0,"Près de 210 000."],
+    ["À quelle date le Mozambique devient-il indépendant ?",["Le 1er janvier 1960","Le 4 octobre 1992","Le 11 novembre 1975","Le 25 juin 1975"],3,"Le 25 juin 1975."],
+    ["Comment se situe Cabo Delgado parmi les provinces du Mozambique ?",["La plus riche","La plus peuplée","L'une des plus pauvres","La capitale"],2,"L'une des plus pauvres, malgré le gaz."],
+    ["Quelles violences commettent les insurgés ?",["Des vols de voitures","Villages incendiés, décapitations, enlèvements d'enfants","Seulement des menaces","Des cyberattaques"],1,"Villages incendiés, décapitations, enlèvements d'enfants."],
+    ["Qu'ont perdu beaucoup d'enfants de Cabo Delgado ?",["Leur langue","Leur nationalité","Leur prénom","Des années d'école"],3,"Des années d'école. Certains ont été enlevés et enrôlés."]]
+},{
+ d:[["Which town was attacked first, in October 2017?",["Maputo","Palma","Mocímboa da Praia","Beira"],"Mocímboa da Praia."],
+    ["Which country borders Cabo Delgado province?",["Tanzania","South Africa","Madagascar","Angola"],"Tanzania, to the north."],
+    ["What share of those affected by the conflict are children?",["A tenth","A quarter","A third","More than half"],"More than half."],
+    ["Which energy company suspended its gas project after the attack on Palma?",["Shell","TotalEnergies","BP","Gazprom"],"TotalEnergies."],
+    ["Does the Cabo Delgado conflict attract international attention?",["Enormously","More than any other war","Very little","Only in Europe"],"Very little: it is a forgotten war."]],
+ i:[["When did Mozambique's civil war begin?",["1960","1977","1992","2017"],"In 1977. It lasted until 1992."],
+    ["Who came to support the army after the Rwandan troops?",["A Southern African regional force","The French army","NATO","Chinese peacekeepers"],"A Southern African regional force."],
+    ["When were the gas fields off Cabo Delgado discovered?",["In the 1950s","In the 1970s","In 2021","In the early 2010s"],"In the early 2010s."],
+    ["On how many sites did the province's displaced live in October 2026?",["8","48","84","840"],"84 sites."],
+    ["Which kind of support do NGOs emphasise?",["Legal support","Psychological support","Sports support","Banking support"],"Psychological support."]],
+ e:[["How many people took part in Médecins Sans Frontières' group activities?",["Nearly 210,000","Nearly 2,100","Nearly 21,000","Nearly 2.1 million"],"Nearly 210,000."],
+    ["On what date did Mozambique become independent?",["1 January 1960","4 October 1992","11 November 1975","25 June 1975"],"25 June 1975."],
+    ["How does Cabo Delgado rank among Mozambique's provinces?",["The richest","The most populous","One of the poorest","The capital"],"One of the poorest, despite the gas."],
+    ["What violence do the insurgents commit?",["Car theft","Burned villages, beheadings, child abductions","Only threats","Cyberattacks"],"Burned villages, beheadings, child abductions."],
+    ["What have many children in Cabo Delgado lost?",["Their language","Their nationality","Their name","Years of school"],"Years of school. Some were abducted and recruited."]]
+});
+
+moreQ("558",{
+ d:[["Quel mouvement renverse la famille Somoza en 1979 ?",["Un coup d'État américain","Une invasion du Honduras","La révolution sandiniste","Une élection"],2,"La révolution sandiniste."],
+    ["Qui est l'épouse de Daniel Ortega, devenue « coprésidente » ?",["Rosario Murillo","Violeta Chamorro","Frida Kahlo","Evita Perón"],0,"Rosario Murillo."],
+    ["Qu'est-ce qui est fermé dans les années qui suivent 2018 ?",["Les aéroports","Les frontières","Les plages","Des milliers d'associations, des médias et des universités"],3,"Des milliers d'associations, des médias et des universités."],
+    ["Combien de temps la famille Somoza dirige-t-elle le Nicaragua ?",["Quatre ans","Plus de quarante ans","Cent ans","Dix ans"],1,"Plus de quarante ans."],
+    ["Combien de morts fait la répression de 2018 ?",["Aucun","Une dizaine","Des centaines","Des millions"],2,"Des centaines de morts."]],
+ i:[["Quel rôle Daniel Ortega joue-t-il en 1979 ?",["Il est le dernier Somoza","Il est l'un des chefs de la révolution sandiniste","Il est ambassadeur à Washington","Il est en exil"],1,"Il est l'un des chefs de la révolution sandiniste."],
+    ["Outre l'Espagne, quels pays proposent leur nationalité aux Nicaraguayens déchus ?",["La Chine et la Russie","Le Canada et l'Australie","Cuba et le Venezuela","Le Brésil et le Mexique"],3,"Le Brésil et le Mexique."],
+    ["En quel mois de 2023 plus de 200 prisonniers politiques sont-ils expulsés ?",["En février","En juin","En septembre","En décembre"],0,"En février 2023."],
+    ["Que devient la protestation d'avril 2018 ?",["Une simple grève d'un jour","Un festival","Un mouvement de contestation national","Une guerre avec le Costa Rica"],2,"Un mouvement de contestation national."],
+    ["Combien de personnes sont arrêtées pendant la répression de 2018 ?",["Une dizaine","Des milliers","Aucune","Un million"],1,"Des milliers."]],
+ e:[["Qu'a renforcé Daniel Ortega depuis son retour en 2007 ?",["Son contrôle sur toutes les institutions","L'indépendance de la justice","La liberté de la presse","Le rôle de l'opposition"],0,"Son contrôle sur toutes les institutions."],
+    ["Qu'est-ce qui devient difficile pour une personne déchue de sa nationalité ?",["Rien","Faire du sport","Changer de coiffure","Travailler, voyager, prouver qui elle est"],3,"Travailler, voyager, et même prouver qui elle est."],
+    ["Qui part en exil après la répression de 2018 ?",["Les ministres","Les militaires","Des journalistes et des opposants","Les touristes"],2,"Des journalistes et des opposants."],
+    ["Par quel type de réforme Ortega et Murillo deviennent-ils coprésidents ?",["Un référendum européen","Une réforme constitutionnelle","Un décret de l'ONU","Un accord avec les États-Unis"],1,"Une réforme constitutionnelle, en 2025."],
+    ["Combien de prisonniers politiques sont expulsés vers les États-Unis en février 2023 ?",["Une vingtaine","Une cinquantaine","Plus de 200","Plus de 2 000"],2,"Plus de 200, déchus de leur nationalité."]]
+},{
+ d:[["Which movement overthrew the Somoza family in 1979?",["A US-backed coup","An invasion from Honduras","The Sandinista revolution","An election"],"The Sandinista revolution."],
+    ["Who is Daniel Ortega's wife, now “co-president”?",["Rosario Murillo","Violeta Chamorro","Frida Kahlo","Evita Perón"],"Rosario Murillo."],
+    ["What was shut down in the years after 2018?",["Airports","Borders","Beaches","Thousands of associations, media and universities"],"Thousands of associations, media outlets and universities."],
+    ["How long did the Somoza family rule Nicaragua?",["Four years","More than forty years","A hundred years","Ten years"],"More than forty years."],
+    ["How many people died in the 2018 crackdown?",["None","About ten","Hundreds","Millions"],"Hundreds."]],
+ i:[["What role did Daniel Ortega play in 1979?",["He was the last Somoza","He was one of the Sandinista revolution's leaders","He was ambassador in Washington","He was in exile"],"He was one of the leaders of the Sandinista revolution."],
+    ["Besides Spain, which countries offered their nationality to stripped Nicaraguans?",["China and Russia","Canada and Australia","Cuba and Venezuela","Brazil and Mexico"],"Brazil and Mexico."],
+    ["In which month of 2023 were more than 200 political prisoners expelled?",["February","June","September","December"],"February 2023."],
+    ["What did the April 2018 protest become?",["A one-day strike","A festival","A national protest movement","A war with Costa Rica"],"A national protest movement."],
+    ["How many people were arrested during the 2018 crackdown?",["About ten","Thousands","None","A million"],"Thousands."]],
+ e:[["What has Daniel Ortega strengthened since his return in 2007?",["His control over all institutions","Judicial independence","Press freedom","The opposition's role"],"His control over all institutions."],
+    ["What becomes difficult for someone stripped of nationality?",["Nothing","Playing sport","Changing hairstyle","Working, travelling, proving who they are"],"Working, travelling, even proving who they are."],
+    ["Who went into exile after the 2018 crackdown?",["Ministers","Soldiers","Journalists and opponents","Tourists"],"Journalists and opponents."],
+    ["What kind of reform made Ortega and Murillo co-presidents?",["A European referendum","A constitutional reform","A UN decree","A deal with the United States"],"A constitutional reform, in 2025."],
+    ["How many political prisoners were expelled to the United States in February 2023?",["About twenty","About fifty","More than 200","More than 2,000"],"More than 200, stripped of their nationality."]]
+});
+
+/* ---------- Questions supplémentaires, lot 10 : Nigeria, Baloutches, Philippines ---------- */
+moreQ("566",{
+ d:[["Combien d'habitants compte le Nigeria ?",["Environ 20 millions","Environ 50 millions","Plus de 200 millions","Plus de 2 milliards"],2,"Plus de 200 millions."],
+    ["Comment se répartissent les religions au Nigeria ?",["Tout le pays est chrétien","Un nord majoritairement musulman et un sud majoritairement chrétien","Tout le pays est bouddhiste","Un nord chrétien et un sud musulman"],1,"Nord majoritairement musulman, sud majoritairement chrétien."],
+    ["Pourquoi les « bandits » du nord-ouest enlèvent-ils des gens ?",["Pour les soigner","Pour les recruter dans l'armée","Pour les faire voter","Contre rançon"],3,"Contre rançon, y compris des élèves dans leurs écoles."],
+    ["Que provoque l'enlèvement des lycéennes de Chibok ?",["Une mobilisation mondiale","Une fête nationale","La fin de Boko Haram","Rien"],0,"Une mobilisation mondiale."],
+    ["Dans quelle partie du Nigeria Boko Haram mène-t-il son insurrection ?",["Le sud","Le nord-est","La côte","Lagos"],1,"Le nord-est, d'abord dans l'État de Borno."]],
+ i:[["Quelle est la principale cause des morts de la guerre du Biafra ?",["Les bombes nucléaires","Les épidémies de grippe","La famine","Les inondations"],2,"Beaucoup sont morts de la famine."],
+    ["Dans quel État Boko Haram lance-t-il son insurrection en 2009 ?",["Borno","Lagos","Kano","Abuja"],0,"Dans l'État de Borno."],
+    ["Où se trouve le Biafra ?",["Dans le nord-ouest","Au centre","Sur le lac Tchad","Dans le sud-est"],3,"Dans le sud-est."],
+    ["À quelle date le Nigeria devient-il indépendant ?",["Le 1er janvier 1960","Le 1er octobre 1960","Le 7 août 1960","Le 1er octobre 1967"],1,"Le 1er octobre 1960."],
+    ["Quel rang mondial occupe le Nigeria pour les violations graves contre les enfants en 2025 ?",["Premier","Dixième","Troisième","Cinquantième"],2,"Le troisième chiffre au monde."]],
+ e:[["Combien de morts fait la guerre du Biafra ?",["Entre un et deux millions","Environ 10 000","Environ 100 000","Plus de 10 millions"],0,"Entre un et deux millions de morts."],
+    ["Combien de déplacés compte le centre-nord du Nigeria en mai 2026 ?",["Environ 5 850","Environ 58 500","Environ 5,85 millions","Environ 585 000"],3,"Environ 585 000."],
+    ["Quelles violations graves contre les enfants l'ONU vérifie-t-elle ?",["Des amendes scolaires","Recrutements forcés, meurtres, enlèvements, violences sexuelles","Des retards de vaccins","Des interdictions de sport"],1,"Recrutements forcés, meurtres, enlèvements et violences sexuelles."],
+    ["En quel mois de 2014 les lycéennes de Chibok sont-elles enlevées ?",["En janvier","En août","En avril","En novembre"],2,"En avril 2014."],
+    ["Qu'avait fait le Biafra avant la guerre ?",["Gagné une élection","Rejoint le Cameroun","Déclaré la guerre au Tchad","Fait sécession"],3,"Il avait fait sécession."]]
+},{
+ d:[["How many people live in Nigeria?",["About 20 million","About 50 million","More than 200 million","More than 2 billion"],"More than 200 million."],
+    ["How are religions distributed in Nigeria?",["The whole country is Christian","A mostly Muslim north and a mostly Christian south","The whole country is Buddhist","A Christian north and a Muslim south"],"A mostly Muslim north and a mostly Christian south."],
+    ["Why do the north-west “bandits” kidnap people?",["To treat them","To enlist them in the army","To make them vote","For ransom"],"For ransom, including pupils at their schools."],
+    ["What did the Chibok abduction trigger?",["A worldwide mobilisation","A national holiday","The end of Boko Haram","Nothing"],"A worldwide mobilisation."],
+    ["In which part of Nigeria does Boko Haram wage its insurgency?",["The south","The north-east","The coast","Lagos"],"The north-east, first in Borno state."]],
+ i:[["What was the main cause of death in the Biafran war?",["Nuclear bombs","Flu epidemics","Famine","Floods"],"Many died of famine."],
+    ["In which state did Boko Haram launch its insurgency in 2009?",["Borno","Lagos","Kano","Abuja"],"In Borno state."],
+    ["Where is Biafra?",["In the north-west","In the centre","On Lake Chad","In the south-east"],"In the south-east."],
+    ["On what date did Nigeria become independent?",["1 January 1960","1 October 1960","7 August 1960","1 October 1967"],"1 October 1960."],
+    ["Where did Nigeria rank worldwide for grave violations against children in 2025?",["First","Tenth","Third","Fiftieth"],"The third highest figure in the world."]],
+ e:[["How many people died in the Biafran war?",["Between one and two million","About 10,000","About 100,000","More than 10 million"],"Between one and two million."],
+    ["How many displaced people did north-central Nigeria have in May 2026?",["About 5,850","About 58,500","About 5.85 million","About 585,000"],"About 585,000."],
+    ["Which grave violations against children does the UN verify?",["School fines","Forced recruitment, killings, abductions, sexual violence","Vaccine delays","Sports bans"],"Forced recruitment, killings, abductions and sexual violence."],
+    ["In which month of 2014 were the Chibok schoolgirls abducted?",["January","August","April","November"],"April 2014."],
+    ["What had Biafra done before the war?",["Won an election","Joined Cameroon","Declared war on Chad","Seceded"],"It had seceded."]]
+});
+
+moreQ("586",{
+ d:[["Comment les familles de disparus manifestent-elles ?",["Par des grèves de la faim en Europe","Par des concerts","Par des sit-in et des marches, photos à la main","Elles ne manifestent pas"],2,"Par des sit-in et des marches, photos de leurs proches à la main."],
+    ["Le Balouchistan est-il très peuplé ?",["Non, c'est la province la moins peuplée","Oui, c'est la plus peuplée","Il est vide","Il compte la moitié des habitants"],0,"Non. C'est la province la moins peuplée, malgré sa taille."],
+    ["Qui sont les personnes victimes de disparitions forcées ?",["Uniquement des soldats","Uniquement des étrangers","Uniquement des enfants","Des étudiants, militants, journalistes et simples citoyens"],3,"Des étudiants, des militants, des journalistes et de simples citoyens."],
+    ["Que pensent beaucoup de Baloutches des richesses de leur province ?",["Qu'elles les rendent riches","Qu'ils n'en profitent pas","Qu'elles n'existent pas","Qu'elles appartiennent à l'Inde"],1,"Beaucoup estiment ne pas en profiter."],
+    ["Que demande la Commission des droits humains du Pakistan ?",["Plus de prisons","La fermeture de Gwadar","La fin des disparitions forcées et le jugement des responsables","L'indépendance du Balouchistan"],2,"Mettre fin aux disparitions forcées et en juger les responsables."]],
+ i:[["Depuis quand dure la dernière vague d'insurrection au Balouchistan ?",["Depuis 1948","Depuis le début des années 2000","Depuis 2025","Depuis 1971"],1,"Depuis le début des années 2000."],
+    ["Comment la Commission des droits humains du Pakistan décrit-elle la situation ?",["Comme normale","Comme réglée","Comme une réussite","Comme une « grave crise »"],3,"Comme une « grave crise »."],
+    ["Que reconnaît l'État pakistanais ?",["L'existence des disparitions","Rien du tout","L'indépendance de la province","Les chiffres des ONG"],0,"L'existence des disparitions, présentées comme une conséquence de l'insurrection."],
+    ["Qui commet aussi des attaques meurtrières au Balouchistan ?",["L'ONU","Les touristes","Des groupes armés séparatistes","La Chine"],2,"Des groupes armés séparatistes."],
+    ["Que ne sait pas la famille d'une personne victime de disparition forcée ?",["Son âge","Où elle se trouve","Son nom","Sa langue"],1,"Où elle se trouve."]],
+ e:[["Sur quel territoire la commission d'enquête a-t-elle reçu 10 636 plaintes ?",["Dans tout le Pakistan","Au Balouchistan seulement","À Islamabad seulement","En Iran"],0,"Dans tout le pays, entre 2011 et septembre 2025."],
+    ["Pourquoi la loi antiterroriste de 2025 est-elle critiquée ?",["Elle est trop courte","Elle est en anglais","Elle a été votée en Chine","Elle est jugée dangereuse pour les libertés"],3,"Elle est jugée dangereuse pour les libertés."],
+    ["Qui a enregistré les 46 nouveaux cas de 2025 ?",["L'armée","La commission d'enquête nationale","La police du Balouchistan","L'ONU"],2,"La police du Balouchistan."],
+    ["Quel rang occupe le Balouchistan par sa superficie au Pakistan ?",["La plus petite province","La plus grande province","La troisième","La deuxième"],1,"La plus grande : près de la moitié du territoire."],
+    ["En moyenne, combien de plaintes par an la commission a-t-elle reçues depuis 2011 ?",["Environ 70","Environ 700","Environ 7 000","Environ 70 000"],1,"Environ 700 : 10 636 plaintes en près de quinze ans."]]
+},{
+ d:[["How do families of the missing protest?",["Hunger strikes in Europe","Concerts","Sit-ins and marches, holding photos","They don't protest"],"Sit-ins and marches, holding photos of their relatives."],
+    ["Is Balochistan densely populated?",["No, it is the least populated province","Yes, the most populated","It is empty","It holds half the population"],"No. It is the least populated province, despite its size."],
+    ["Who are the victims of enforced disappearances?",["Only soldiers","Only foreigners","Only children","Students, activists, journalists and ordinary citizens"],"Students, activists, journalists and ordinary citizens."],
+    ["What do many Baloch think about their province's wealth?",["It makes them rich","They don't benefit from it","It doesn't exist","It belongs to India"],"Many feel they don't benefit from it."],
+    ["What does the Human Rights Commission of Pakistan demand?",["More prisons","Closing Gwadar","An end to enforced disappearances and trials for those responsible","Balochistan's independence"],"An end to enforced disappearances and trials for those responsible."]],
+ i:[["Since when has the latest insurgency wave lasted in Balochistan?",["Since 1948","Since the early 2000s","Since 2025","Since 1971"],"Since the early 2000s."],
+    ["How does the Human Rights Commission of Pakistan describe the situation?",["As normal","As solved","As a success","As a “grave crisis”"],"As a “grave crisis”."],
+    ["What does the Pakistani state acknowledge?",["That disappearances exist","Nothing at all","The province's independence","The NGOs' figures"],"That disappearances exist, presented as a consequence of the insurgency."],
+    ["Who also carries out deadly attacks in Balochistan?",["The UN","Tourists","Armed separatist groups","China"],"Armed separatist groups."],
+    ["What does the family of a disappeared person not know?",["Their age","Where they are","Their name","Their language"],"Where they are."]],
+ e:[["Over which territory did the commission receive 10,636 complaints?",["All of Pakistan","Balochistan only","Islamabad only","Iran"],"Across the whole country, between 2011 and September 2025."],
+    ["Why is the 2025 anti-terrorism law criticised?",["It is too short","It is in English","It was voted in China","It is seen as dangerous for freedoms"],"It is seen as dangerous for freedoms."],
+    ["Who registered the 46 new cases in 2025?",["The army","The national commission of inquiry","Balochistan police","The UN"],"Balochistan police."],
+    ["How does Balochistan rank by area in Pakistan?",["The smallest province","The largest province","Third","Second"],"The largest: nearly half the territory."],
+    ["On average, how many complaints a year has the commission received since 2011?",["About 70","About 700","About 7,000","About 70,000"],"About 700: 10,636 complaints in nearly fifteen years."]]
+});
+
+moreQ("608",{
+ d:[["Quel pays colonise les Philippines pendant plus de trois siècles ?",["Le Portugal","L'Espagne","La France","Le Japon"],1,"L'Espagne."],
+    ["Qui dirige les Philippines de 1965 à 1986 ?",["Ferdinand Marcos","Rodrigo Duterte","Maria Ressa","Corazon Aquino"],0,"Ferdinand Marcos."],
+    ["Quel pays colonise les Philippines après l'Espagne ?",["La Chine","Le Royaume-Uni","Les Pays-Bas","Les États-Unis"],3,"Les États-Unis, jusqu'à l'indépendance de 1946."],
+    ["Pour quels crimes Rodrigo Duterte est-il poursuivi ?",["Pour fraude fiscale","Pour corruption","Pour crimes contre l'humanité","Pour espionnage"],2,"Pour crimes contre l'humanité."],
+    ["Qu'est-ce qui chasse les Lumad de leurs terres ?",["Des volcans","Des projets miniers","Des typhons","Le tourisme"],1,"Des projets miniers."]],
+ i:[["À partir de quelle année Marcos impose-t-il la loi martiale ?",["1946","1965","1972","1986"],2,"En 1972."],
+    ["Dans quelle ville Rodrigo Duterte est-il arrêté ?",["Manille","Davao","Cebu","La Haye"],0,"À Manille, avant d'être transféré à La Haye."],
+    ["Qu'a de particulier le procès de Duterte devant la CPI ?",["C'est le premier procès en ligne","Il est jugé à Manille","Il a déjà été acquitté","C'est le premier ancien chef d'État asiatique jugé par cette cour"],3,"C'est la première fois qu'un ancien chef d'État asiatique est jugé par la CPI."],
+    ["Qu'a subi la journaliste Maria Ressa ?",["Rien","Des poursuites à de nombreuses reprises","Une élection","Un exil en Espagne"],1,"Elle a été poursuivie à de nombreuses reprises."],
+    ["Comment beaucoup de victimes de la guerre contre la drogue sont-elles tuées ?",["Après un long procès","Par accident","Souvent sans procès ni preuve","Par des soldats étrangers"],2,"Souvent sans procès ni preuve."]],
+ e:[["À quelle date Rodrigo Duterte est-il arrêté ?",["Le 11 mars 2025","Le 23 avril 2026","Le 1er janvier 2025","Le 30 juin 2016"],0,"Le 11 mars 2025."],
+    ["Que subissent des milliers d'opposants sous Marcos ?",["Des promotions","Des voyages à l'étranger","Des élections libres","La prison, la torture ou la mort"],3,"Ils sont emprisonnés, torturés ou tués."],
+    ["En plus des hommes pauvres, qui figure parmi les victimes de la guerre contre la drogue ?",["Des ministres","Des adolescents","Des diplomates","Des touristes"],1,"Parfois des adolescents."],
+    ["Combien d'années Ferdinand Marcos dirige-t-il le pays ?",["11 ans","15 ans","21 ans","31 ans"],2,"21 ans, de 1965 à 1986."],
+    ["Où les victimes de la guerre contre la drogue sont-elles souvent tuées ?",["En prison","Chez elles ou dans la rue","À l'étranger","Dans des stades"],1,"Chez elles ou dans la rue."]]
+},{
+ d:[["Which country colonised the Philippines for more than three centuries?",["Portugal","Spain","France","Japan"],"Spain."],
+    ["Who ruled the Philippines from 1965 to 1986?",["Ferdinand Marcos","Rodrigo Duterte","Maria Ressa","Corazon Aquino"],"Ferdinand Marcos."],
+    ["Which country colonised the Philippines after Spain?",["China","The United Kingdom","The Netherlands","The United States"],"The United States, until independence in 1946."],
+    ["For which crimes is Rodrigo Duterte prosecuted?",["Tax fraud","Corruption","Crimes against humanity","Espionage"],"Crimes against humanity."],
+    ["What drives the Lumad off their land?",["Volcanoes","Mining projects","Typhoons","Tourism"],"Mining projects."]],
+ i:[["From which year did Marcos impose martial law?",["1946","1965","1972","1986"],"In 1972."],
+    ["In which city was Rodrigo Duterte arrested?",["Manila","Davao","Cebu","The Hague"],"In Manila, before being transferred to The Hague."],
+    ["What is special about Duterte's trial at the ICC?",["It is the first online trial","He is tried in Manila","He has already been acquitted","He is the first former Asian head of state tried by this court"],"It is the first time a former Asian head of state is tried by the ICC."],
+    ["What has journalist Maria Ressa faced?",["Nothing","Repeated prosecutions","An election","Exile in Spain"],"She has been prosecuted many times."],
+    ["How were many victims of the war on drugs killed?",["After a long trial","By accident","Often without trial or evidence","By foreign soldiers"],"Often without trial or evidence."]],
+ e:[["On what date was Rodrigo Duterte arrested?",["11 March 2025","23 April 2026","1 January 2025","30 June 2016"],"11 March 2025."],
+    ["What did thousands of opponents suffer under Marcos?",["Promotions","Trips abroad","Free elections","Prison, torture or death"],"They were jailed, tortured or killed."],
+    ["Besides poor men, who was among the victims of the war on drugs?",["Ministers","Teenagers","Diplomats","Tourists"],"Sometimes teenagers."],
+    ["How many years did Ferdinand Marcos rule the country?",["11 years","15 years","21 years","31 years"],"21 years, from 1965 to 1986."],
+    ["Where were victims of the war on drugs often killed?",["In prison","At home or in the street","Abroad","In stadiums"],"At home or in the street."]]
+});
+
+/* ---------- Questions supplémentaires, lot 11 : Russie, Arabie saoudite, Somalie ---------- */
+moreQ("643",{
+ d:[["Quelle révolution porte les bolcheviks au pouvoir ?",["La révolution de 1789","La révolution de 1917","La révolution de 1945","La révolution de 1991"],1,"La révolution de 1917."],
+    ["Sous quel dirigeant soviétique des millions de personnes sont-elles envoyées au Goulag ?",["Staline","Lénine","Gorbatchev","Poutine"],0,"Sous Staline."],
+    ["Quel pays la Russie envahit-elle en 2022 ?",["La Pologne","La Géorgie","La Finlande","L'Ukraine"],3,"L'Ukraine."],
+    ["Que risque-t-on en Russie en critiquant la guerre ?",["Rien","Une simple amende","Des années de prison","Un avertissement"],2,"Des années de prison."],
+    ["Quel régime dirige la Russie avant 1917 ?",["Une république","L'empire tsariste","Une monarchie parlementaire","L'Union soviétique"],1,"Des siècles d'empire tsariste."]],
+ i:[["Où Alexeï Navalny meurt-il ?",["Dans une colonie pénitentiaire de l'Arctique","À Moscou, à l'hôpital","En exil en Allemagne","Sur le front ukrainien"],0,"Dans une colonie pénitentiaire de l'Arctique."],
+    ["Qu'est-il arrivé aux médias indépendants russes ?",["Ils se sont multipliés","Ils sont financés par l'État","Ils ont gagné des élections","Ils ont été fermés ou poussés à l'exil"],3,"Ils ont été fermés ou poussés à l'exil."],
+    ["Comment se situe la Russie pour l'esclavage moderne ?",["Parmi les pays les moins touchés","Dans la moyenne","Parmi les dix pays les plus touchés","Le pays le plus touché"],2,"Parmi les dix pays les plus touchés."],
+    ["Quels abus subissent les travailleurs migrants d'Asie centrale ?",["Des primes trop élevées","Passeports confisqués, salaires impayés, dettes","Des vacances forcées","Aucun"],1,"Passeports confisqués, salaires impayés, dettes."],
+    ["Quelles fonctions Vladimir Poutine occupe-t-il depuis 2000 ?",["Ministre de la Défense seulement","Maire de Moscou","Chef de l'Église","Président ou Premier ministre"],3,"Président ou Premier ministre, selon les périodes."]],
+ e:[["Quand commence la seconde guerre de Tchétchénie ?",["En 1991","En 1996","En 1999","En 2014"],2,"En 1999, après une première guerre de 1994 à 1996."],
+    ["À quoi sert aussi le travail des détenus en Russie ?",["À l'effort de guerre","Au tourisme","Aux Jeux olympiques","À rien"],0,"Il est utilisé y compris pour l'effort de guerre."],
+    ["Combien de temps sépare la dissolution de Memorial de son prix Nobel ?",["Dix ans","Quelques mois","Cinq ans","Un siècle"],1,"Quelques mois : dissoute en décembre 2021, Nobel en 2022."],
+    ["Comment se passe pour la Russie la décennie qui suit 1991 ?",["Une décennie de paix et de prospérité","Une décennie sans changement","Une décennie de conquête spatiale","Une décennie de crise économique et de guerres"],3,"Une décennie de crise économique et de guerres."],
+    ["Qu'arrive-t-il à beaucoup de prisonniers du Goulag ?",["Ils deviennent ministres","Ils sont libérés tout de suite","Beaucoup y meurent","Ils partent en vacances"],2,"Beaucoup y meurent."]]
+},{
+ d:[["Which revolution brought the Bolsheviks to power?",["The 1789 revolution","The 1917 revolution","The 1945 revolution","The 1991 revolution"],"The 1917 revolution."],
+    ["Under which Soviet leader were millions sent to the Gulag?",["Stalin","Lenin","Gorbachev","Putin"],"Under Stalin."],
+    ["Which country did Russia invade in 2022?",["Poland","Georgia","Finland","Ukraine"],"Ukraine."],
+    ["What can criticising the war bring in Russia?",["Nothing","A small fine","Years in prison","A warning"],"Years in prison."],
+    ["Which regime ruled Russia before 1917?",["A republic","The tsarist empire","A parliamentary monarchy","The Soviet Union"],"Centuries of tsarist empire."]],
+ i:[["Where did Alexei Navalny die?",["In an Arctic penal colony","In a Moscow hospital","In exile in Germany","On the Ukrainian front"],"In an Arctic penal colony."],
+    ["What happened to Russia's independent media?",["They multiplied","They are state-funded","They won elections","They were shut down or pushed into exile"],"They were shut down or pushed into exile."],
+    ["How does Russia rank for modern slavery?",["Among the least affected","Average","Among the ten most affected countries","The most affected country"],"Among the ten most affected countries."],
+    ["What abuses do migrant workers from Central Asia face?",["Bonuses that are too high","Confiscated passports, unpaid wages, debts","Forced holidays","None"],"Confiscated passports, unpaid wages, debts."],
+    ["Which posts has Vladimir Putin held since 2000?",["Defence minister only","Mayor of Moscow","Head of the Church","President or prime minister"],"President or prime minister, depending on the period."]],
+ e:[["When did the second Chechen war begin?",["1991","1996","1999","2014"],"In 1999, after a first war from 1994 to 1996."],
+    ["What else is prison labour used for in Russia?",["The war effort","Tourism","The Olympics","Nothing"],"It is used including for the war effort."],
+    ["How long separated Memorial's dissolution from its Nobel Prize?",["Ten years","A few months","Five years","A century"],"A few months: dissolved in December 2021, Nobel in 2022."],
+    ["What was the decade after 1991 like for Russia?",["Peace and prosperity","No change","Space conquest","Economic crisis and wars"],"A decade of economic crisis and wars."],
+    ["What happened to many Gulag prisoners?",["They became ministers","They were freed at once","Many died there","They went on holiday"],"Many died there."]]
+});
+
+moreQ("682",{
+ d:[["Quelles villes saintes de l'islam se trouvent en Arabie saoudite ?",["Jérusalem et Damas","Istanbul et Le Caire","La Mecque et Médine","Bagdad et Téhéran"],2,"La Mecque et Médine, les deux premiers lieux saints de l'islam."],
+    ["Qui fonde le royaume d'Arabie saoudite en 1932 ?",["Abdelaziz Ibn Saoud","Mohammed ben Salmane","Jamal Khashoggi","Saddam Hussein"],0,"Abdelaziz Ibn Saoud."],
+    ["Y a-t-il des élections nationales en Arabie saoudite ?",["Oui, tous les quatre ans","Non","Oui, chaque année","Oui, mais seulement pour les femmes"],1,"Non. Il n'y a ni partis politiques ni élections nationales."],
+    ["D'où viennent surtout les travailleurs étrangers du royaume ?",["D'Europe","D'Amérique du Nord","D'Australie","D'Asie du Sud et d'Afrique"],3,"D'Asie du Sud et d'Afrique."],
+    ["Quels métiers exercent beaucoup de travailleurs étrangers ?",["Pilotes de ligne","Ministres","Ouvriers du bâtiment, employées de maison, chauffeurs","Footballeurs"],2,"Ouvriers du bâtiment, employées de maison, chauffeurs."]],
+ i:[["Quand le pétrole est-il découvert en Arabie saoudite ?",["Au XIXe siècle","À la fin des années 1930","En 1973","En 2018"],1,"À la fin des années 1930."],
+    ["Pourquoi les employées de maison sont-elles particulièrement exposées ?",["Parce qu'elles sont isolées chez leurs employeurs","Parce qu'elles sont très payées","Parce qu'elles voyagent beaucoup","Parce qu'elles sont syndiquées"],0,"Elles sont isolées chez leurs employeurs."],
+    ["Quels abus la kafala favorise-t-elle ?",["Des congés trop longs","Des salaires trop élevés","Trop de jours fériés","Passeports confisqués, salaires impayés, journées interminables"],3,"Passeports confisqués, salaires impayés, journées interminables."],
+    ["Que peut valoir le fait de critiquer le pouvoir, même sur les réseaux sociaux ?",["Rien","Une médaille","De très lourdes peines","Un emploi public"],2,"De très lourdes peines."],
+    ["Comment se situe l'Arabie saoudite pour l'esclavage moderne ?",["Parmi les moins touchés","Parmi les dix pays les plus touchés","Dans la moyenne","Il n'y en a pas"],1,"Parmi les dix pays les plus touchés."]],
+ e:[["En plus de changer d'emploi, que permet la réforme de 2021 à certains travailleurs ?",["Quitter le pays sans l'accord de leur employeur","Obtenir la nationalité","Voter","Ne plus payer d'impôts"],0,"Quitter le pays sans l'accord de leur employeur."],
+    ["Que représentent La Mecque et Médine ?",["Les deux capitales économiques","Deux ports pétroliers","Deux villes interdites aux Saoudiens","Les deux premiers lieux saints de l'islam"],3,"Les deux premiers lieux saints de l'islam."],
+    ["Quelle part des travailleurs du pays sont des étrangers ?",["Aucun","Une toute petite minorité","Une grande partie","Exactement 10 %"],2,"Une grande partie des travailleurs."],
+    ["Qu'a apporté le pétrole à l'Arabie saoudite ?",["Une guerre civile","D'en faire l'un des pays les plus riches du monde","Des élections libres","Rien"],1,"Il en a fait l'un des pays les plus riches du monde."],
+    ["Combien de temps sépare la fondation du royaume de la découverte du pétrole ?",["Moins de dix ans","Environ trente ans","Environ soixante ans","Le pétrole a été découvert avant"],0,"Moins de dix ans : fondation en 1932, pétrole à la fin des années 1930."]]
+},{
+ d:[["Which holy cities of Islam are in Saudi Arabia?",["Jerusalem and Damascus","Istanbul and Cairo","Mecca and Medina","Baghdad and Tehran"],"Mecca and Medina, the two holiest sites of Islam."],
+    ["Who founded the Kingdom of Saudi Arabia in 1932?",["Abdulaziz Ibn Saud","Mohammed bin Salman","Jamal Khashoggi","Saddam Hussein"],"Abdulaziz Ibn Saud."],
+    ["Are there national elections in Saudi Arabia?",["Yes, every four years","No","Yes, every year","Yes, but only for women"],"No. There are no political parties and no national elections."],
+    ["Where do most of the kingdom's foreign workers come from?",["Europe","North America","Australia","South Asia and Africa"],"South Asia and Africa."],
+    ["Which jobs do many foreign workers do?",["Airline pilots","Ministers","Construction workers, domestic workers, drivers","Footballers"],"Construction workers, domestic workers, drivers."]],
+ i:[["When was oil discovered in Saudi Arabia?",["In the 19th century","At the end of the 1930s","In 1973","In 2018"],"At the end of the 1930s."],
+    ["Why are domestic workers especially exposed?",["They are isolated in their employers' homes","They are highly paid","They travel a lot","They are unionised"],"They are isolated in their employers' homes."],
+    ["Which abuses does the kafala encourage?",["Holidays that are too long","Wages that are too high","Too many public holidays","Confiscated passports, unpaid wages, endless days"],"Confiscated passports, unpaid wages, endless working days."],
+    ["What can criticising the government, even on social media, bring?",["Nothing","A medal","Very heavy sentences","A public job"],"Very heavy sentences."],
+    ["How does Saudi Arabia rank for modern slavery?",["Among the least affected","Among the ten most affected countries","Average","There is none"],"Among the ten most affected countries."]],
+ e:[["Besides changing jobs, what does the 2021 reform allow some workers to do?",["Leave the country without their employer's consent","Get citizenship","Vote","Stop paying taxes"],"Leave the country without their employer's consent."],
+    ["What are Mecca and Medina?",["The two economic capitals","Two oil ports","Two cities closed to Saudis","The two holiest sites of Islam"],"The two holiest sites of Islam."],
+    ["What share of the country's workers are foreigners?",["None","A tiny minority","A large share","Exactly 10%"],"A large share of the workforce."],
+    ["What did oil bring Saudi Arabia?",["A civil war","It made it one of the richest countries in the world","Free elections","Nothing"],"It made it one of the richest countries in the world."],
+    ["How long separates the kingdom's founding from the discovery of oil?",["Less than ten years","About thirty years","About sixty years","Oil was found before"],"Less than ten years: founded in 1932, oil at the end of the 1930s."]]
+});
+
+moreQ("706",{
+ d:[["De quelles anciennes colonies naît la Somalie en 1960 ?",["Française et belge","Italienne et britannique","Portugaise et espagnole","Allemande et française"],1,"D'anciennes colonies italienne et britannique."],
+    ["À quelle organisation le groupe Al-Chabab est-il lié ?",["Al-Qaïda","L'Union africaine","L'ONU","L'OTAN"],0,"À Al-Qaïda."],
+    ["Où vivent souvent les déplacés somaliens ?",["Dans des hôtels","À l'étranger","Sur des bateaux","Dans des camps informels autour des villes"],3,"Dans des camps informels autour des villes."],
+    ["À quel type de chocs la Somalie est-elle très exposée ?",["Aux tremblements de terre","Aux avalanches","Aux chocs climatiques","Aux tempêtes de neige"],2,"Aux chocs climatiques : sécheresses à répétition."],
+    ["Qu'est-il arrivé à l'aide alimentaire, faute de financement ?",["Elle a doublé","Elle a fortement reculé","Elle est restée stable","Elle a été remplacée par l'armée"],1,"Elle a fortement reculé."]],
+ i:[["Comment Siad Barre prend-il le pouvoir en 1969 ?",["Par une élection","Par héritage","Par un coup d'État","Par un référendum"],2,"Par un coup d'État."],
+    ["Que contrôlent encore les Chabab ?",["De vastes zones rurales","Mogadiscio","Le Somaliland","Aucun territoire"],0,"De vastes zones rurales."],
+    ["Quelle part des morts de la famine de 2011 étaient des enfants de moins de cinq ans ?",["Un dixième","Un quart","Presque tous","La moitié"],3,"La moitié."],
+    ["Qu'entraîne la famine de 1992 ?",["La fin de la guerre","Une intervention internationale","L'indépendance du Somaliland","Une élection"],1,"Une intervention internationale."],
+    ["Qu'ouvre la chute de Siad Barre en 1991 ?",["Une période de paix","Une union avec l'Éthiopie","Une guerre entre clans et milices","Le retour des Italiens"],2,"Une guerre entre clans et milices."]],
+ e:[["Depuis quand une force de l'Union africaine soutient-elle le gouvernement ?",["Depuis 2007","Depuis 1991","Depuis 2011","Depuis 2026"],0,"Depuis 2007."],
+    ["Comment évolue la crise alimentaire entre la mi-2025 et le début de 2026 ?",["Elle disparaît","Elle baisse de moitié","Elle reste stable","Presque deux fois plus de personnes sont touchées"],3,"Presque deux fois plus de personnes en crise alimentaire ou pire."],
+    ["Qui a commandé l'étude sur le bilan de la famine de 2011 ?",["Le gouvernement somalien","L'ONU","Al-Chabab","L'Union européenne"],1,"Une étude commandée par l'ONU."],
+    ["De quoi manquent les déplacés dans les camps informels ?",["De télévision","De voitures","De protection et de services de base","De rien"],2,"De protection et de services de base."],
+    ["Que subissent les enfants dans le conflit somalien ?",["Rien","Des amendes","Des voyages forcés","Ils sont recrutés de force, tués ou mutilés"],3,"Ils sont recrutés de force, tués ou mutilés."]]
+},{
+ d:[["From which former colonies was Somalia born in 1960?",["French and Belgian","Italian and British","Portuguese and Spanish","German and French"],"Former Italian and British colonies."],
+    ["Which organisation is Al-Shabaab linked to?",["Al-Qaeda","The African Union","The UN","NATO"],"Al-Qaeda."],
+    ["Where do Somalia's displaced often live?",["In hotels","Abroad","On boats","In informal camps around cities"],"In informal camps around cities."],
+    ["What kind of shocks is Somalia highly exposed to?",["Earthquakes","Avalanches","Climate shocks","Snowstorms"],"Climate shocks: repeated droughts."],
+    ["What happened to food aid for lack of funding?",["It doubled","It fell sharply","It stayed stable","The army replaced it"],"It fell sharply."]],
+ i:[["How did Siad Barre take power in 1969?",["By election","By inheritance","By coup","By referendum"],"By a coup."],
+    ["What does Al-Shabaab still control?",["Vast rural areas","Mogadishu","Somaliland","No territory"],"Vast rural areas."],
+    ["What share of the 2011 famine deaths were children under five?",["A tenth","A quarter","Almost all","Half"],"Half."],
+    ["What did the 1992 famine lead to?",["The end of the war","An international intervention","Somaliland's independence","An election"],"An international intervention."],
+    ["What did Siad Barre's fall in 1991 open?",["A period of peace","Union with Ethiopia","A war between clans and militias","The return of the Italians"],"A war between clans and militias."]],
+ e:[["Since when has an African Union force supported the government?",["Since 2007","Since 1991","Since 2011","Since 2026"],"Since 2007."],
+    ["How did the food crisis change between mid-2025 and early 2026?",["It disappeared","It halved","It stayed stable","Almost twice as many people were affected"],"Almost twice as many people in food crisis or worse."],
+    ["Who commissioned the study on the 2011 famine toll?",["The Somali government","The UN","Al-Shabaab","The European Union"],"A study commissioned by the UN."],
+    ["What do the displaced in informal camps lack?",["Television","Cars","Protection and basic services","Nothing"],"Protection and basic services."],
+    ["What do children suffer in Somalia's conflict?",["Nothing","Fines","Forced trips","Forced recruitment, killing or maiming"],"They are forcibly recruited, killed or maimed."]]
+});
+
+/* ---------- Questions supplémentaires, lot 12 : Soudan du Sud, Sahraouis, Tadjikistan ---------- */
+moreQ("728",{
+ d:[["Qui est le premier président du Soudan du Sud ?",["Riek Machar","Omar el-Béchir","Salva Kiir","Abiy Ahmed"],2,"Salva Kiir."],
+    ["Parmi ces peuples, lequel vit au Soudan du Sud ?",["Les Dinka","Les Touaregs","Les Peuls","Les Berbères"],0,"Les Dinka, avec les Nuer et bien d'autres."],
+    ["Qu'arrive-t-il aux élections promises par l'accord de paix ?",["Elles ont eu lieu en 2019","Elles sont annulées pour toujours","Elles sont organisées par le Soudan","Elles sont reportées à plusieurs reprises"],3,"Elles sont reportées à plusieurs reprises."],
+    ["Combien de guerres civiles le sud a-t-il menées contre le pouvoir de Khartoum ?",["Une","Deux","Cinq","Aucune"],1,"Deux : de 1955 à 1972, puis de 1983 à 2005."],
+    ["Combien de réfugiés le Soudan du Sud accueille-t-il ?",["Aucun","Près de 6 000","Près de 600 000","Près de 6 millions"],2,"Près de 600 000, surtout venus du Soudan."]],
+ i:[["À quel peuple appartient Salva Kiir ?",["Nuer","Dinka","Masaï","Amhara"],1,"Dinka. Riek Machar est nuer."],
+    ["De quoi Riek Machar est-il notamment inculpé en 2025 ?",["De trahison et de crimes contre l'humanité","De fraude fiscale","D'excès de vitesse","De vol"],0,"Notamment de trahison et de crimes contre l'humanité."],
+    ["Dans quelles régions les combats reprennent-ils notamment ?",["À Juba seulement","Au Darfour","Au Kordofan","Dans le Jonglei et le Haut-Nil"],3,"Dans le Jonglei et le Haut-Nil."],
+    ["Quel caractère prennent souvent les violences de la guerre civile ?",["Religieux","Sportif","Ethnique","Linguistique"],2,"Un caractère ethnique."],
+    ["Combien de Sud-Soudanais sont revenus en fuyant la guerre au Soudan voisin ?",["Environ 8 000","Plus de 800 000","Environ 80 000","Plus de 8 millions"],1,"Plus de 800 000."]],
+ e:[["Quelles années couvre la première guerre civile contre Khartoum ?",["1955-1972","1983-2005","1960-1970","2013-2018"],0,"De 1955 à 1972."],
+    ["Quand Riek Machar redevient-il premier vice-président ?",["En 2011","En 2013","En 2020","En 2025"],2,"En 2020, après l'accord revitalisé."],
+    ["Selon une commission de l'ONU, que provoque l'arrestation de Riek Machar ?",["La fin de la guerre","Des élections immédiates","Une baisse des prix","Elle sape le partage du pouvoir prévu par l'accord de paix"],3,"Elle sape le partage du pouvoir prévu par l'accord de paix."],
+    ["Quel système de classification mesure l'insécurité alimentaire au Soudan du Sud ?",["Le PIB","L'IPC","L'IDH","Le Global Slavery Index"],1,"L'IPC, le cadre intégré de classification de la sécurité alimentaire."],
+    ["Comment le Haut-Commissaire de l'ONU aux droits de l'homme décrit-il le conflit en février 2026 ?",["Comme terminé","Comme une réussite","Comme un conflit oublié arrivé à un point dangereux","Comme un conflit gelé sans victimes"],2,"Un conflit oublié arrivé à un point dangereux."]]
+},{
+ d:[["Who is South Sudan's first president?",["Riek Machar","Omar al-Bashir","Salva Kiir","Abiy Ahmed"],"Salva Kiir."],
+    ["Which of these peoples lives in South Sudan?",["The Dinka","The Tuareg","The Fulani","The Berbers"],"The Dinka, with the Nuer and many others."],
+    ["What has happened to the elections promised by the peace deal?",["They took place in 2019","Cancelled forever","Organised by Sudan","Postponed several times"],"They have been postponed several times."],
+    ["How many civil wars did the south fight against Khartoum?",["One","Two","Five","None"],"Two: 1955–1972, then 1983–2005."],
+    ["How many refugees does South Sudan host?",["None","Nearly 6,000","Nearly 600,000","Nearly 6 million"],"Nearly 600,000, mostly from Sudan."]],
+ i:[["Which people does Salva Kiir belong to?",["Nuer","Dinka","Maasai","Amhara"],"Dinka. Riek Machar is Nuer."],
+    ["What was Riek Machar charged with in 2025?",["Treason and crimes against humanity","Tax fraud","Speeding","Theft"],"Notably treason and crimes against humanity."],
+    ["Where did fighting resume in particular?",["Only in Juba","Darfur","Kordofan","Jonglei and Upper Nile"],"In Jonglei and Upper Nile."],
+    ["What character did civil war violence often take?",["Religious","Sporting","Ethnic","Linguistic"],"An ethnic character."],
+    ["How many South Sudanese returned fleeing the war in neighbouring Sudan?",["About 8,000","More than 800,000","About 80,000","More than 8 million"],"More than 800,000."]],
+ e:[["Which years did the first civil war against Khartoum cover?",["1955-1972","1983-2005","1960-1970","2013-2018"],"1955 to 1972."],
+    ["When did Riek Machar become first vice-president again?",["2011","2013","2020","2025"],"In 2020, after the revitalised deal."],
+    ["According to a UN commission, what does Riek Machar's arrest do?",["Ends the war","Brings immediate elections","Lowers prices","Undermines the power-sharing set by the peace deal"],"It undermines the power-sharing set by the peace deal."],
+    ["Which classification system measures food insecurity in South Sudan?",["GDP","The IPC","The HDI","The Global Slavery Index"],"The IPC, the Integrated Food Security Phase Classification."],
+    ["How did the UN High Commissioner for Human Rights describe the conflict in February 2026?",["As over","As a success","As a forgotten conflict at a dangerous point","As a frozen conflict with no victims"],"A forgotten conflict at a dangerous point."]]
+});
+
+moreQ("732",{
+ d:[["Combien de camps de réfugiés sahraouis se trouvent près de Tindouf ?",["Un","Cinq","Vingt","Cent"],1,"Cinq camps."],
+    ["Quelle température peut être dépassée dans les camps de Tindouf ?",["10 °C","20 °C","30 °C","50 °C"],3,"Les températures dépassent parfois 50 °C."],
+    ["Quel pays soutient le Front Polisario ?",["L'Algérie","L'Espagne","La France","Le Maroc"],0,"L'Algérie."],
+    ["Comment le Maroc considère-t-il le Sahara occidental ?",["Comme un pays étranger","Comme une colonie espagnole","Comme ses provinces du Sud","Comme un territoire algérien"],2,"Comme ses provinces du Sud."],
+    ["Que réclame le Front Polisario ?",["Le retour de l'Espagne","Un référendum d'autodétermination","Une union avec la Mauritanie","Rien"],1,"Un référendum d'autodétermination."]],
+ i:[["Quel État le Front Polisario proclame-t-il en 1976 ?",["Le royaume du Sahara","L'Émirat de Tindouf","La République arabe sahraouie démocratique","La Mauritanie"],2,"La République arabe sahraouie démocratique."],
+    ["Contre quels pays le Front Polisario entre-t-il en guerre ?",["Le Maroc et la Mauritanie","L'Algérie et la Libye","L'Espagne et la France","La Tunisie et l'Égypte"],0,"Contre le Maroc et la Mauritanie."],
+    ["Qui gère les écoles des camps ?",["Le Maroc","L'Espagne","L'Union européenne","Les réfugiés eux-mêmes"],3,"Les réfugiés eux-mêmes."],
+    ["Près de quel poste-frontière un incident relance-t-il les hostilités en 2020 ?",["Tindouf","Guerguerat","Laâyoune","Nouakchott"],1,"Près de Guerguerat."],
+    ["En quelle année l'Espagne se retire-t-elle du Sahara occidental ?",["1960","1975","1976","1991"],2,"En 1976."]],
+ e:[["Quelle institution rend un avis consultatif sur le territoire en 1975 ?",["La Cour internationale de justice","La Cour pénale internationale","L'Union africaine","L'UNESCO"],0,"La Cour internationale de justice."],
+    ["Combien d'enfants étaient scolarisés dans les écoles des camps en 2023 ?",["Environ 400","Environ 4 000","Environ 400 000","Plus de 40 000"],3,"Plus de 40 000."],
+    ["Que sépare le mur de sable construit par le Maroc ?",["Le Maroc et l'Algérie","Les zones contrôlées par chaque camp","Les camps entre eux","La mer et le désert"],1,"Les zones contrôlées par chaque camp."],
+    ["Où en sont les négociations sur le Sahara occidental ?",["Elles ont abouti en 2020","Elles ont abouti au référendum","Elles restent bloquées","Elles n'ont jamais commencé"],2,"Elles restent bloquées."],
+    ["En quelle année un cessez-le-feu est-il signé ?",["1975","2007","2020","1991"],3,"En 1991, avec la création de la MINURSO."]]
+},{
+ d:[["How many Sahrawi refugee camps are there near Tindouf?",["One","Five","Twenty","A hundred"],"Five camps."],
+    ["What temperature can be exceeded in the Tindouf camps?",["10 °C","20 °C","30 °C","50 °C"],"Temperatures sometimes exceed 50 °C."],
+    ["Which country supports the Polisario Front?",["Algeria","Spain","France","Morocco"],"Algeria."],
+    ["How does Morocco see Western Sahara?",["As a foreign country","As a Spanish colony","As its Southern Provinces","As Algerian territory"],"As its Southern Provinces."],
+    ["What does the Polisario Front demand?",["Spain's return","A self-determination referendum","Union with Mauritania","Nothing"],"A self-determination referendum."]],
+ i:[["Which state did the Polisario Front proclaim in 1976?",["The Kingdom of the Sahara","The Emirate of Tindouf","The Sahrawi Arab Democratic Republic","Mauritania"],"The Sahrawi Arab Democratic Republic."],
+    ["Against which countries did the Polisario Front go to war?",["Morocco and Mauritania","Algeria and Libya","Spain and France","Tunisia and Egypt"],"Morocco and Mauritania."],
+    ["Who runs the camp schools?",["Morocco","Spain","The European Union","The refugees themselves"],"The refugees themselves."],
+    ["Near which border post did an incident restart hostilities in 2020?",["Tindouf","Guerguerat","Laayoune","Nouakchott"],"Near Guerguerat."],
+    ["In which year did Spain withdraw from Western Sahara?",["1960","1975","1976","1991"],"In 1976."]],
+ e:[["Which institution gave an advisory opinion on the territory in 1975?",["The International Court of Justice","The International Criminal Court","The African Union","UNESCO"],"The International Court of Justice."],
+    ["How many children attended the camp schools in 2023?",["About 400","About 4,000","About 400,000","More than 40,000"],"More than 40,000."],
+    ["What does Morocco's sand wall separate?",["Morocco and Algeria","The areas each side controls","The camps from each other","Sea and desert"],"The areas controlled by each side."],
+    ["Where do negotiations on Western Sahara stand?",["They succeeded in 2020","They led to the referendum","They remain blocked","They never began"],"They remain blocked."],
+    ["In which year was a ceasefire signed?",["1975","2007","2020","1991"],"In 1991, with the creation of MINURSO."]]
+});
+
+moreQ("762",{
+ d:[["Depuis combien de temps le même président gouverne-t-il le Tadjikistan ?",["Deux ans","Dix ans","Plus de trente ans","Cent ans"],2,"Plus de trente ans : Emomali Rahmon depuis 1992."],
+    ["Sur quels lieux travaillent surtout les migrants tadjiks en Russie ?",["Sur les chantiers","Dans les banques","Dans les ministères","Dans les universités"],0,"Surtout sur les chantiers."],
+    ["Que représente l'argent envoyé par les migrants ?",["Presque rien","Un simple cadeau","Une dette envers la Russie","Une part énorme de l'économie du pays"],3,"Une part énorme de l'économie du pays."],
+    ["Dans quelle région du monde se trouve le Tadjikistan ?",["L'Europe de l'Ouest","L'Asie centrale","L'Afrique du Nord","L'Amérique du Sud"],1,"L'Asie centrale."],
+    ["Qu'arrive-t-il aux journalistes indépendants au Tadjikistan ?",["Ils reçoivent des prix","Ils dirigent la télévision","Ils sont condamnés à de longues peines","Rien"],2,"Ils sont condamnés à de longues peines."]],
+ i:[["Qui affronte le pouvoir pendant la guerre civile de 1992-1997 ?",["L'armée russe","Une opposition islamiste et démocrate","L'Afghanistan","Les Pamiris seuls"],1,"Une opposition islamiste et démocrate."],
+    ["Combien de morts fait la guerre civile ?",["Des dizaines de milliers","Une centaine","Des millions","Aucun"],0,"Des dizaines de milliers de morts."],
+    ["Que subissent les migrants tadjiks en Russie ?",["Des primes","Des cours gratuits","Des logements offerts","Racisme, contrôles policiers et conditions de travail dangereuses"],3,"Racisme, contrôles policiers et conditions de travail dangereuses."],
+    ["Contre quoi les Pamiris manifestent-ils en 2022 ?",["Contre une hausse des impôts","Contre la Russie","Contre les violences policières","Contre un barrage"],2,"Contre les violences policières."],
+    ["Où des membres de l'opposition ont-ils parfois été emprisonnés ?",["Seulement à Douchanbé","Même à l'étranger","Nulle part","Seulement dans les montagnes"],1,"Parfois même à l'étranger."]],
+ e:[["Qu'est-ce qui distingue les Pamiris ?",["Des langues et une religion propres","Ils sont tous russes","Ils vivent en Russie","Ils dirigent le pays"],0,"Des langues et une religion propres."],
+    ["Combien de morts fait la répression contre les Pamiris en 2022 ?",["Aucun","Un seul","Des milliers","Des dizaines"],3,"Des dizaines de morts."],
+    ["Où se trouve le Crocus City Hall, visé par un attentat en 2024 ?",["À Douchanbé","À Kaboul","Près de Moscou","À Istanbul"],2,"Près de Moscou."],
+    ["Quelles formes d'esclavage moderne touchent le Tadjikistan ?",["Le travail des robots","Le travail forcé et la traite des migrants","Les jeux vidéo","Aucune"],1,"Le travail forcé et la traite des migrants."],
+    ["En quel mois de 2024 a lieu l'attentat du Crocus City Hall ?",["En janvier","En juillet","En novembre","En mars"],3,"En mars 2024."]]
+},{
+ d:[["How long has the same president ruled Tajikistan?",["Two years","Ten years","More than thirty years","A hundred years"],"More than thirty years: Emomali Rahmon since 1992."],
+    ["Where do Tajik migrants in Russia mostly work?",["On building sites","In banks","In ministries","In universities"],"Mostly on building sites."],
+    ["What does the money sent home by migrants represent?",["Almost nothing","A simple gift","A debt to Russia","A huge share of the country's economy"],"A huge share of the country's economy."],
+    ["In which region of the world is Tajikistan?",["Western Europe","Central Asia","North Africa","South America"],"Central Asia."],
+    ["What happens to independent journalists in Tajikistan?",["They win prizes","They run TV","They get long sentences","Nothing"],"They are given long sentences."]],
+ i:[["Who fought the government in the 1992–1997 civil war?",["The Russian army","An Islamist and democratic opposition","Afghanistan","The Pamiris alone"],"An Islamist and democratic opposition."],
+    ["How many people died in the civil war?",["Tens of thousands","About a hundred","Millions","None"],"Tens of thousands."],
+    ["What do Tajik migrants face in Russia?",["Bonuses","Free lessons","Free housing","Racism, police checks and dangerous working conditions"],"Racism, police checks and dangerous working conditions."],
+    ["What did the Pamiris protest against in 2022?",["A tax rise","Russia","Police violence","A dam"],"Against police violence."],
+    ["Where have opposition members sometimes been jailed?",["Only in Dushanbe","Even abroad","Nowhere","Only in the mountains"],"Sometimes even abroad."]],
+ e:[["What sets the Pamiris apart?",["Their own languages and religion","They are all Russian","They live in Russia","They rule the country"],"Their own languages and religion."],
+    ["How many people died in the 2022 crackdown on the Pamiris?",["None","One","Thousands","Dozens"],"Dozens."],
+    ["Where is Crocus City Hall, attacked in 2024?",["In Dushanbe","In Kabul","Near Moscow","In Istanbul"],"Near Moscow."],
+    ["Which forms of modern slavery affect Tajikistan?",["Robot labour","Forced labour and migrant trafficking","Video games","None"],"Forced labour and migrant trafficking."],
+    ["In which month of 2024 did the Crocus City Hall attack take place?",["January","July","November","March"],"March 2024."]]
+});
+
+/* ---------- Questions supplémentaires, lot 13 : Thaïlande, Émirats, Turquie ---------- */
+moreQ("764",{
+ d:[["Que ne peuvent pas faire librement les apatrides des collines ?",["Parler leur langue","Cuisiner","Voyager hors de leur province","Avoir des enfants"],2,"Voyager librement hors de leur province, posséder de la terre, accéder à certains emplois."],
+    ["Dans quelle partie de la Thaïlande vivent les peuples dits « des collines » ?",["Dans le nord","Sur les plages du sud","À Bangkok","Sur les îles"],0,"Dans le nord du pays."],
+    ["À quel danger les apatrides sont-ils plus exposés ?",["Aux tremblements de terre","Aux impôts","Aux examens","À la traite des êtres humains"],3,"À la traite des êtres humains."],
+    ["Combien de coups d'État réussis la Thaïlande a-t-elle connus depuis 1932 ?",["Aucun","Une douzaine","Un seul","Une centaine"],1,"Une douzaine."],
+    ["Que fuient les réfugiés karens installés le long de la frontière ?",["Les inondations","Le froid","L'armée birmane","La Chine"],2,"L'armée birmane."]],
+ i:[["Quand prend fin la monarchie absolue en Thaïlande ?",["En 1900","En 1932","En 1946","En 2014"],1,"En 1932."],
+    ["Qui reste exclu de la décision de 2024 ?",["Beaucoup d'apatrides non enregistrés","Tous les enfants","Les habitants de Bangkok","Personne"],0,"Beaucoup d'apatrides non enregistrés."],
+    ["Quelle est la peine minimale prévue par la loi de lèse-majesté ?",["Une amende","Un mois","Un an","Trois ans"],3,"Trois ans de prison, et jusqu'à quinze."],
+    ["Qui garde une forte influence sur la vie politique thaïlandaise ?",["Les moines seulement","Les touristes","L'armée","L'ONU"],2,"L'armée."],
+    ["Parmi ces peuples, lequel fait partie des peuples « des collines » ?",["Les Maoris","Les Hmong","Les Inuits","Les Sami"],1,"Les Hmong, comme les Akha, les Lahu ou les Karen."]],
+ e:[["À quelle date le gouvernement thaïlandais décide-t-il d'ouvrir la nationalité aux enfants apatrides ?",["Le 29 octobre 2024","Le 1er janvier 2020","Le 22 mai 2014","Le 5 décembre 2016"],0,"Le 29 octobre 2024."],
+    ["Qui, en plus des adultes, a été poursuivi pour lèse-majesté depuis 2020 ?",["Des diplomates","Des touristes","Des mineurs","Personne d'autre"],2,"Des mineurs."],
+    ["Que ne peuvent pas posséder les apatrides en Thaïlande ?",["Un téléphone","Des vêtements","Un vélo","De la terre"],3,"De la terre."],
+    ["Comment se situe la population apatride thaïlandaise en Asie ?",["Parmi les plus petites","L'une des plus grandes","Dans la moyenne","Il n'y en a pas"],1,"L'une des plus grandes d'Asie."],
+    ["Pourquoi beaucoup de membres des peuples des collines n'ont-ils pas de papiers ?",["Ils les ont refusés","Ils viennent d'arriver","Ils n'ont jamais été recensés","Ils sont tous étrangers"],2,"Beaucoup n'ont jamais été recensés."]]
+},{
+ d:[["What can't stateless hill people do freely?",["Speak their language","Cook","Travel outside their province","Have children"],"Travel freely outside their province, own land, access some jobs."],
+    ["In which part of Thailand do the “hill peoples” live?",["In the north","On southern beaches","In Bangkok","On the islands"],"In the north of the country."],
+    ["Which danger are stateless people more exposed to?",["Earthquakes","Taxes","Exams","Human trafficking"],"Human trafficking."],
+    ["How many successful coups has Thailand had since 1932?",["None","About a dozen","Only one","About a hundred"],"About a dozen."],
+    ["What are the Karen refugees along the border fleeing?",["Floods","The cold","The Myanmar army","China"],"The Myanmar army."]],
+ i:[["When did absolute monarchy end in Thailand?",["1900","1932","1946","2014"],"In 1932."],
+    ["Who remains excluded from the 2024 decision?",["Many unregistered stateless people","All children","Bangkok residents","No one"],"Many unregistered stateless people."],
+    ["What is the minimum sentence under the lèse-majesté law?",["A fine","One month","One year","Three years"],"Three years in prison, and up to fifteen."],
+    ["Who keeps strong influence over Thai politics?",["Only monks","Tourists","The army","The UN"],"The army."],
+    ["Which of these peoples is one of the “hill peoples”?",["The Maori","The Hmong","The Inuit","The Sami"],"The Hmong, like the Akha, Lahu or Karen."]],
+ e:[["On what date did the Thai government decide to open nationality to stateless children?",["29 October 2024","1 January 2020","22 May 2014","5 December 2016"],"29 October 2024."],
+    ["Besides adults, who has been prosecuted for lèse-majesté since 2020?",["Diplomats","Tourists","Minors","No one else"],"Minors."],
+    ["What can stateless people in Thailand not own?",["A phone","Clothes","A bike","Land"],"Land."],
+    ["How does Thailand's stateless population rank in Asia?",["Among the smallest","One of the largest","Average","There is none"],"One of the largest in Asia."],
+    ["Why do many hill people have no papers?",["They refused them","They just arrived","They were never counted in a census","They are all foreigners"],"Many were never counted in a census."]]
+});
+
+moreQ("784",{
+ d:[["Quelles villes font partie des Émirats arabes unis ?",["Doha et Manama","Abou Dabi et Dubaï","Riyad et Djeddah","Mascate et Koweït"],1,"Abou Dabi et Dubaï, parmi plusieurs émirats."],
+    ["Quels travaux font surtout les travailleurs étrangers ?",["Ils dirigent les ministères","Ils sont tous banquiers","Ils sont pilotes de course","Ils construisent les tours, nettoient les maisons, gardent les enfants, livrent les repas"],3,"Ils construisent, nettoient, gardent les enfants et livrent les repas."],
+    ["Pour quels secteurs Dubaï est-elle devenue une ville mondiale ?",["Le commerce, le tourisme et la finance","L'agriculture","La pêche","Le charbon"],0,"Le commerce, le tourisme et la finance."],
+    ["Quelle part des habitants sont des citoyens émiratis ?",["Presque tous","La moitié","Une petite minorité","Aucun"],2,"Une petite minorité."],
+    ["Les partis politiques sont-ils autorisés aux Émirats ?",["Oui, une dizaine","Non","Oui, deux","Oui, mais seulement à Dubaï"],1,"Non. Partis et syndicats sont interdits."]],
+ i:[["Pourquoi les opposants du procès « UAE 94 » sont-ils condamnés ?",["Pour vol","Pour fraude électorale","Pour avoir réclamé des réformes","Pour espionnage"],2,"Pour avoir réclamé des réformes."],
+    ["Combien d'opposants sont condamnés lors du procès « UAE 94 » ?",["Des dizaines","Un seul","Des milliers","Aucun"],0,"Des dizaines."],
+    ["Qu'ont fait des réformes récentes de la kafala ?",["Elles l'ont supprimée","Elles l'ont durcie","Elles l'ont étendue à l'Europe","Elles ont assoupli certaines règles"],3,"Elles ont assoupli certaines règles, sans mettre fin aux abus."],
+    ["À quoi ressemblait le territoire avant le pétrole ?",["À une forêt tropicale","À un territoire désertique","À une région de montagnes enneigées","À un grand lac"],1,"À un territoire désertique."],
+    ["Comment se situent les Émirats pour l'esclavage moderne ?",["Parmi les moins touchés","Le pays le plus touché","Parmi les dix pays les plus touchés","Il n'y en a pas"],2,"Parmi les dix pays les plus touchés."]],
+ e:[["Comment naissent les Émirats arabes unis en 1971 ?",["De l'union de plusieurs émirats","D'une guerre contre l'Arabie saoudite","D'une décision de l'ONU","D'une révolution"],0,"De l'union de plusieurs émirats."],
+    ["Comment sont payés beaucoup de travailleurs étrangers ?",["Très bien","Comme les citoyens","En actions","Par des salaires très faibles"],3,"Souvent par des salaires très faibles."],
+    ["En plus de l'Asie du Sud et des Philippines, d'où viennent des travailleurs migrants ?",["D'Europe du Nord","D'Afrique","D'Australie","D'Amérique du Sud"],1,"D'Afrique."],
+    ["En combien de temps Dubaï devient-elle une ville mondiale ?",["En un an","En cinq siècles","En quelques décennies","Elle l'a toujours été"],2,"En quelques décennies."],
+    ["Combien de temps sépare la découverte du pétrole de la création de la fédération ?",["Un siècle","Six mois","Le pétrole a été découvert après","Une à deux décennies"],3,"Une à deux décennies : pétrole dans les années 1950 et 1960, fédération en 1971."]]
+},{
+ d:[["Which cities are part of the United Arab Emirates?",["Doha and Manama","Abu Dhabi and Dubai","Riyadh and Jeddah","Muscat and Kuwait City"],"Abu Dhabi and Dubai, among several emirates."],
+    ["What work do foreign workers mainly do?",["They run ministries","They are all bankers","They are racing drivers","They build towers, clean homes, look after children, deliver meals"],"They build, clean, look after children and deliver meals."],
+    ["Which sectors made Dubai a world city?",["Trade, tourism and finance","Farming","Fishing","Coal"],"Trade, tourism and finance."],
+    ["What share of residents are Emirati citizens?",["Almost all","Half","A small minority","None"],"A small minority."],
+    ["Are political parties allowed in the UAE?",["Yes, about ten","No","Yes, two","Yes, but only in Dubai"],"No. Parties and trade unions are banned."]],
+ i:[["Why were the “UAE 94” opponents convicted?",["For theft","For electoral fraud","For calling for reforms","For espionage"],"For calling for reforms."],
+    ["How many opponents were convicted in the “UAE 94” trial?",["Dozens","One","Thousands","None"],"Dozens."],
+    ["What have recent kafala reforms done?",["Abolished it","Tightened it","Extended it to Europe","Eased some rules"],"They eased some rules, without ending abuses."],
+    ["What was the territory like before oil?",["Rainforest","Desert","Snowy mountains","A large lake"],"Desert."],
+    ["How does the UAE rank for modern slavery?",["Among the least affected","The most affected","Among the ten most affected countries","There is none"],"Among the ten most affected countries."]],
+ e:[["How was the UAE born in 1971?",["From a union of several emirates","From a war with Saudi Arabia","From a UN decision","From a revolution"],"From a union of several emirates."],
+    ["How are many foreign workers paid?",["Very well","Like citizens","In shares","Very low wages"],"Often very low wages."],
+    ["Besides South Asia and the Philippines, where do migrant workers come from?",["Northern Europe","Africa","Australia","South America"],"Africa."],
+    ["How long did it take Dubai to become a world city?",["One year","Five centuries","A few decades","It always was"],"A few decades."],
+    ["How long separated the discovery of oil from the creation of the federation?",["A century","Six months","Oil was found later","One to two decades"],"One to two decades: oil in the 1950s–60s, federation in 1971."]]
+});
+
+moreQ("792",{
+ d:[["Qui dirige la naissance de la République de Turquie ?",["Recep Tayyip Erdoğan","Le sultan ottoman","Mustafa Kemal Atatürk","Saddam Hussein"],2,"Mustafa Kemal Atatürk."],
+    ["Où la langue kurde a-t-elle été longtemps interdite ?",["À l'école, dans les médias et même dans la rue","Seulement à l'étranger","Nulle part","Seulement à Ankara"],0,"À l'école, dans les médias et même dans la rue."],
+    ["Quel mot l'État turc refuse-t-il toujours pour le massacre des Arméniens ?",["Guerre","Tragédie","Déportation","Génocide"],3,"Le mot « génocide »."],
+    ["Où vivent surtout les réfugiés syriens en Turquie ?",["Dans des camps du désert","En ville","Sur des bateaux","À la frontière iranienne"],1,"Surtout en ville."],
+    ["Que subissent de nombreux journalistes en Turquie ?",["Ils sont décorés","Ils deviennent ministres","Ils sont emprisonnés","Rien"],2,"De nombreux journalistes sont emprisonnés."]],
+ i:[["Pendant quelle guerre commence le génocide des Arméniens ?",["La guerre de Crimée","La Première Guerre mondiale","La Seconde Guerre mondiale","La guerre froide"],1,"Pendant la Première Guerre mondiale, à partir de 1915."],
+    ["Autour de quelle identité le nouvel État turc veut-il s'unifier ?",["Une seule identité : turque","Une identité kurde","Une identité européenne","Plusieurs identités égales"],0,"Une seule identité : turque."],
+    ["Comment est le processus de paix ouvert en 2025 avec le PKK ?",["Terminé","Refusé par tous","Inexistant","Encore fragile"],3,"Encore fragile."],
+    ["Combien de personnes sont arrêtées après la tentative de coup d'État de 2016 ?",["Une dizaine","Une centaine","Des dizaines de milliers","Des millions"],2,"Des dizaines de milliers."],
+    ["En quelle année commence la guerre en Syrie qui pousse des millions de Syriens vers la Turquie ?",["2001","2011","2016","2020"],1,"En 2011."]],
+ e:[["Qu'organisent les autorités ottomanes contre les Arméniens à partir de 1915 ?",["Leur déportation et leur massacre","Des élections","Leur naturalisation","Une fête"],0,"La déportation et le massacre des Arméniens."],
+    ["Quels emplois occupent souvent les réfugiés syriens en Turquie ?",["Des postes de ministre","Des emplois de diplomate","Des postes de juge","Des emplois précaires"],3,"Souvent des emplois précaires."],
+    ["Qu'est-ce qui inquiète les ONG au sujet des réfugiés syriens ?",["Leur trop grand nombre de diplômes","Leur départ vers l'Europe","Les renvois vers la Syrie, parfois sous pression","Rien"],2,"Les renvois vers la Syrie, parfois sous pression."],
+    ["Quelles relations ont les réfugiés avec une partie de la population turque ?",["Aucune","Des tensions","Une fusion totale","Une guerre ouverte"],1,"Des tensions avec une partie de la population."],
+    ["Combien d'années séparent le début du génocide arménien de la fondation de la République ?",["3 ans","5 ans","8 ans","20 ans"],2,"8 ans : 1915 et 1923."]]
+},{
+ d:[["Who led the birth of the Republic of Turkey?",["Recep Tayyip Erdoğan","The Ottoman sultan","Mustafa Kemal Atatürk","Saddam Hussein"],"Mustafa Kemal Atatürk."],
+    ["Where was the Kurdish language long banned?",["At school, in the media and even in the street","Only abroad","Nowhere","Only in Ankara"],"At school, in the media and even in the street."],
+    ["Which word does the Turkish state still refuse for the massacre of Armenians?",["War","Tragedy","Deportation","Genocide"],"The word “genocide”."],
+    ["Where do most Syrian refugees in Turkey live?",["In desert camps","In cities","On boats","On the Iranian border"],"Mostly in cities."],
+    ["What happens to many journalists in Turkey?",["They are decorated","They become ministers","They are jailed","Nothing"],"Many journalists are jailed."]],
+ i:[["During which war did the Armenian genocide begin?",["The Crimean War","The First World War","The Second World War","The Cold War"],"During the First World War, from 1915."],
+    ["Around which identity did the new Turkish state want to unite?",["A single Turkish identity","A Kurdish identity","A European identity","Several equal identities"],"A single identity: Turkish."],
+    ["What is the peace process opened in 2025 with the PKK like?",["Over","Rejected by all","Non-existent","Still fragile"],"Still fragile."],
+    ["How many people were arrested after the 2016 coup attempt?",["About ten","About a hundred","Tens of thousands","Millions"],"Tens of thousands."],
+    ["In which year did the Syrian war begin, pushing millions of Syrians to Turkey?",["2001","2011","2016","2020"],"In 2011."]],
+ e:[["What did the Ottoman authorities organise against Armenians from 1915?",["Their deportation and massacre","Elections","Their naturalisation","A celebration"],"The deportation and massacre of Armenians."],
+    ["What jobs do Syrian refugees in Turkey often have?",["Ministerial posts","Diplomatic jobs","Judgeships","Precarious jobs"],"Often precarious jobs."],
+    ["What worries NGOs about Syrian refugees?",["Too many diplomas","Their departure to Europe","Returns to Syria, sometimes under pressure","Nothing"],"Returns to Syria, sometimes under pressure."],
+    ["What relations do refugees have with part of the Turkish population?",["None","Tensions","Total fusion","Open war"],"Tensions with part of the population."],
+    ["How many years separate the start of the Armenian genocide and the founding of the Republic?",["3 years","5 years","8 years","20 years"],"8 years: 1915 and 1923."]]
+});
+
+/* ---------- Questions supplémentaires, lot 14 : Ukraine, Burkina Faso, Venezuela ---------- */
+moreQ("804",{
+ d:[["Quelle région de l'est de l'Ukraine connaît une guerre dès 2014 ?",["La Galicie","La Bucovine","Le Donbass","La Transcarpatie"],2,"Le Donbass."],
+    ["Que se passe-t-il à Kyiv au début de l'invasion de 2022 ?",["La ville résiste","Elle tombe en un jour","Elle est annexée","Elle est abandonnée"],0,"Kyiv résiste."],
+    ["Vers où des milliers d'enfants ukrainiens ont-ils été transférés ?",["Vers la Pologne","Vers la France","Vers les États-Unis","Vers la Russie ou les territoires qu'elle occupe"],3,"Vers la Russie ou les territoires qu'elle occupe."],
+    ["Sous quel dirigeant soviétique l'Holodomor a-t-il lieu ?",["Lénine","Staline","Khrouchtchev","Gorbatchev"],1,"Sous Staline."],
+    ["Où se concentrent les combats depuis 2022 ?",["À Kyiv","Dans l'ouest du pays","Sur un long front à l'est et au sud","En Crimée seulement"],2,"Sur un long front, à l'est et au sud."]],
+ i:[["Qu'est-ce qui provoque la famine de l'Holodomor ?",["Une sécheresse","La collectivisation forcée","Une guerre avec la Pologne","Une épidémie"],1,"La collectivisation forcée imposée par Staline."],
+    ["Combien de civils blessés l'ONU a-t-elle vérifiés entre février 2022 et fin juin 2026 ?",["48 613","4 861","486 130","803"],0,"48 613 blessés."],
+    ["Combien de personnes ont besoin d'aide humanitaire en Ukraine en 2026 ?",["Environ 108 000","Environ 1 million","Environ 3,7 millions","Plus de 10,8 millions"],3,"Plus de 10,8 millions."],
+    ["Comment de nombreux pays reconnaissent-ils aujourd'hui l'Holodomor ?",["Comme un accident","Comme une catastrophe naturelle","Comme un génocide","Comme un mythe"],2,"Comme un génocide."],
+    ["En plus des missiles et des drones, quelles armes ont vu leurs attaques augmenter en 2026 ?",["Les armes chimiques","Les bombes planantes","Les armes nucléaires","Les mines marines"],1,"Les bombes planantes."]],
+ e:[["À quelle date a lieu le référendum d'indépendance de l'Ukraine ?",["Le 1er décembre 1991","Le 24 août 1991","Le 24 février 1992","Le 1er janvier 1990"],0,"Le 1er décembre 1991."],
+    ["Quelle est la position de la Russie vis-à-vis de la Cour pénale internationale ?",["Elle en est membre fondateur","Elle a livré des suspects","Elle la finance","Elle ne la reconnaît pas"],3,"Elle ne reconnaît pas la Cour et rejette ses accusations."],
+    ["Que précise la mission de l'ONU sur le bilan des civils tués ?",["Qu'il est exagéré","Qu'il est définitif","Que le bilan réel est sans doute plus élevé","Qu'il ne concerne que l'armée"],2,"Que le bilan réel est sans doute plus élevé."],
+    ["Qui soutient les séparatistes du Donbass à partir de 2014 ?",["La Pologne","La Russie","L'Union européenne","La Turquie"],1,"La Russie."],
+    ["Combien d'enfants ukrainiens ont été transférés vers la Russie ou les territoires occupés ?",["Une dizaine","Une centaine","Des milliers","Aucun"],2,"Des milliers."]]
+},{
+ d:[["Which region of eastern Ukraine saw war from 2014?",["Galicia","Bukovina","The Donbas","Transcarpathia"],"The Donbas."],
+    ["What happened in Kyiv at the start of the 2022 invasion?",["The city resisted","It fell in a day","It was annexed","It was abandoned"],"Kyiv resisted."],
+    ["Where were thousands of Ukrainian children transferred?",["To Poland","To France","To the United States","To Russia or the territories it occupies"],"To Russia or the territories it occupies."],
+    ["Under which Soviet leader did the Holodomor take place?",["Lenin","Stalin","Khrushchev","Gorbachev"],"Under Stalin."],
+    ["Where has fighting been concentrated since 2022?",["In Kyiv","In the west","On a long front in the east and south","Only in Crimea"],"On a long front, in the east and south."]],
+ i:[["What caused the Holodomor famine?",["A drought","Forced collectivisation","A war with Poland","An epidemic"],"Forced collectivisation imposed by Stalin."],
+    ["How many injured civilians did the UN verify between February 2022 and end of June 2026?",["48,613","4,861","486,130","803"],"48,613 injured."],
+    ["How many people need humanitarian aid in Ukraine in 2026?",["About 108,000","About 1 million","About 3.7 million","More than 10.8 million"],"More than 10.8 million."],
+    ["How do many countries recognise the Holodomor today?",["As an accident","As a natural disaster","As a genocide","As a myth"],"As a genocide."],
+    ["Besides missiles and drones, which weapons saw attacks increase in 2026?",["Chemical weapons","Glide bombs","Nuclear weapons","Sea mines"],"Glide bombs."]],
+ e:[["On what date was Ukraine's independence referendum held?",["1 December 1991","24 August 1991","24 February 1992","1 January 1990"],"1 December 1991."],
+    ["What is Russia's position on the International Criminal Court?",["It is a founding member","It has handed over suspects","It funds it","It does not recognise it"],"It does not recognise the Court and rejects its accusations."],
+    ["What does the UN mission say about the civilian death toll?",["That it is exaggerated","That it is final","That the real toll is probably higher","That it covers only soldiers"],"That the real toll is probably higher."],
+    ["Who backed the Donbas separatists from 2014?",["Poland","Russia","The European Union","Turkey"],"Russia."],
+    ["How many Ukrainian children were transferred to Russia or occupied territories?",["About ten","About a hundred","Thousands","None"],"Thousands."]]
+});
+
+moreQ("854",{
+ d:[["Quelle puissance a colonisé la Haute-Volta ?",["Le Royaume-Uni","La France","Le Portugal","La Belgique"],1,"La France."],
+    ["Quel grade militaire avait Thomas Sankara ?",["Général","Colonel","Sergent","Capitaine"],3,"Il était capitaine."],
+    ["D'où viennent les groupes djihadistes qui attaquent à partir de 2015 ?",["Du Mali voisin","De la Côte d'Ivoire","Du Ghana","Du Sénégal"],0,"Du Mali voisin."],
+    ["Combien d'écoles ont fermé au Sahel à cause des violences ?",["Près de 100","Près de 1 000","Près de 10 000","Près de 100 000"],2,"Près de 10 000, dont plus de la moitié au Burkina Faso."],
+    ["Qu'est-ce qui tente de remplacer les écoles fermées ?",["Des jeux vidéo","Des classes temporaires et des cours par la radio","Rien","Des écoles à l'étranger"],1,"Des classes temporaires et des cours par la radio."]],
+ i:[["Combien d'années Blaise Compaoré gouverne-t-il ?",["Sept ans","Dix-sept ans","Vingt-sept ans","Quarante ans"],2,"Vingt-sept ans, jusqu'en 2014."],
+    ["Que frappe l'attentat de janvier 2016 à Ouagadougou ?",["Un hôtel et un café","Le palais présidentiel","Une église","Un stade"],0,"Un hôtel et un café de la capitale."],
+    ["Combien de retours de déplacés les autorités annoncent-elles ?",["Une dizaine","Environ 14 000","Environ 140 000","Plus de 1,4 million"],3,"Plus de 1,4 million."],
+    ["Quelle organisation régionale le Burkina Faso annonce-t-il quitter en 2024 ?",["L'Union africaine","La CEDEAO","L'ONU","La Francophonie"],1,"La CEDEAO, avec le Mali et le Niger."],
+    ["Dans quelles régions les attaques se multiplient-elles surtout ?",["Dans le sud et l'ouest","À Ouagadougou","Dans le nord et l'est","Sur la côte"],2,"Dans le nord et l'est."]],
+ e:[["À quelle date la Haute-Volta devient-elle indépendante ?",["Le 5 août 1960","Le 7 août 1960","Le 1er octobre 1960","Le 4 août 1984"],0,"Le 5 août 1960."],
+    ["Depuis quand Thomas Sankara est-il au pouvoir quand il renomme le pays ?",["1960","1975","1987","1983"],3,"Depuis 1983."],
+    ["En quels mois ont lieu les deux coups d'État de 2022 ?",["Mars et juin","Janvier et septembre","Février et décembre","Avril et octobre"],1,"En janvier puis en septembre."],
+    ["Que subissent des enseignants au Burkina Faso ?",["Des primes","Des voyages","Des menaces, parfois la mort","Rien"],2,"Certains ont été menacés ou tués, des classes incendiées."],
+    ["Avec quels pays le Burkina Faso annonce-t-il quitter la CEDEAO ?",["Le Ghana et le Togo","Le Sénégal et la Guinée","La Côte d'Ivoire et le Bénin","Le Mali et le Niger"],3,"Avec le Mali et le Niger."]]
+},{
+ d:[["Which power colonised Upper Volta?",["The United Kingdom","France","Portugal","Belgium"],"France."],
+    ["What military rank did Thomas Sankara hold?",["General","Colonel","Sergeant","Captain"],"He was a captain."],
+    ["Where did the jihadist groups attacking from 2015 come from?",["Neighbouring Mali","Côte d'Ivoire","Ghana","Senegal"],"Neighbouring Mali."],
+    ["How many schools have closed in the Sahel because of violence?",["Nearly 100","Nearly 1,000","Nearly 10,000","Nearly 100,000"],"Nearly 10,000, more than half in Burkina Faso."],
+    ["What tries to replace closed schools?",["Video games","Temporary classrooms and radio lessons","Nothing","Schools abroad"],"Temporary classrooms and radio lessons."]],
+ i:[["How many years did Blaise Compaoré rule?",["Seven","Seventeen","Twenty-seven","Forty"],"Twenty-seven years, until 2014."],
+    ["What did the January 2016 attack in Ouagadougou hit?",["A hotel and a café","The presidential palace","A church","A stadium"],"A hotel and a café in the capital."],
+    ["How many returns of displaced people do the authorities announce?",["About ten","About 14,000","About 140,000","More than 1.4 million"],"More than 1.4 million."],
+    ["Which regional organisation did Burkina Faso announce it would leave in 2024?",["The African Union","ECOWAS","The UN","La Francophonie"],"ECOWAS, with Mali and Niger."],
+    ["In which regions have attacks mainly multiplied?",["South and west","Ouagadougou","North and east","The coast"],"In the north and east."]],
+ e:[["On what date did Upper Volta become independent?",["5 August 1960","7 August 1960","1 October 1960","4 August 1984"],"5 August 1960."],
+    ["Since when had Thomas Sankara been in power when he renamed the country?",["1960","1975","1987","1983"],"Since 1983."],
+    ["In which months did the two 2022 coups take place?",["March and June","January and September","February and December","April and October"],"January, then September."],
+    ["What have teachers in Burkina Faso faced?",["Bonuses","Trips","Threats, sometimes death","Nothing"],"Some were threatened or killed, classrooms burned."],
+    ["With which countries did Burkina Faso announce it would leave ECOWAS?",["Ghana and Togo","Senegal and Guinea","Côte d'Ivoire and Benin","Mali and Niger"],"With Mali and Niger."]]
+});
+
+moreQ("862",{
+ d:[["Qui succède à Hugo Chávez ?",["Juan Guaidó","Simón Bolívar","Nicolás Maduro","Fidel Castro"],2,"Nicolás Maduro."],
+    ["Que possède le Venezuela, selon les estimations ?",["Les plus grandes réserves de pétrole prouvées au monde","La plus grande forêt du monde","Les plus grandes mines d'or d'Afrique","Aucune ressource"],0,"Les plus grandes réserves de pétrole prouvées au monde."],
+    ["Qu'est-ce qui se multiplie pendant la crise économique ?",["Les touristes","Les usines","Les exportations","Les pénuries de nourriture et de médicaments"],3,"Les pénuries de nourriture et de médicaments."],
+    ["Comment beaucoup de Vénézuéliens quittent-ils leur pays ?",["En avion privé","À pied","En croisière","En train à grande vitesse"],1,"Beaucoup partent à pied."],
+    ["Que permet un statut légal dans le pays d'accueil ?",["Voter au Venezuela","Rien","Travailler, scolariser ses enfants, se soigner","Devenir ministre"],2,"Travailler, envoyer ses enfants à l'école et accéder aux soins."]],
+ i:[["Qu'est-ce qui fait plonger l'économie à partir de 2014 ?",["Un tremblement de terre","L'effondrement des prix du pétrole","Une guerre avec la Colombie","La fin du tourisme"],1,"L'effondrement des prix du pétrole."],
+    ["Combien de présidents rivaux le Venezuela connaît-il en 2019 ?",["Deux","Un seul","Trois","Aucun"],0,"Deux présidents rivaux."],
+    ["Combien de Vénézuéliens vivent au Brésil ?",["Près de 7 000","Près de 70 000","Près de 7 millions","Près de 700 000"],3,"Près de 700 000."],
+    ["Dans combien de pays de la région des Vénézuéliens ont-ils obtenu un statut légal ?",["2","7","17","70"],2,"17 pays."],
+    ["Combien de personnes sont revenues au Venezuela, selon les autorités ?",["Une centaine","Plus d'un million","Aucune","Toutes"],1,"Plus d'un million."]],
+ e:[["En quelle année l'ONU crée-t-elle sa plateforme régionale pour les réfugiés et migrants du Venezuela ?",["2018","2014","2010","2024"],0,"En 2018 : la plateforme R4V."],
+    ["Comment les ONG décrivent-elles l'espace civique au Venezuela ?",["Très large","Libre","En expansion","Très réduit"],3,"Très réduit : arrestations d'opposants, médias fermés."],
+    ["Que deviennent les manifestations au Venezuela ?",["Elles sont autorisées partout","Elles sont réprimées","Elles sont financées par l'État","Elles n'existent pas"],1,"Elles sont réprimées."],
+    ["Comment Hugo Chávez quitte-t-il le pouvoir ?",["Par une élection perdue","Par un coup d'État","À sa mort, en 2013","En démissionnant en 2019"],2,"À sa mort, en 2013."],
+    ["Comment se situe l'exode vénézuélien dans le monde ?",["Parmi les plus petits","Il n'existe pas","Il est terminé","L'un des plus grands déplacements de population"],3,"L'un des plus grands déplacements de population au monde."]]
+},{
+ d:[["Who succeeded Hugo Chávez?",["Juan Guaidó","Simón Bolívar","Nicolás Maduro","Fidel Castro"],"Nicolás Maduro."],
+    ["What does Venezuela have, according to estimates?",["The world's largest proven oil reserves","The world's largest forest","Africa's largest gold mines","No resources"],"The world's largest proven oil reserves."],
+    ["What multiplied during the economic crisis?",["Tourists","Factories","Exports","Shortages of food and medicine"],"Shortages of food and medicine."],
+    ["How do many Venezuelans leave their country?",["By private jet","On foot","On cruises","By high-speed train"],"Many leave on foot."],
+    ["What does legal status in the host country allow?",["Voting in Venezuela","Nothing","Working, schooling children, getting care","Becoming a minister"],"Working, sending children to school and accessing healthcare."]],
+ i:[["What sent the economy plunging from 2014?",["An earthquake","The collapse of oil prices","A war with Colombia","The end of tourism"],"The collapse of oil prices."],
+    ["How many rival presidents did Venezuela have in 2019?",["Two","One","Three","None"],"Two rival presidents."],
+    ["How many Venezuelans live in Brazil?",["Nearly 7,000","Nearly 70,000","Nearly 7 million","Nearly 700,000"],"Nearly 700,000."],
+    ["In how many countries of the region have Venezuelans obtained legal status?",["2","7","17","70"],"17 countries."],
+    ["How many people have returned to Venezuela, according to the authorities?",["About a hundred","More than a million","None","All of them"],"More than a million."]],
+ e:[["In which year did the UN create its regional platform for refugees and migrants from Venezuela?",["2018","2014","2010","2024"],"In 2018: the R4V platform."],
+    ["How do NGOs describe civic space in Venezuela?",["Very wide","Free","Expanding","Very restricted"],"Very restricted: opponents arrested, media shut down."],
+    ["What happens to protests in Venezuela?",["Allowed everywhere","They are repressed","State-funded","They don't exist"],"They are repressed."],
+    ["How did Hugo Chávez leave power?",["By losing an election","By coup","At his death, in 2013","By resigning in 2019"],"At his death, in 2013."],
+    ["How does the Venezuelan exodus rank worldwide?",["Among the smallest","It doesn't exist","It is over","One of the largest population displacements"],"One of the largest population displacements in the world."]]
+});
+
+/* ---------- Questions supplémentaires, lot 15 : Yémen, Bangladesh, Amazonie ---------- */
+moreQ("887",{
+ d:[["Quelle part des Yéménites a besoin d'aide humanitaire ?",["Un sur dix","Un sur quatre","Deux sur trois","Aucun"],2,"Deux Yéménites sur trois."],
+    ["Quelle épidémie, parmi les plus grandes jamais enregistrées, frappe le Yémen ?",["Le choléra","Ebola","La grippe aviaire","Le paludisme"],0,"Le choléra."],
+    ["Qui négocie la trêve d'avril 2022 ?",["L'Iran","Les Houthis seuls","L'Arabie saoudite seule","L'ONU"],3,"L'ONU."],
+    ["Comment se situe le Yémen dans le monde arabe ?",["Le plus riche","Le pays le plus pauvre","Le plus peuplé","Le plus grand"],1,"Le pays le plus pauvre du monde arabe."],
+    ["Qui attaque des navires en mer Rouge depuis novembre 2023 ?",["La marine égyptienne","Des pirates somaliens","Les Houthis","L'Arabie saoudite"],2,"Les Houthis, en soutien à Gaza."]],
+ i:[["Qui gouverne le nord du Yémen jusqu'en 1962 ?",["Les Britanniques","Un imamat zaydite","L'Égypte","Les Houthis"],1,"Un imamat zaydite, renversé par la révolution républicaine."],
+    ["Combien de guerres les Houthis mènent-ils contre le régime de Saleh entre 2004 et 2010 ?",["Six","Une","Deux","Vingt"],0,"Six guerres."],
+    ["À qui Ali Abdallah Saleh cède-t-il le pouvoir en 2011 ?",["À son fils","Aux Houthis","À l'ONU","À son vice-président, Abd Rabbo Mansour Hadi"],3,"À son vice-président, Abd Rabbo Mansour Hadi."],
+    ["Qu'impose la coalition menée par l'Arabie saoudite en 2015 ?",["Une monnaie unique","Des élections","Un blocus","Un cessez-le-feu"],2,"Un blocus."],
+    ["Avec qui les Houthis s'allient-ils pour prendre Sanaa en 2014 ?",["Avec l'Arabie saoudite","Avec leur ancien ennemi Saleh","Avec Al-Qaïda","Avec les Britanniques"],1,"Avec leur ancien ennemi, Ali Abdallah Saleh."]],
+ e:[["Quel régime naît au sud du Yémen après le départ des Britanniques en 1967 ?",["Une monarchie","Un imamat","Une république d'inspiration marxiste, unique dans le monde arabe","Un émirat"],2,"Une république d'inspiration marxiste, unique dans le monde arabe."],
+    ["Que se passe-t-il au Yémen en 1994 ?",["La réunification","L'arrivée des Houthis à Sanaa","La fin du choléra","Une tentative de sécession du Sud, écrasée"],3,"Une tentative de sécession du Sud, écrasée."]]
+},{
+ d:[["What share of Yemenis need humanitarian aid?",["One in ten","One in four","Two in three","None"],"Two Yemenis in three."],
+    ["Which epidemic, among the largest ever recorded, struck Yemen?",["Cholera","Ebola","Bird flu","Malaria"],"Cholera."],
+    ["Who negotiated the April 2022 truce?",["Iran","The Houthis alone","Saudi Arabia alone","The UN"],"The UN."],
+    ["How does Yemen rank in the Arab world?",["The richest","The poorest country","The most populous","The largest"],"The poorest country in the Arab world."],
+    ["Who has attacked ships in the Red Sea since November 2023?",["The Egyptian navy","Somali pirates","The Houthis","Saudi Arabia"],"The Houthis, in support of Gaza."]],
+ i:[["Who ruled North Yemen until 1962?",["The British","A Zaydi imamate","Egypt","The Houthis"],"A Zaydi imamate, overthrown by the republican revolution."],
+    ["How many wars did the Houthis fight against Saleh's regime between 2004 and 2010?",["Six","One","Two","Twenty"],"Six wars."],
+    ["To whom did Ali Abdullah Saleh hand power in 2011?",["His son","The Houthis","The UN","His vice-president, Abd Rabbuh Mansur Hadi"],"His vice-president, Abd Rabbuh Mansur Hadi."],
+    ["What did the Saudi-led coalition impose in 2015?",["A single currency","Elections","A blockade","A ceasefire"],"A blockade."],
+    ["With whom did the Houthis ally to take Sanaa in 2014?",["Saudi Arabia","Their former enemy Saleh","Al-Qaeda","The British"],"Their former enemy, Ali Abdullah Saleh."]],
+ e:[["What regime was born in South Yemen after the British left in 1967?",["A monarchy","An imamate","A Marxist-inspired republic, unique in the Arab world","An emirate"],"A Marxist-inspired republic, unique in the Arab world."],
+    ["What happened in Yemen in 1994?",["Reunification","The Houthis reached Sanaa","Cholera ended","A southern secession attempt, crushed"],"A southern secession attempt, which was crushed."]]
+});
+
+moreQ("050",{
+ d:[["Comment s'appelait le Bangladesh avant 1971 ?",["Le Bengale indien","Le Pakistan oriental","La Birmanie","Le Népal"],1,"Le « Pakistan oriental »."],
+    ["À quels dangers naturels le Bangladesh est-il très exposé ?",["Aux avalanches","Aux volcans","À la sécheresse du désert","Aux cyclones et à la montée des eaux"],3,"Aux cyclones et à la montée des eaux."],
+    ["Dans quel pays Sheikh Hasina fuit-elle en août 2024 ?",["En Inde","Au Pakistan","En Chine","Au Royaume-Uni"],0,"En Inde."],
+    ["Contre quoi les étudiants manifestent-ils en juillet 2024 ?",["Contre le prix du riz","Contre les Rohingyas","Contre les quotas d'emplois publics","Contre un barrage"],2,"Contre les quotas d'emplois publics."],
+    ["Qui sont les Rohingyas ?",["Une minorité hindoue d'Inde","Une minorité musulmane de Birmanie","Des Bangladais du nord","Un peuple du Népal"],1,"Une minorité musulmane de Birmanie."]],
+ i:[["Contre quel pays le Bangladesh mène-t-il sa guerre d'indépendance ?",["L'Inde","La Birmanie","Le Pakistan","Le Royaume-Uni"],2,"Contre le Pakistan."],
+    ["En quel mois de 2017 l'armée birmane lance-t-elle son offensive contre les Rohingyas ?",["En août","En janvier","En mai","En décembre"],0,"En août 2017."],
+    ["Comment se situe le Bangladesh par sa densité de population ?",["Parmi les moins peuplés","Dans la moyenne","Presque vide","Parmi les plus densément peuplés du monde"],3,"Parmi les plus densément peuplés du monde."],
+    ["Qu'ont entraîné les baisses de l'aide internationale dans les camps ?",["Plus d'écoles","Des rations réduites","De nouveaux hôpitaux","Rien"],1,"Des rations réduites."],
+    ["Quel prix Muhammad Yunus a-t-il reçu ?",["Le prix Pulitzer","Le Ballon d'or","Le prix Nobel","L'Oscar"],2,"Le prix Nobel de la paix."]],
+ e:[["En quelle année la Gambie porte-t-elle plainte contre la Birmanie devant la Cour internationale de justice ?",["2019","2017","2022","1982"],0,"En 2019."],
+    ["Qui recrute jusque dans les camps de réfugiés ?",["L'armée bangladaise","L'ONU","Des écoles","Des groupes armés"],3,"Des groupes armés."],
+    ["En quel mois de 2024 commencent les manifestations étudiantes ?",["En mars","En juillet","En octobre","En décembre"],1,"En juillet 2024."],
+    ["En combien de temps plus de 700 000 Rohingyas fuient-ils vers le Bangladesh ?",["En un jour","En dix ans","En quelques mois","En un siècle"],2,"En quelques mois."],
+    ["Qu'est-ce qui a marqué la guerre d'indépendance de 1971 ?",["Une paix rapide","Une élection","Un accord commercial","Des massacres de masse"],3,"Des massacres de masse."]]
+},{
+ d:[["What was Bangladesh called before 1971?",["Indian Bengal","East Pakistan","Burma","Nepal"],"“East Pakistan”."],
+    ["Which natural dangers is Bangladesh highly exposed to?",["Avalanches","Volcanoes","Desert drought","Cyclones and rising waters"],"Cyclones and rising waters."],
+    ["Which country did Sheikh Hasina flee to in August 2024?",["India","Pakistan","China","The United Kingdom"],"India."],
+    ["What did students protest against in July 2024?",["The price of rice","The Rohingya","Public job quotas","A dam"],"Public job quotas."],
+    ["Who are the Rohingya?",["A Hindu minority in India","A Muslim minority from Myanmar","Northern Bangladeshis","A people of Nepal"],"A Muslim minority from Myanmar."]],
+ i:[["Against which country did Bangladesh fight its war of independence?",["India","Myanmar","Pakistan","The United Kingdom"],"Against Pakistan."],
+    ["In which month of 2017 did Myanmar's army launch its offensive against the Rohingya?",["August","January","May","December"],"August 2017."],
+    ["How does Bangladesh rank by population density?",["Among the least populated","Average","Almost empty","Among the most densely populated in the world"],"Among the most densely populated in the world."],
+    ["What did cuts in international aid cause in the camps?",["More schools","Reduced rations","New hospitals","Nothing"],"Reduced rations."],
+    ["Which prize did Muhammad Yunus receive?",["The Pulitzer Prize","The Ballon d'Or","The Nobel Prize","The Oscar"],"The Nobel Peace Prize."]],
+ e:[["In which year did The Gambia bring a case against Myanmar before the International Court of Justice?",["2019","2017","2022","1982"],"In 2019."],
+    ["Who recruits even inside the refugee camps?",["Bangladesh's army","The UN","Schools","Armed groups"],"Armed groups."],
+    ["In which month of 2024 did the student protests begin?",["March","July","October","December"],"July 2024."],
+    ["How long did it take for more than 700,000 Rohingya to flee to Bangladesh?",["One day","Ten years","A few months","A century"],"A few months."],
+    ["What marked the 1971 war of independence?",["A quick peace","An election","A trade deal","Mass killings"],"Mass killings."]]
+});
+
+moreQ("076",{
+ d:[["Certains peuples d'Amazonie vivent-ils encore sans contact avec le reste du monde ?",["Non, aucun","Ils ont tous disparu","Oui, certains groupes","Seulement en Europe"],2,"Oui, certains groupes vivent encore sans contact."],
+    ["En plus des orpailleurs illégaux, qui grignote la forêt et les terres autochtones ?",["Des exploitants forestiers et des éleveurs","Des touristes","Des scientifiques","Des pêcheurs de baleines"],0,"Des exploitants forestiers et des éleveurs."],
+    ["Qu'empoisonne le mercure utilisé pour l'or ?",["L'air des villes","Les montagnes","Les satellites","Les poissons et les habitants"],3,"Il pollue les rivières et empoisonne poissons et habitants."],
+    ["Comment se situe le Brésil pour la sécurité des défenseurs de l'environnement ?",["Le pays le plus sûr","L'un des pays les plus dangereux au monde","Dans la moyenne","Aucun danger"],1,"L'un des pays les plus dangereux au monde pour eux."],
+    ["De quoi souffrent les Yanomami en 2023 ?",["De surpoids","D'excès d'aide","De malnutrition et de maladies","De rien"],2,"De malnutrition et de maladies liées à l'orpaillage illégal."]],
+ i:[["Comment avance la délimitation des territoires autochtones ?",["Très vite","Lentement, et elle reste contestée","Elle est terminée","Elle n'a jamais commencé"],1,"Lentement, et elle reste contestée."],
+    ["Quelle ONG recense les défenseurs de la terre tués ?",["Global Witness","Amnesty Sport","Greenpeace Arctique","La Croix-Rouge"],0,"Global Witness."],
+    ["Qu'a voté le Congrès brésilien après le rejet du « marco temporal » par la Cour suprême ?",["Sa suppression définitive","La création de nouveaux parcs","Rien","Une loi qui reprenait cette thèse"],3,"Une loi qui reprenait la thèse."],
+    ["Qu'est-ce qui provoque les maladies chez les Yanomami ?",["Le tourisme","Le froid","L'orpaillage illégal","Les vaccins"],2,"Des maladies liées à l'orpaillage illégal."],
+    ["Où en est le débat sur le « marco temporal » ?",["Il est clos","Il continue","Il est oublié","Il a été tranché par l'ONU"],1,"Il continue."]],
+ e:[["Comment évolue le nombre de défenseurs tués au Brésil entre 2023 et 2024 ?",["Il baisse de plus de moitié","Il double","Il reste identique","Il est multiplié par dix"],0,"Il passe de 25 à 12."],
+    ["Qui déclare l'urgence sanitaire chez les Yanomami ?",["L'ONU","Une ONG","Les orpailleurs","Le gouvernement brésilien"],3,"Le gouvernement brésilien, en janvier 2023."],
+    ["Sur quelles terres la Constitution de 1988 reconnaît-elle des droits aux peuples autochtones ?",["Sur toute l'Amazonie","Sur les villes","Sur les terres qu'ils occupent traditionnellement","Sur aucune terre"],2,"Sur les terres qu'ils occupent traditionnellement."],
+    ["Par rapport à leur part de la population mondiale, les autochtones sont-ils surreprésentés parmi les défenseurs tués ?",["Deux fois moins","Plus de cinq fois","Autant","Dix fois moins"],1,"Plus de cinq fois : un tiers des victimes pour environ 6 % de la population."],
+    ["Combien de défenseurs ont été tués au Brésil en 2023 et 2024 réunis ?",["12","25","37","146"],2,"37 : 25 en 2023 et 12 en 2024."]]
+},{
+ d:[["Do some Amazon peoples still live without contact with the rest of the world?",["No, none","They have all disappeared","Yes, some groups","Only in Europe"],"Yes, some groups still live uncontacted."],
+    ["Besides illegal miners, who is eating into the forest and Indigenous lands?",["Loggers and cattle ranchers","Tourists","Scientists","Whalers"],"Loggers and cattle ranchers."],
+    ["What does the mercury used for gold poison?",["City air","Mountains","Satellites","Fish and people"],"It pollutes rivers and poisons fish and people."],
+    ["How does Brazil rank for the safety of environmental defenders?",["The safest","One of the most dangerous countries in the world","Average","No danger"],"One of the most dangerous countries in the world for them."],
+    ["What did the Yanomami suffer from in 2023?",["Obesity","Too much aid","Malnutrition and disease","Nothing"],"Malnutrition and disease linked to illegal mining."]],
+ i:[["How is the demarcation of Indigenous territories progressing?",["Very fast","Slowly, and it remains disputed","It is finished","It never started"],"Slowly, and it remains disputed."],
+    ["Which NGO counts the land defenders killed?",["Global Witness","Amnesty Sport","Greenpeace Arctic","The Red Cross"],"Global Witness."],
+    ["What did Brazil's Congress vote after the Supreme Court rejected the “marco temporal”?",["Its final abolition","New parks","Nothing","A law that took the thesis back up"],"A law that took the thesis back up."],
+    ["What causes disease among the Yanomami?",["Tourism","The cold","Illegal gold mining","Vaccines"],"Disease linked to illegal gold mining."],
+    ["Where does the “marco temporal” debate stand?",["It is closed","It continues","It is forgotten","The UN settled it"],"It continues."]],
+ e:[["How did the number of defenders killed in Brazil change between 2023 and 2024?",["It fell by more than half","It doubled","It stayed the same","It rose tenfold"],"It went from 25 to 12."],
+    ["Who declared the health emergency among the Yanomami?",["The UN","An NGO","The miners","The Brazilian government"],"The Brazilian government, in January 2023."],
+    ["On which lands does the 1988 Constitution recognise Indigenous rights?",["The whole Amazon","Cities","The lands they traditionally occupy","No land"],"The lands they traditionally occupy."],
+    ["Compared with their share of the world population, are Indigenous people over-represented among defenders killed?",["Half as much","More than five times","The same","Ten times less"],"More than five times: a third of victims for about 6% of the population."],
+    ["How many defenders were killed in Brazil in 2023 and 2024 combined?",["12","25","37","146"],"37: 25 in 2023 and 12 in 2024."]]
+});
 
 /* ================= Performance (v10) =================
    Principe : on ne redessine que ce qui bouge, et seulement ce qui se voit. */
