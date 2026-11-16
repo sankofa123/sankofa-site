@@ -3440,7 +3440,7 @@ function renderPass(){
     return s?`<div class="slot">${stampSVG(id,s.r,s.d)}<span>${esc(c.short)}</span><button class="slotshare" data-id="${id}">${t("Partager")}</button></div>`
             :`<a class="slot locked" href="#quiz-${c.slug}">${GHOST(id)}<span>${esc(c.short)} · ${t("à conquérir")}</span></a>`;
   }).join("") || `<p class="clsmall">${t("Aucun tampon pour l'instant. Réussis un parcours pour gagner le premier.")}</p>`;
-  $("#cards").innerHTML = FEATURED.map(id=>{ const D=DEEP[id], s=state.stamps[id], col = s?RARITY[s.r].col:"#9AA0A6";
+  $("#cards").innerHTML = FEATURED.map(id=>{ const f0=(C[id].figs||[]).find(f=>f.n)||(C[id].figs||[])[0]||{}, D=(DEEP[id]&&DEEP[id].fig)?DEEP[id]:{fig:{n:f0.n||C[id].short, d:f0.at?fmtAt(f0.at):"", t:String(f0.d||f0.t||"").replace(/<[^>]+>/g,"")}}, s=state.stamps[id], col = s?RARITY[s.r].col:"#9AA0A6";
     return s?`<div class="mcard" style="--c:${col}"><div class="mtop"><span class="eyebrow">${esc(C[id].short)}</span><span class="mr">${RARITY[s.r].name}</span></div><b>${esc(D.fig.n)}</b><span class="fd">${esc(D.fig.d)}</span><p>${esc(D.fig.t)}</p></div>`
             :`<a class="mcard locked" href="#quiz-${C[id].slug}"><div class="mtop"><span class="eyebrow">${esc(C[id].short)}</span>${LOCK}</div><b>${t("Carte mémoire")}</b><p>${t("Gagne un tampon {x} pour découvrir cette carte.",{x:esc(C[id].short)})}</p></a>`; }).join("");
   document.querySelectorAll(".slotshare").forEach(b=>b.onclick=()=>shareCard("stamp",b.dataset.id));
@@ -4471,6 +4471,7 @@ renderActu = function(){
     const mine = FL.filter(x=>x.id && f.includes(x.id) && !x.futur).slice(0,4);
     box.innerHTML = `<div class="mch"><div><div class="eyebrow">${t("Tes pays")}</div><h3>${t("Ce qui a bougé chez les peuples que tu suis.")}</h3></div>
         <div class="mcchips">${f.filter(id=>C[id]).map(id=>`<a class="mcchip" href="#pays-${C[id].slug}"><canvas data-sil="${id}" data-col="${mainLayer(C[id]).hex}"></canvas>${esc(C[id].short)}</a>`).join("")}</div></div>
+      <details class="mcadd" ${renderActu._add?"open":""}><summary>+ ${t("Suivre d'autres peuples")} (${f.length} ${t("suivis")})</summary><div class="mcchips">${FEATURED.map(id=>followBtn(id).replace(/<span>[^<]*<\/span>/,`<span>${esc(C[id].short)}</span>`)).join("")}</div></details>
       ${mine.length?`<div class="mclist">${mine.map(x=>`<div class="mcrow ${x.d>seen?"isnew":""}"><span class="fdate">${fmtDate(x.d)}${x.d>seen?` · <b>${t("nouveau")}</b>`:""}</span><a class="fcountry" href="#pays-${C[x.id].slug}">${esc(C[x.id].short)}</a><p>${gl(x.t.replace(new RegExp("^"+C[x.id].short+"\\s?:\\s*"),"").replace(/^./,ch=>ch.toUpperCase()),2)}</p></div>`).join("")}</div>`:`<p class="mempty">${t("Rien de neuf pour l'instant dans tes pays.")}</p>`}`;
   } else {
     box.innerHTML = `<div class="eyebrow">${t("Tes pays")}</div><h3>${t("Suis les peuples qui te touchent.")}</h3><p class="mempty">${t("Leur actualité remontera ici en premier, et un point doré t'avertira des nouveautés.")}</p>
@@ -4479,6 +4480,8 @@ renderActu = function(){
   document.querySelectorAll(".mycountries").forEach(x=>x.remove());
   const top = $("#actuTop"); top.parentNode.insertBefore(box, top);
   box.querySelectorAll("canvas[data-sil]").forEach(cv=>silhouette(cv,cv.dataset.sil,cv.dataset.col,{pad:.1,step:4}));
+  const mad = box.querySelector(".mcadd"); if(mad) mad.ontoggle = ()=>{ renderActu._add = mad.open; };
+  box.querySelectorAll(".mcchips [data-follow]").forEach(b=>b.addEventListener("click", ()=>{ renderActu._add = true; }, true));
   wireFollow(box);
   if(f.length){ const sel = $("#actuFilters"); if(sel && !sel.querySelector('[data-p="mine"]')){ sel.insertAdjacentHTML("afterbegin",`<button class="filter" data-p="mine" aria-pressed="${renderActu._f==="mine"}">${ico("bell")}${t("Mes pays")}</button>`); sel.querySelector('[data-p="mine"]').onclick=()=>{ renderActu._f="mine"; renderActu(); }; } }
   if(renderActu._f==="mine"){ const list = FL.filter(x=>x.id && f.includes(x.id)); $("#fil").innerHTML = $("#fil").querySelector(".filmeta").outerHTML + filHTML(list); }
@@ -9007,6 +9010,7 @@ if(window.SB && SB.launch){
   window.skfLaunch = launchGet;
   const placesLeft = d => d ? Math.max(0, d.limit - d.founders) : null;
   const isFounder = d => !!(d && d.me && d.me.account && d.me.rank && d.me.rank <= d.limit);
+  window.skfFounder = ()=> isFounder(LAUNCH.data) ? LAUNCH.data.me.rank : 0;
   const invited = d => (d && d.me && d.me.invited) || 0;
   const pad3 = n => String(n).padStart(3, "0");
   const inviteLink = d => d && d.me && d.me.code ? SITE_URL + "/?p=" + d.me.code : "";
@@ -9061,6 +9065,7 @@ if(window.SB && SB.launch){
     return h;
   };
 
+  window.skfMedal = medalSVG;
   /* ---- 2, 3. Dans le passeport : Fondateur et parrainage ---- */
   const _rp = renderPass;
   renderPass = function(){
@@ -10198,17 +10203,22 @@ const INKS = {
   rouge:{l:13, fr:"Rouge", en:"Red", c:"#B4233A", sw:["#8E1A2D","#D2445A"]},
   sapin:{l:17, fr:"Vert sapin", en:"Fir green", c:"#1F5A3D", sw:["#174630","#2E7D55"]},
   argent:{l:23, fr:"Argent", en:"Silver", c:"#7F8792", sw:["#6B727C","#B9C0C9"]},
-  holo:{l:29, fr:"Holographique", en:"Holographic", c:"#7A55F5", sw:["#4FE0B8","#B57EDC"]}
+  holo:{l:29, fr:"Holographique", en:"Holographic", c:"#7A55F5", sw:["#4FE0B8","#B57EDC"]},
+  fondateur:{l:1, f:true, fr:"Or fondateur", en:"Founder gold", c:"#A87A1E", sw:["#8E6A1F","#D2A94B"]}
 };
+const STYLES = { net:{l:1, fr:"Net", en:"Clean"}, encre:{l:1, fr:"Encre réelle", en:"Real ink"} };
+const isF = ()=>{ try{ return !!(window.skfFounder && window.skfFounder()); }catch(e){ return false; } };
+const okIt = o=>o && (o.f ? isF() : o.l <= level());
 const FRAMES = {
   aucun:{l:1, fr:"Aucun", en:"None"}, bronze:{l:4, fr:"Bronze", en:"Bronze"}, argent:{l:10, fr:"Argent", en:"Silver"}, or:{l:15, fr:"Or", en:"Gold"},
   rouge:{l:20, fr:"Rouge", en:"Red"}, globe:{l:24, fr:"Globe", en:"Globe"}, aurore:{l:30, fr:"Aurore", en:"Aurora"}
 };
 const COVERS = {
-  clair:{l:1, fr:"Clair", en:"Light", sw:["#F7F1E3","#EFE5CC"]}, nuit:{l:6, fr:"Nuit", en:"Night", sw:["#1A1D24","#0F1115"]},
-  ocean:{l:12, fr:"Océan", en:"Ocean", sw:["#123A5E","#0A1B2E"]}, foret:{l:16, fr:"Forêt", en:"Forest", sw:["#17402B","#0B1F15"]},
-  prune:{l:21, fr:"Prune", en:"Plum", sw:["#371A44","#190B21"]}, rouge:{l:25, fr:"Rouge", en:"Red", sw:["#5A1322","#24070D"]},
-  carte:{l:32, fr:"Carte du monde", en:"World map", sw:["#14161B","#2A3140"]}
+  clair:{l:1, fr:"Classique", en:"Classic", sw:["#F7F1E3","#EFE5CC"]}, nuit:{l:6, fr:"Noir et or", en:"Black and gold", sw:["#17181C","#C8962E"]},
+  ocean:{l:12, fr:"Océan", en:"Ocean", sw:["#1C5A96","#0C2A4D"]}, foret:{l:16, fr:"Forêt", en:"Forest", sw:["#1F7048","#0C2A1B"]},
+  prune:{l:21, fr:"Prune", en:"Plum", sw:["#5E2C7C","#22102E"]}, rouge:{l:25, fr:"Rouge", en:"Red", sw:["#9A1F36","#3A0A14"]},
+  carte:{l:32, fr:"Carte du monde", en:"World map", sw:["#14161B","#2A3140"]},
+  fondateur:{l:1, f:true, fr:"Fondateur", en:"Founder", sw:["#8E6A1F","#D2A94B"]}
 };
 const PERKS = [
   {l:1, k:"icon", fr:"Ton passeport, l'encre Classique, les icônes Nuit et Ivoire", en:"Your passport, the Classic ink, the Night and Ivory icons"},
@@ -10217,9 +10227,9 @@ const PERKS = [
   {l:11, k:"icon", fr:"Icônes Terre et Prune", en:"Earth and Plum icons"},
   {l:19, k:"icon", fr:"Icônes Corail et Or", en:"Coral and Gold icons"},
   {l:8, k:"vote", fr:"Proposer un pays et voter chaque mois", en:"Suggest a country and vote every month"},
-  ...Object.entries(INKS).filter(([k])=>k!=="classique").map(([k,s])=>({l:s.l, k:"ink", fr:"Encre de tampon "+s.fr.replace("Encre noire","noire")+(k==="holo"?", animée":""), en:s.en+" stamp ink"+(k==="holo"?", animated":"")})),
+  ...Object.entries(INKS).filter(([k,o])=>k!=="classique"&&!o.f).map(([k,s])=>({l:s.l, k:"ink", fr:"Encre de tampon "+s.fr.replace("Encre noire","noire")+(k==="holo"?", animée":""), en:s.en+" stamp ink"+(k==="holo"?", animated":"")})),
   ...Object.entries(FRAMES).filter(([k])=>k!=="aucun").map(([k,s])=>({l:s.l, k:"frame", fr:"Cadre "+s.fr.toLowerCase()+(k==="aurore"?", animé":""), en:s.en+" frame"+(k==="aurore"?", animated":"")})),
-  ...Object.entries(COVERS).filter(([k])=>k!=="clair").map(([k,s])=>({l:s.l, k:"cover", fr:"Couverture de passeport "+s.fr, en:s.en+" passport cover"})),
+  ...Object.entries(COVERS).filter(([k,o])=>k!=="clair"&&!o.f).map(([k,s])=>({l:s.l, k:"cover", fr:"Couverture de passeport "+s.fr, en:s.en+" passport cover"})),
   {l:37, k:"card", fr:"Carte d'identité Sankofa, en rouge mythique", en:"Sankofa identity card, in mythic red"},
   {l:40, k:"stamp", fr:"Tampons animés dans ton passeport", en:"Animated stamps in your passport"}
 ].sort((a,b)=>a.l-b.l);
@@ -10228,8 +10238,8 @@ const cos = ()=>Object.assign({ink:"classique", cover:"clair"}, state.cos||{});
 const nm = o=>LANG==="en" ? o.en : o.fr;
 function bestFrame(l){ let b = "aucun"; for(const k of ["bronze","argent","or","rouge"]) if(FRAMES[k].l <= l) b = k; return b; }
 function curFrame(){ const l = level(), c = state.cos||{}; return c.frame && FRAMES[c.frame] && FRAMES[c.frame].l <= l ? c.frame : bestFrame(l); }
-function curInk(){ const k = cos().ink; return INKS[k] && INKS[k].l <= level() ? k : "classique"; }
-function curCover(){ const k = cos().cover; return COVERS[k] && COVERS[k].l <= level() ? k : "clair"; }
+function curInk(){ const k = cos().ink; return okIt(INKS[k]) ? k : "classique"; }
+function curCover(){ const k = cos().cover; return okIt(COVERS[k]) ? k : "clair"; }
 
 /* Encre des tampons : recolore tous les tampons */
 const _stampSVG = stampSVG;
@@ -10261,15 +10271,16 @@ function perksHTML(){
 }
 function cosHTML(){
   const l = level(), fr = curFrame(), ik = curInk(), cv = curCover();
-  const opt = (grp, k, o, on, sw)=>{ const lk = o.l > l;
-    return `<button type="button" class="cosopt" data-g="${grp}" data-k="${k}" aria-pressed="${on}" ${lk?`data-lock="${o.l}" aria-disabled="true"`:""}>
-      <span class="cossw ${grp}${grp==="frame"?" f-"+k:""}" ${sw?`style="--cs1:${sw[0]};--cs2:${sw[1]}"`:""}></span><span class="cosn">${lk ? t("Niv. {n}",{n:o.l}) : esc(nm(o))}</span></button>`; };
+  const opt = (grp, k, o, on, sw)=>{ const lk = o.f ? !isF() : o.l > l;
+    return `<button type="button" class="cosopt" data-g="${grp}" data-k="${k}" aria-pressed="${on}" ${lk?`data-lock="${o.f?"F":o.l}" aria-disabled="true"`:""}>
+      <span class="cossw ${grp}${grp==="frame"?" f-"+k:""}${grp==="style"?" s-"+k:""}" ${sw?`style="--cs1:${sw[0]};--cs2:${sw[1]}"`:""}></span><span class="cosn">${lk ? (o.f ? t("Fondateur") : t("Niv. {n}",{n:o.l})) : esc(nm(o))}</span></button>`; };
   const p = state.profile;
   const embs = AV_BG.map((b,i)=>({l:embLv(i), fr:i<EMB_BASE?"Couleur "+(i+1):EMB_NEW[i-EMB_BASE][1], en:i<EMB_BASE?"Colour "+(i+1):EMB_NEW[i-EMB_BASE][2], b}));
   return `<div class="cosbox" id="cosBox" role="dialog" aria-modal="true" aria-labelledby="cosH">
     <button type="button" class="mclose cosx" aria-label="${t("Fermer")}">×</button>
     <div class="eyebrow">${t("Personnaliser")}</div><h3 id="cosH">${t("Ce que tu as gagné, à toi de choisir.")}</h3>
     <div class="cosgrp"><b>${t("Encre des tampons")}</b><div class="cosrow">${Object.entries(INKS).map(([k,o])=>opt("ink",k,o,k===ik,o.sw)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Style des tampons")}</b><div class="cosrow">${Object.entries(STYLES).map(([k,o])=>opt("style",k,o,k===((state.cos||{}).style||"net"))).join("")}</div></div>
     <div class="cosgrp"><b>${t("Cadre de l'emblème")}</b><div class="cosrow">${Object.entries(FRAMES).map(([k,o])=>opt("frame",k,o,k===fr)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Couverture du passeport")}</b><div class="cosrow">${Object.entries(COVERS).map(([k,o])=>opt("cover",k,o,k===cv,o.sw)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Couleur de l'emblème")}</b>${p ? `<div class="cosrow">${embs.map((o,i)=>opt("emb",i,o,p.bg===i,o.b)).join("")}</div>` : `<p class="clsmall">${t("Crée ton passeport pour choisir la couleur de ton emblème.")}</p>`}</div>
@@ -10278,7 +10289,7 @@ function cosHTML(){
 }
 function bindCos(box){
   box.querySelectorAll(".cosopt").forEach(b=>b.onclick=()=>{
-    if(b.dataset.lock){ toast(t("Se débloque au niveau {n}.", {n:b.dataset.lock})); return; }
+    if(b.dataset.lock){ toast(b.dataset.lock === "F" ? t("Réservé aux Fondateurs.") : t("Se débloque au niveau {n}.", {n:b.dataset.lock})); return; }
     const g = b.dataset.g, k = b.dataset.k;
     if(g === "emb"){ if(state.profile) state.profile.bg = +k; }
     else state.cos = Object.assign({}, state.cos||{}, {[g]:k});
@@ -10381,7 +10392,10 @@ Object.assign(EN, {
   makeCard = async function(kind, id, extra){
     if(kind === "stamp" && state.stamps[id]) return story("stamp", id, extra);
     if(kind === "result") return story("result", id, extra);
-    return _mk(kind, id, extra);
+    const cv = await _mk(kind, id, extra), x = cv.getContext("2d"), W = cv.width, H = cv.height;
+    x.fillStyle = "#121315"; x.fillRect(0, H - 76, W, 76);
+    x.fillStyle = "#F2F3EF"; x.textAlign = "center"; x.font = "500 30px 'Geist Mono', monospace"; x.fillText(SITE, W/2, H - 28); x.textAlign = "left";
+    return cv;
   };
 
   shareCard = async function(kind, id, extra){
@@ -10524,7 +10538,7 @@ Object.assign(EN, {
 })();
 
 Object.assign(EN, {
- "Passer":"Skip","Faire le quiz":"Take the quiz","Tampon {r} obtenu":"{r} stamp earned","{n} niveaux · un tampon à gagner":"{n} levels · a stamp to earn","Suivant":"Next","C'est parti":"Let's go","Mise à jour : {d}":"Updated: {d}","Revoir le tutoriel":"Replay the tutorial",
+ "Passer":"Skip","Suivre d'autres peuples":"Follow more peoples","suivis":"followed","Faire le quiz":"Take the quiz","Tampon {r} obtenu":"{r} stamp earned","{n} niveaux · un tampon à gagner":"{n} levels · a stamp to earn","Suivant":"Next","C'est parti":"Let's go","Mise à jour : {d}":"Updated: {d}","Revoir le tutoriel":"Replay the tutorial",
  "Tourne le globe.":"Spin the globe.","Fais glisser ton doigt pour tourner la Terre. Chaque pays en couleur est une crise expliquée. Touche-le pour l'ouvrir.":"Swipe to spin the Earth. Each coloured country is an explained crisis. Tap it to open it.",
  "Lis la fiche.":"Read the page.","En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le quiz.":"In 3 minutes: the summary, sourced and dated figures, the history. Then take the quiz.",
  "Passe les niveaux.":"Clear the levels.","Découverte, Initié, Expert, puis le Défi légendaire. Chaque niveau réussi ouvre le suivant.":"Discovery, Initiate, Expert, then the Legendary challenge. Each level you pass opens the next.",
@@ -10627,6 +10641,114 @@ Object.assign(EN, {
  "Taille du texte":"Text size","Normal":"Normal","Grand":"Large","Très grand":"Extra large","À propos":"About","Presse":"Press",
  "Imprimer la fiche":"Print this page","Les dates clés":"Key dates","5 questions":"5 questions","Réponses":"Answers",
  "Chiffres vérifiés le {d}. Chaque chiffre indique sa source et sa date.":"Figures checked on {d}. Each figure shows its source and date."
+});
+
+/* ---------- Pages de visas (tampons posés sur le passeport), style encre, vue globe de la collection ---------- */
+(function(){
+  /* Encre réaliste : quatre filtres aux grains différents */
+  if(!document.getElementById("skfInkDefs")){
+    const f = i=>`<filter id="skfInk${i}" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="${[.9,1.15,.75,1.3][i]}" numOctaves="2" seed="${7+i*13}" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="${[2.6,2.2,3,2.4][i]}" result="d"/><feTurbulence type="fractalNoise" baseFrequency="${[.035,.05,.028,.042][i]}" numOctaves="2" seed="${3+i*5}" result="b"/><feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.72" result="fade"/><feComponentTransfer in="n" result="m"><feFuncA type="discrete" tableValues="1 1 1 0 1 1 1 1 1"/></feComponentTransfer><feComposite in="d" in2="m" operator="in" result="g"/><feComposite in="g" in2="fade" operator="in"/></filter>`;
+    document.body.insertAdjacentHTML("beforeend", `<svg id="skfInkDefs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${[0,1,2,3].map(f).join("")}</defs></svg>`);
+  }
+  const hash = s=>{ let h = 2166136261; for(const ch of String(s)){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+  const dnum = d=>{ const m = String(d||"").split("/"); return m.length===3 ? +(m[2]+m[1].padStart(2,"0")+m[0].padStart(2,"0")) : 0; };
+  const founder = ()=>{ try{ return window.skfFounder ? window.skfFounder() : 0; }catch(e){ return 0; } };
+
+  function visaHTML(){
+    const ids = FEATURED.filter(id=>state.stamps[id]).sort((a,b)=>dnum(state.stamps[a].d) - dnum(state.stamps[b].d) || (hash(a) - hash(b)));
+    const fr = founder();
+    if(!ids.length && !fr) return "";
+    const seen = state.visaSeen || {};
+    const item = (key, html, cls)=>{ const h = hash(key), jx = (h % 17) - 8, jy = ((h >> 5) % 15) - 7, rot = ((h >> 9) % 31) - 15;
+      return `<div class="vst ${cls||""}" data-k="${key}" style="--jx:${jx}px;--jy:${jy}px;--rot:${rot}deg;--f:url(#skfInk${h % 4})">${html}</div>`; };
+    let out = ids.map(id=>{ const s = state.stamps[id]; return item(id, stampSVG(id, s.r, s.d), seen[id] === s.r ? "" : "new"); }).join("");
+    if(fr && window.skfMedal) out = item("fondateur", `<div class="stampwrap">${window.skfMedal("f", true, "N° " + String(fr).padStart(3, "0"))}</div>`, seen.fondateur ? "" : "new") + out;
+    return `<div class="secthead"><div><div class="eyebrow">${t("Pages de visas")}</div><h2>${t("Tamponné au fil de tes escales.")}</h2></div></div>
+      <div class="vpage"><div class="vhead"><span>SANKOFA · VISAS</span><span>${ids.length + (fr?1:0)} / ${FEATURED.length}</span></div><div class="vgrid">${out}</div></div>`;
+  }
+  let playing = false;
+  function playNew(){
+    const sec = $("#visaSect"); if(!sec || playing) return;
+    const news = [...sec.querySelectorAll(".vst.new")]; if(!news.length) return;
+    const busy = ()=>(typeof hasCele === "function" && hasCele()) || document.querySelector("#lvlup.show, #modal.show, #skfTuto, #cosOv");
+    if(location.hash !== "#passeport") return;
+    if(busy()){ setTimeout(playNew, 500); return; }
+    playing = true;
+    const first = !state.visaSeen, anim = first ? news.slice(-3) : news.slice(-4);
+    news.forEach(n=>{ if(!anim.includes(n)) n.classList.remove("new"); });
+    const done = ()=>{ const seen = {}; FEATURED.forEach(id=>{ if(state.stamps[id]) seen[id] = state.stamps[id].r; }); if(founder()) seen.fondateur = 1; state.visaSeen = seen; store.set(state); playing = false; };
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){ anim.forEach(n=>n.classList.remove("new")); return done(); }
+    sec.querySelector(".vpage").scrollIntoView({block:"center", behavior:"smooth"});
+    anim.forEach((n, i)=>setTimeout(()=>{ n.classList.remove("new"); n.classList.add("press"); const pg = sec.querySelector(".vpage");
+      setTimeout(()=>{ if(pg){ pg.classList.remove("thud"); void pg.offsetWidth; pg.classList.add("thud"); } if(navigator.vibrate) try{ navigator.vibrate(18); }catch(e){} }, 330); }, 650 + i*620));
+    setTimeout(done, 700 + anim.length*620 + 600);
+  }
+
+  /* Vue globe de la collection */
+  let rotG = null, raf = 0;
+  function globeView(box){
+    const dark = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    const won = FEATURED.filter(id=>state.stamps[id] && featById[id]);
+    const counts = [1,2,3,4,5].map(r=>FEATURED.filter(id=>state.stamps[id] && state.stamps[id].r === r).length);
+    box.innerHTML = `<div class="cglobe"><canvas id="cgCv" aria-label="${esc(t("Globe de ta collection"))}" role="img"></canvas>
+      <p class="cgnote">${t("Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais tourner le globe.")}</p>
+      <div class="cgleg">${[5,4,3,2,1].filter(r=>RARITY[r]).map(r=>`<span><i style="background:${RARITY[r].col}"></i>${RARITY[r].name} <em>${counts[r-1]}</em></span>`).join("")}</div></div>`;
+    const cv = box.querySelector("#cgCv"), size = Math.min(box.clientWidth || 340, 440), dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = size*dpr; cv.height = size*dpr; cv.style.width = cv.style.height = size + "px";
+    const x = cv.getContext("2d"); x.scale(dpr, dpr);
+    if(!rotG){ const last = won.slice().sort((a,b)=>dnum(state.stamps[b].d) - dnum(state.stamps[a].d))[0]; const c = last ? centroid(last) : [20, 10]; rotG = [-c[0], -c[1]]; }
+    const pr = d3.geoOrthographic().translate([size/2, size/2]).scale(size/2 - 10).clipAngle(90), pa = d3.geoPath(pr, x);
+    const sea = dark ? "#14171C" : "#E4E6E2", land = dark ? "#2A2E35" : "#C9CCC8", line = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)";
+    function draw(){
+      pr.rotate(rotG); x.clearRect(0, 0, size, size);
+      x.beginPath(); pa({type:"Sphere"}); x.fillStyle = sea; x.fill();
+      x.beginPath(); for(const f of F50) pa(f); x.fillStyle = land; x.fill(); x.strokeStyle = line; x.lineWidth = .5; x.stroke();
+      for(const id of won){ const r = state.stamps[id].r, col = RARITY[r].col;
+        x.save(); if(r >= 3){ x.shadowColor = col; x.shadowBlur = 4 + r*3; }
+        x.beginPath(); pa(featById[id]); x.fillStyle = col; x.fill(); x.restore();
+        x.beginPath(); pa(featById[id]); x.strokeStyle = dark ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.9)"; x.lineWidth = r >= 4 ? 1.4 : .8; x.stroke(); }
+      x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = line; x.lineWidth = 1.2; x.stroke();
+    }
+    let drag = null, idle = true;
+    cv.onpointerdown = e=>{ drag = [e.clientX, e.clientY, rotG[0], rotG[1]]; idle = false; cv.setPointerCapture(e.pointerId); };
+    cv.onpointermove = e=>{ if(!drag) return; rotG = [drag[2] + (e.clientX - drag[0])*.45, Math.max(-70, Math.min(70, drag[3] - (e.clientY - drag[1])*.45))]; draw(); };
+    cv.onpointerup = cv.onpointercancel = ()=>{ drag = null; };
+    cancelAnimationFrame(raf);
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    (function spin(){ if(!document.body.contains(cv)) return; if(idle && !still){ rotG = [rotG[0] + .12, rotG[1]]; draw(); } raf = requestAnimationFrame(spin); })();
+    draw();
+  }
+
+  const _rp = renderPass;
+  renderPass = function(){
+    _rp.apply(this, arguments);
+    const c = state.cos || {};
+    document.body.classList.toggle("st-encre", c.style === "encre");
+    /* Pages de visas */
+    const tiers = $("#tiers");
+    if(tiers){ let sec = $("#visaSect"); if(!sec){ tiers.insertAdjacentHTML("beforebegin", `<div class="sect" id="visaSect"></div>`); sec = $("#visaSect"); }
+      const h = visaHTML(); sec.innerHTML = h; sec.style.display = h ? "" : "none"; if(h) setTimeout(playNew, 700); }
+    /* Tampons ou globe */
+    const stf = $("#stampFilt"), st = $("#stamps");
+    if(stf && st){
+      const V = window.STAMP_VIEW || "stamps";
+      stf.insertAdjacentHTML("beforeend", `<span class="stview" role="group" aria-label="${t("Affichage")}"><button type="button" data-sv="stamps" aria-pressed="${V==="stamps"}">${t("Tampons")}</button><button type="button" data-sv="globe" aria-pressed="${V==="globe"}">${t("Globe")}</button></span>`);
+      stf.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{ window.STAMP_VIEW = b.dataset.sv; renderPass(); });
+      stf.querySelectorAll("[data-sf]").forEach(b=>b.style.display = V === "globe" ? "none" : "");
+      if(V === "globe") globeView(st);
+    }
+    /* Fondateur : ruban sur le passeport */
+    if(!renderPass._f){ renderPass._f = 1; setTimeout(()=>{ if(founder() && location.hash === "#passeport") renderPass(); }, 2600); }
+    const fr = founder(), head = $("#passHead");
+    if(head && fr && !head.querySelector(".fribbon")){ const lv = head.querySelector(".lvline"); if(lv) lv.insertAdjacentHTML("beforeend", ` <span class="fribbon">${t("Fondateur n° {n}", {n:fr})}</span>`); }
+  };
+  addEventListener("hashchange", ()=>{ if(location.hash === "#passeport") setTimeout(playNew, 900); });
+})();
+
+Object.assign(EN, {
+ "Pages de visas":"Visa pages","Tamponné au fil de tes escales.":"Stamped along your journey.","Globe de ta collection":"Your collection globe",
+ "Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais tourner le globe.":"Here, colour shows the rarity of your stamp, not the type of crisis. Spin the globe.",
+ "Affichage":"View","Tampons":"Stamps","Globe":"Globe","Style des tampons":"Stamp style","Réservé aux Fondateurs.":"Founders only.","Fondateur":"Founder"
 });
 
 /* ================= DÉMARRAGE ================= */

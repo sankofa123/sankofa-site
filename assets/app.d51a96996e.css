@@ -1608,12 +1608,13 @@ body.livemode{overflow:hidden}
 /* Couvertures du passeport */
 .passport.cv-dark{color:#F1F2F4;--ink:#F1F2F4;--ink2:#C3C7CE;--line:rgba(255,255,255,.14);--surface2:rgba(255,255,255,.08)}
 .passport.cv-dark h2,.passport.cv-dark b{color:#F1F2F4}
-.passport.cv-nuit{background:radial-gradient(700px 320px at 100% 0%,color-mix(in srgb,var(--pc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1A1D24,#0F1115)!important}
-.passport.cv-ocean{background:radial-gradient(600px 300px at 100% 0%,rgba(90,170,255,.22),transparent 70%),linear-gradient(180deg,#123A5E,#0A1B2E)!important}
-.passport.cv-foret{background:radial-gradient(600px 300px at 100% 0%,rgba(110,200,140,.18),transparent 70%),linear-gradient(180deg,#17402B,#0B1F15)!important}
-.passport.cv-prune{background:radial-gradient(600px 300px at 100% 0%,rgba(190,140,255,.2),transparent 70%),linear-gradient(180deg,#371A44,#190B21)!important}
-.passport.cv-rouge{background:radial-gradient(600px 300px at 100% 0%,rgba(255,110,130,.2),transparent 70%),linear-gradient(180deg,#5A1322,#24070D)!important}
+.passport.cv-nuit{background:radial-gradient(520px 260px at 100% 0%,rgba(200,150,46,.34),transparent 70%),radial-gradient(circle at 1px 1px,rgba(200,150,46,.16) 1px,transparent 1.5px) 0 0/16px 16px,linear-gradient(180deg,#17181C,#0B0B0D)!important}
+.passport.cv-ocean{background:radial-gradient(600px 300px at 100% 0%,rgba(120,190,255,.3),transparent 70%),linear-gradient(180deg,#1C5A96,#0C2A4D)!important}
+.passport.cv-foret{background:radial-gradient(600px 300px at 100% 0%,rgba(130,220,160,.26),transparent 70%),linear-gradient(180deg,#1F7048,#0C2A1B)!important}
+.passport.cv-prune{background:radial-gradient(600px 300px at 100% 0%,rgba(210,160,255,.28),transparent 70%),linear-gradient(180deg,#5E2C7C,#22102E)!important}
+.passport.cv-rouge{background:radial-gradient(600px 300px at 100% 0%,rgba(255,130,150,.28),transparent 70%),linear-gradient(180deg,#9A1F36,#3A0A14)!important}
 .passport.cv-carte{background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.13) 1.2px,transparent 1.6px) 0 0/14px 14px,radial-gradient(600px 300px at 100% 0%,rgba(180,35,58,.22),transparent 70%),linear-gradient(180deg,#14161B,#0D0E12)!important}
+.passport.cv-fondateur{background:radial-gradient(520px 260px at 100% 0%,rgba(255,225,150,.4),transparent 70%),linear-gradient(160deg,#6E5014,#A87A1E 45%,#5A4010)!important}
 
 /* Cadres supplémentaires */
 .avring.fr-rouge{box-shadow:0 0 0 3px #B4233A,0 0 0 6px color-mix(in srgb,#B4233A 30%,transparent)}
@@ -1769,3 +1770,63 @@ html:has(#modal.show),html:has(body.sheeton),html:has(#skfLive){overflow:hidden}
 @media(max-width:760px){.qpill{display:inline-flex}}
 html:has(#modal.show) .qpill,html:has(body.sheeton) .qpill,html:has(#skfTuto) .qpill{display:none}
 @media (prefers-reduced-motion:reduce){.qpill{transition:none}}
+
+/* ---------- Pages de visas ---------- */
+.vpage{position:relative;border-radius:18px;padding:14px 16px 22px;background:
+  repeating-radial-gradient(circle at 20% 10%,rgba(120,96,50,.055) 0 1px,transparent 1px 9px),
+  repeating-radial-gradient(circle at 85% 90%,rgba(120,96,50,.045) 0 1px,transparent 1px 11px),
+  linear-gradient(180deg,#F6EFDD,#EFE6CF);box-shadow:var(--shadow),inset 0 0 0 1px rgba(120,96,50,.22),inset 0 0 40px rgba(120,96,50,.12);overflow:hidden;color:#5E5136}
+.vhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:#8A7A55;border-bottom:1px dashed rgba(120,96,50,.35);padding-bottom:8px;margin-bottom:10px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:2px 0;padding:6px 4px}
+.vst{aspect-ratio:1;display:grid;place-items:center;transform:translate(var(--jx),var(--jy)) rotate(var(--rot));mix-blend-mode:multiply}
+.vst .stampwrap{width:112%;height:112%;margin:-6%;animation:none!important;background:none!important;box-shadow:none!important}
+.vst svg{width:100%;height:100%;display:block;filter:var(--f);animation:none!important}
+.vst svg [fill-opacity=".06"],.vst svg [fill-opacity=".08"]{fill-opacity:0}
+.vst.new{opacity:0}
+.vst.press{animation:vpress .5s cubic-bezier(.5,0,.9,.4) both}
+@keyframes vpress{0%{opacity:0;transform:translate(var(--jx),calc(var(--jy) - 70px)) rotate(calc(var(--rot) - 10deg)) scale(2.3)}70%{opacity:.9;transform:translate(var(--jx),var(--jy)) rotate(var(--rot)) scale(.94)}100%{opacity:1;transform:translate(var(--jx),var(--jy)) rotate(var(--rot)) scale(1)}}
+.vpage.thud{animation:vthud .22s ease-out}
+@keyframes vthud{0%{transform:translateY(0)}35%{transform:translateY(3px) scale(.995)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.vst.press,.vpage.thud{animation:none}}
+/* Style « encre » pour la collection */
+body.st-encre #stamps .slot:not(.locked) .stampwrap svg{filter:url(#skfInk1)}
+body.st-encre #stamps .slot:nth-child(3n):not(.locked) .stampwrap svg{filter:url(#skfInk0)}
+body.st-encre #stamps .slot:nth-child(3n+1):not(.locked) .stampwrap svg{filter:url(#skfInk2)}
+body.st-encre #stamps .slot:not(.locked) .stampwrap{transform:rotate(-5deg)}
+body.st-encre #stamps .slot:nth-child(2n):not(.locked) .stampwrap{transform:rotate(4deg)}
+body.st-encre #stamps .slot:nth-child(3n):not(.locked) .stampwrap{transform:rotate(-9deg)}
+body.st-encre #stamps .slot .stampwrap svg [fill-opacity=".06"]{fill-opacity:0}
+.cossw.style.s-net{background:var(--surface2);box-shadow:inset 0 0 0 3px #B4233A}
+.cossw.style.s-encre{background:var(--surface2);box-shadow:inset 0 0 0 3px #B4233A;filter:url(#skfInk1);transform:rotate(-8deg)}
+/* Tampons ou globe */
+.stfilt{align-items:center}
+.stview{margin-left:auto;display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px}
+.stview button{border:0;background:none;font:inherit;font-size:13px;padding:0 12px;min-height:34px;border-radius:999px;color:var(--ink2);cursor:pointer}
+.stview button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+#stamps:has(.cglobe){display:block}
+.cglobe{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0 4px}
+.cglobe canvas{touch-action:none;cursor:grab;border-radius:50%}
+.cgnote{margin:0;font-size:13px;color:var(--ink2);text-align:center;max-width:420px}
+.cgleg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;font-size:13px;color:var(--ink2)}
+.cgleg span{display:inline-flex;align-items:center;gap:6px}
+.cgleg i{width:10px;height:10px;border-radius:50%}
+.cgleg em{font-style:normal;font-family:var(--mono);font-size:12px}
+/* Fondateur */
+.fribbon{display:inline-flex;align-items:center;margin-left:6px;padding:2px 9px;border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;background:linear-gradient(90deg,#8E6A1F,#D2A94B,#8E6A1F);color:#1A1408;vertical-align:middle;white-space:nowrap}
+.lcard.lf{grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px 18px;align-items:center}
+.lcard.lf .medal{width:64px;height:64px}
+.lcard.lf h3{font-size:20px;margin:2px 0 4px}
+.lcard.lf p{font-size:13.5px;margin:0 0 6px}
+.lcard.lf .lbar{margin-top:6px}
+.lcard .medal.on{filter:url(#skfInk1);transform:rotate(-8deg)}
+/* Réglages : la fenêtre défile quand elle dépasse l'écran */
+.setpop{max-height:calc(100vh - 72px);max-height:calc(100dvh - 72px);overflow-y:auto;overscroll-behavior:contain}
+/* Couvertures plus marquées : liseré doré */
+.passport.cv-dark{outline:1.5px solid rgba(214,170,80,.8);outline-offset:-9px}
+.mcadd{margin-top:12px}
+.mcadd summary{cursor:pointer;font-weight:600;font-size:14px;min-height:44px;display:inline-flex;align-items:center;color:var(--ink)}
+.mcadd .mcchips{margin-top:8px}
+.vst .stampwrap{filter:none!important}
+.vst .stampwrap::before,.vst .stampwrap::after,body.st-encre #stamps .slot .stampwrap::before,body.st-encre #stamps .slot .stampwrap::after{display:none!important}
+body.st-encre #stamps .slot .stampwrap{filter:none!important}
+@media(max-width:760px){.stamps{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
