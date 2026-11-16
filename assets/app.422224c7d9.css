@@ -1500,6 +1500,9 @@ body.livemode{overflow:hidden}
 .icopick button[aria-checked="true"] span{color:var(--ink);font-weight:600}
 .icopick button:hover svg{transform:scale(1.06)}
 
+.icopick button[data-lock] svg{filter:grayscale(1);opacity:.35}
+.icopick button[data-lock] span{color:var(--ink3)}
+
 /* ---------- Propositions et vote ---------- */
 .prcard{border:1px solid var(--line);appearance:none;-webkit-appearance:none;display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;margin:14px 0 18px;padding:14px 46px 14px 16px;position:relative;cursor:pointer;font:inherit;color:var(--ink)}
 .prcard .eyebrow{font-size:10.5px;margin-bottom:2px}
@@ -1567,3 +1570,70 @@ body.livemode{overflow:hidden}
 .lvl.master:not([disabled]){border-color:rgba(180,35,58,.45)}
 [data-theme="dark"] .lvl.master{background:linear-gradient(135deg,rgba(180,35,58,.16),var(--surface))}
 @media (prefers-reduced-motion:reduce){.stampwrap.r5::after{animation:none}}
+
+/* ---------- Récompenses par niveau ---------- */
+.perks{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.perks summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:4px 0;min-height:44px;justify-content:center}
+.perks summary::-webkit-details-marker{display:none}
+.perks summary span{font-weight:600;font-size:15px;color:var(--ink);display:flex;align-items:center;justify-content:space-between}
+.perks summary span::after{content:"";width:9px;height:9px;border-right:1.6px solid var(--ink2);border-bottom:1.6px solid var(--ink2);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+.perks[open] summary span::after{transform:rotate(-135deg)}
+.perks summary em{font-style:normal;font-size:13px;color:var(--ink2)}
+.perkl{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.perkl li{display:grid;grid-template-columns:26px 30px 1fr auto;align-items:center;gap:10px;padding:9px 8px;border-radius:12px;color:var(--ink2)}
+.perkl li.ok{color:var(--ink)}
+.perkl li.next{background:var(--surface2);box-shadow:inset 0 0 0 1.5px var(--line)}
+.pkn{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.pki{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface2)}
+.pki svg{width:17px;height:17px}
+.perkl li:not(.ok) .pki{opacity:.5}
+.pkt{display:flex;flex-direction:column;gap:1px;font-size:13.5px;line-height:1.35}
+.pkt b{font-size:12px;font-family:var(--mono);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.pks{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.perkl li.ok .pks{color:var(--okink,#185E3B);font-size:14px}
+
+/* Cadres autour de l'emblème */
+.avring.fr-bronze,.avring.fr-argent,.avring.fr-or,.avring.fr-myth{padding:0}
+.avring.fr-bronze{box-shadow:0 0 0 3px #A86A3D,0 0 0 5px color-mix(in srgb,#A86A3D 30%,transparent)}
+.avring.fr-argent{box-shadow:0 0 0 3px #A9AFB8,0 0 0 6px color-mix(in srgb,#A9AFB8 35%,transparent)}
+.avring.fr-or{box-shadow:0 0 0 3px #B88A2C,0 0 0 6px color-mix(in srgb,#B88A2C 35%,transparent)}
+.avring.fr-myth{box-shadow:0 0 0 3px #B4233A,0 0 18px 2px color-mix(in srgb,#B4233A 45%,transparent);animation:frmyth 3.2s ease-in-out infinite}
+.idc-photo.fr-bronze{box-shadow:0 0 0 3px #A86A3D}
+.idc-photo.fr-argent{box-shadow:0 0 0 3px #A9AFB8}
+.idc-photo.fr-or{box-shadow:0 0 0 3px #B88A2C}
+.idc-photo.fr-myth{box-shadow:0 0 0 3px #B4233A,0 0 16px 1px color-mix(in srgb,#B4233A 40%,transparent);animation:frmyth 3.2s ease-in-out infinite}
+@keyframes frmyth{50%{box-shadow:0 0 0 3px #D8475C,0 0 26px 4px color-mix(in srgb,#B4233A 55%,transparent)}}
+@media (prefers-reduced-motion:reduce){.avring.fr-myth,.idc-photo.fr-myth{animation:none}}
+
+/* Couverture Nuit (niveau 9) */
+.passport.cv-nuit{background:radial-gradient(700px 320px at 100% 0%,color-mix(in srgb,var(--pc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1A1D24,#0F1115)!important;color:#F1F2F4;--ink:#F1F2F4;--ink2:#BFC3CA;--line:rgba(255,255,255,.14);--surface2:rgba(255,255,255,.08)}
+.passport.cv-nuit h2,.passport.cv-nuit b{color:#F1F2F4}
+
+/* Carte d'identité Sankofa (niveau 11) */
+.idcard.idc.idc-gold{box-shadow:0 0 0 2px #B4233A,0 18px 44px -20px rgba(120,20,30,.55)}
+.idcard.idc.idc-gold .idc-band{background:linear-gradient(90deg,#7E1527,#B4233A,#7E1527);color:#FBEFF1}
+
+/* ---------- Finitions : date de mise à jour, partage, bienvenue ---------- */
+.cupd{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink2)}
+.cupd i{width:7px;height:7px;border-radius:50%;background:#2E9E6A;box-shadow:0 0 0 3px color-mix(in srgb,#2E9E6A 22%,transparent)}
+.nvacts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.mbox.share .cardprev img{max-height:58vh;width:auto;max-width:100%;border-radius:14px;display:block;margin:0 auto}
+.mbox.share #shareAct{flex-wrap:wrap;justify-content:center}
+.mbox.share #shareAct a.cta{text-decoration:none;display:inline-flex;align-items:center}
+.welroot{position:fixed;inset:0;z-index:95;display:flex;align-items:flex-end;justify-content:center;padding:16px;background:rgba(10,11,14,.42);opacity:0;transition:opacity .25s}
+.welroot.on{opacity:1}
+@media(min-width:640px){.welroot{align-items:center}}
+.welcard{width:100%;max-width:440px;background:var(--surface);color:var(--ink);border-radius:26px;padding:28px 24px 18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);transform:translateY(16px);transition:transform .3s}
+.welroot.on .welcard{transform:none}
+.welico{width:72px;height:72px;border-radius:20px;background:var(--surface2);display:grid;place-items:center;margin-bottom:18px}
+.welico svg{width:44px;height:44px;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.welcard h2{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:40px;line-height:1.02}
+.welcard p{margin:12px 0 0;font-size:16.5px;line-height:1.5;color:var(--ink2)}
+.welfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}
+.welskip{border:0;background:none;font:inherit;font-size:15px;color:var(--ink2);min-height:44px;padding:0 6px;cursor:pointer}
+.weldots{display:flex;gap:6px}
+.weldots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.weldots i.on{background:var(--ink);width:20px;border-radius:4px;transition:width .2s}
+@media (prefers-reduced-motion:reduce){.welroot,.welcard{transition:none}}
+.welcard:focus{outline:none}
+.nvacts{flex-direction:column;align-items:center}.nvacts .cta.ghost{background:transparent!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1.5px var(--line)!important;margin:0!important}.nvacts .cta{margin:0!important}

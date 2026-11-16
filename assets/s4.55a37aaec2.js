@@ -3062,6 +3062,7 @@ function renderPays(id){
         <div class="eyebrow" style="margin-top:18px">${esc(c.region)}</div>
         <h1>${esc(c.name)}</h1>
         <div class="tags">${LAYERS.filter(l=>c.layers[l.id]).map(l=>`<span class="tag term" tabindex="0" data-t="${LAYER_TERM[l.id]}" style="--c:${l.hex}"><i></i>${l.name}</span>`).join("")}</div>
+        ${updOf(id)?`<p class="cupd"><i></i>${t("Mise à jour : {d}",{d:updOf(id)})}</p>`:""}
         <p class="resume">${gl(c.resume,3)}</p>
         ${DOSSIERS[id]?`<a class="dlink" href="#dossier-${c.slug}"><span class="dli">${ico("doc")}</span><span><b>${t("Lire le dossier complet")}</b><em>${t("{n} chapitres",{n:dossierOf(id).ch.length})} · ${t("{n} min de lecture",{n:readMin(dossierOf(id))})}</em></span><span class="dla">→</span></a>`:""}
         ${D?`<div class="reperes">${D.rep.map(([k,v])=>`<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}<div><span>${id==="104"?t("Superficie du Myanmar"):t("Superficie")}</span><b>${areaVsFrance(id)}</b></div></div>`:""}
@@ -3219,9 +3220,10 @@ function runQuiz(box, qs0, opt={}){
       ${newR&&opt.id?`<div class="reveal soft">${stampSVG(opt.id,newR,state.stamps[opt.id].d)}</div>`:`<div class="score">${score}/${qs.length}</div>`}
       <p><b>${esc(msg)}</b></p>${gained?`<p class="xpgain">+${gained} XP${already&&wonLv?" · "+t("niveau déjà réussi"):""}</p>`:""}
       ${(up||newR) && !opt.notion ? `<p class="passnote">${t("Ta progression t'attend dans ton passeport.")}</p>`:""}
-      <div class="pact" style="justify-content:center">${opt.id?`<button class="cta ghost" id="again">${t("Rejouer")}</button>`:""}${(opt.notion!=null||opt.dossier)&&score<1?`<button class="cta ghost" id="again">${t("Réessayer")}</button>`:""}${opt.id||opt.daily?`<a class="cta" href="#passeport">${t("Mon passeport")}</a>`:""}</div></div>`;
+      <div class="pact" style="justify-content:center">${opt.id?`<button class="cta ghost" id="again">${t("Rejouer")}</button>`:""}${(opt.notion!=null||opt.dossier)&&score<1?`<button class="cta ghost" id="again">${t("Réessayer")}</button>`:""}${opt.id&&LV?`<button class="cta ghost" id="shareRes">${t("Partager mon résultat")}</button>`:""}${opt.id||opt.daily?`<a class="cta" href="#passeport">${t("Mon passeport")}</a>`:""}</div></div>`;
     const a = box.querySelector("#again");
-    if(a) a.onclick=()=>{ if(opt.id) renderLevels(opt.id, Math.min(3,(state.stamps[opt.id]?.r||0))); else { i=0; score=0; show(); } };
+    const shr = box.querySelector("#shareRes"); if(shr) shr.onclick=()=>shareCard("result", opt.id, {score, n:qs.length, lv, won:score>=LV.pass});
+    if(a) a.onclick=()=>{ if(opt.id) renderLevels(opt.id, Math.min(topLv(opt.id),(state.stamps[opt.id]?.r||0))); else { i=0; score=0; show(); } };
     if(opt.onEnd) opt.onEnd(score);
   }
   show();
@@ -3263,10 +3265,11 @@ function celebrate(){
       return `<div class="nvstamp" style="--i:${i}"><div class="nvpress"><span class="nvring"></span>${stampSVG(id,st.r,st.d)}</div><b>${esc(C[id].short)}</b><span>${t("Tampon {r}",{r:RARITY[st.r].name})}</span></div>`; }).join("")}</div>${ids.length>3?`<p class="nvmore">${t("et {n} de plus",{n:ids.length-3})}</p>`:""}` : "";
   const level = c.level ? (ids.length ? `<p class="nvlevel"><i></i>${t("Niveau {n}",{n:c.level})} · ${esc(lvTitle)}</p>` : `<b class="nvbig">${c.level}</b><span class="nvtitle">${esc(lvTitle)}</span>`) : "";
   const bd = badges.length ? `<p class="nvbadges">${badges.map(B=>`<span>${t("Badge")} · ${esc(t(B.n))}</span>`).join("")}</p>` : "";
-  el.innerHTML = `<div class="lvcard nvcard" role="dialog" aria-modal="true" aria-label="${esc(head)}"><div class="eyebrow">${head}</div>${stamps}${level}${bd}<button class="cta" id="lvOk">${t("Continuer")}</button></div>`;
+  el.innerHTML = `<div class="lvcard nvcard" role="dialog" aria-modal="true" aria-label="${esc(head)}"><div class="eyebrow">${head}</div>${stamps}${level}${bd}<div class="nvacts">${ids.length?`<button class="cta ghost" id="lvShare">${t("Partager mon tampon")}</button>`:""}<button class="cta" id="lvOk">${t("Continuer")}</button></div></div>`;
   el.classList.add("show");
   const close = ()=>el.classList.remove("show");
   $("#lvOk").onclick = close; el.onclick = e=>{ if(e.target === el) close(); };
+  const lsh = $("#lvShare"); if(lsh) lsh.onclick = ()=>{ close(); shareCard("stamp", ids[0]); };
   state.cele = {level:0,stamps:[],badges:[]}; store.set(state); markPass();
 }
 function checkBadges(){
@@ -3488,42 +3491,50 @@ function renderSources(){
   $("#sourceList").innerHTML = Object.keys(S).map(k=>`<p>${link(k)}</p>`).join("");
 }
 
+/* Date de dernière mise à jour d'une fiche : le chiffre ou l'actualité la plus récente */
+function updOf(id){
+  const c = C[id], today = new Date().toISOString().slice(0,10); let best = "";
+  for(const f of (c.figs||[])){ const a = f.at; if(!a) continue;
+    const k = a[0]==="Y" ? a.slice(1)+"-12" : a[0]==="M" ? a.slice(1,8) : a.slice(0,7); if(k > best && k <= today.slice(0,7)) best = k; }
+  if(typeof FIL!=="undefined") for(const n of FIL){ if(n.id===id && n.d <= today && n.d.slice(0,7) > best) best = n.d.slice(0,7); }
+  if(!best) return "";
+  const [y,m] = best.split("-").map(Number);
+  return (LANG==="en" ? MOIS_EN : MOIS_FR)[m-1] + " " + y;
+}
 /* ---------- Pages juridiques ---------- */
 const LEGAL = {
  fr:{
-  mentions:`<div class="eyebrow">Informations légales</div><h2>Mentions légales</h2><p class="lupd">Dernière mise à jour : 11 novembre 2026</p>
-   <h3>Éditeur</h3><p>Sankofa est un projet éducatif indépendant porté par Noham Deshouilleres Battikh, personne physique.<br>Contact : <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>Conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, l'éditeur, personne physique agissant à titre non professionnel, a communiqué son adresse postale à l'hébergeur.</p>
-   <h3>Directeur de la publication</h3><p>Noham Deshouilleres Battikh.</p>
-   <h3>Hébergement</h3><p>Le site est hébergé par Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, États-Unis (netlify.com). Les données de progression sont stockées par Supabase, Inc. (supabase.com).</p>
+  mentions:`<div class="eyebrow">Informations légales</div><h2>Mentions légales</h2><p class="lupd">Dernière mise à jour : 16 novembre 2026</p>
+   <h3>Éditeur</h3><p>Sankofa est un projet éducatif indépendant et non commercial, édité par une personne physique agissant à titre non professionnel.<br>Contact : <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>Conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, l'éditeur a choisi de ne pas rendre publics son nom et son adresse, et a communiqué ses éléments d'identification à l'hébergeur.</p>
+   <h3>Hébergement</h3><p>Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, États-Unis. Site : netlify.com.<br>La progression, les comptes et les données synchronisées sont hébergés par Supabase, Inc., sur des serveurs situés à Francfort (Allemagne).</p>
    <h3>Contenus et sources</h3><p>Les textes, la mise en page, le logo et le nom Sankofa sont protégés. Les chiffres appartiennent aux organisations qui les publient : chacun renvoie à sa source et porte sa date. Sankofa est un outil de formation et ne remplace pas les rapports d'origine.</p>
    <h3>Crédits</h3><p>Fonds de carte : Natural Earth (domaine public), via world-atlas. Bibliothèques : D3 et TopoJSON (licence ISC). Polices : Instrument Serif et Geist (licence SIL Open Font).</p>
    <h3>Signaler une erreur</h3><p>Un chiffre te semble faux ou dépassé ? Écris-nous à <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a> en indiquant la fiche et la source. Chaque signalement est vérifié et la correction est datée.</p>`,
-  confidentialite:`<div class="eyebrow">Tes données</div><h2>Politique de confidentialité</h2><p class="lupd">Dernière mise à jour : 11 novembre 2026</p>
+  confidentialite:`<div class="eyebrow">Tes données</div><h2>Politique de confidentialité</h2><p class="lupd">Dernière mise à jour : 16 novembre 2026</p>
    <div class="lsum"><b>En bref</b><ul><li>Pas de publicité, pas de revente, pas de profilage.</li><li>Nous comptons les pages vues de façon anonyme (sans cookie, sans adresse IP), pour savoir ce qui est utile.</li><li>Pas de compte à créer : ta progression est liée à ton navigateur par un identifiant anonyme.</li><li>Sous 15 ans, un parent doit donner son accord pour créer un passeport.</li><li>Tu peux tout effacer à tout moment.</li></ul></div>
    <h3>Responsable du traitement</h3><p>L'éditeur du site, désigné dans les <a href="#mentions">mentions légales</a>.</p>
    <h3>Ce que nous gardons</h3><p><b>Ta progression :</b> tes tampons, ta série, tes points et ton passeport sont enregistrés dans ton navigateur et sauvegardés en ligne sous un identifiant anonyme, sans nom ni adresse e-mail. Tes réglages, tes passages surlignés et l'endroit où tu t'es arrêté dans un dossier restent uniquement dans ton navigateur. Les images de citation sont créées sur ton appareil.</p><p><b>Ton passeport :</b> le pseudo que tu choisis, les couleurs de ton emblème, ta tranche d'âge (moins ou plus de 15 ans) et, le cas échéant, l'accord parental. La cause et le pays de cœur sont facultatifs ; ils restent privés et n'apparaissent que sur ta carte, si tu choisis de la partager.</p><p><b>Signalements :</b> si tu signales une erreur, ton message et, si tu la donnes, ton adresse e-mail servent uniquement à vérifier la fiche et à te répondre.</p><p><b>Si tu es connecté :</b> ces éléments sont synchronisés pour te suivre d'un appareil à l'autre.</p><p><b>Ton compte (facultatif) :</b> si tu crées un compte, nous gardons ton adresse e-mail pour t'envoyer tes liens de connexion et t'écrire au sujet de ton compte. Aucun mot de passe n'est créé ni stocké.</p><p><b>Compteur de la semaine :</b> chaque semaine, nous comptons combien de personnes ont validé une notion ou un parcours. Le compteur ne garde aucun nom ni aucun pseudo.</p><p><b>Parrainage :</b> si tu t'inscris avec le lien d'un ami, nous gardons un code court qui lui permet de savoir combien de personnes il a invitées, sans jamais voir qui.</p><p><b>Classes :</b> si tu rejoins la classe d'un enseignant avec le code qu'il t'a donné, il voit ton pseudo, ton emblème, tes tampons, tes points et la date de ta dernière activité. Les autres élèves ne voient rien. Tu peux quitter la classe à tout moment depuis « Espace enseignant », en bas du site.</p><p><b>Quiz en direct :</b> si tu joues à un quiz projeté par un enseignant, nous gardons le pseudo que tu tapes, tes réponses et ton score. Ton pseudo et ton score s'affichent au tableau pendant la partie. Tout est effacé au bout d'un jour.</p><p><b>Propositions et votes :</b> si tu proposes un pays ou si tu votes, nous gardons ta proposition et ton vote, reliés à ton compte. Ta proposition est affichée à tous sans ton nom.</p><p><b>Notifications :</b> si tu les actives, nous gardons l'adresse technique que ton navigateur nous donne pour t'envoyer les notifications, ta langue et tes choix de sujets. Tu peux les désactiver à tout moment dans les réglages : ces données sont alors supprimées.</p>
    <h3>Pourquoi</h3><p>Uniquement pour faire fonctionner ton passeport et ta progression (exécution du service), et sur ton consentement pour les éléments facultatifs.</p>
    <h3>Moins de 15 ans</h3><p>En France, un mineur de moins de 15 ans ne peut pas consentir seul au traitement de ses données : l'accord d'un titulaire de l'autorité parentale est requis (article 45 de la loi Informatique et Libertés, article 8 du RGPD). Sankofa le demande à la création du passeport. La personne qui crée le passeport confirme qu'un parent a donné son accord. Sans accord, il reste possible d'utiliser Sankofa sans passeport : la progression reste alors sur l'appareil.</p>
    <h3>Durée</h3><p>Les données locales restent jusqu'à ce que tu les effaces. Les données d'un compte sont supprimées après deux ans d'inactivité.</p>
-   <h3>Prestataires</h3><p>Netlify (hébergement du site) et Supabase (sauvegarde de la progression, compteur de la semaine, signalements). Les polices sont chargées depuis Google Fonts, qui reçoit ton adresse IP au chargement.</p>
+   <h3>Prestataires</h3><p>Netlify (hébergement du site) et Supabase (sauvegarde de la progression, comptes, quiz en direct, propositions, votes et signalements ; serveurs à Francfort, en Allemagne). Les polices sont chargées depuis Google Fonts, qui reçoit ton adresse IP au chargement. Si tu actives les notifications, ton navigateur les reçoit par le service de son éditeur (Google, Apple ou Mozilla).</p>
    <h3>Tes droits</h3><p>Tu peux accéder à tes données, les corriger, les effacer, t'opposer à leur traitement et les récupérer. Le bouton « Effacer mes données », dans ton identité, supprime tout immédiatement. Pour toute demande : <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>. Tu peux aussi saisir la CNIL (cnil.fr).</p>`
  },
  en:{
-  mentions:`<div class="eyebrow">Legal information</div><h2>Legal notice</h2><p class="lupd">Last updated: 11 November 2026</p>
-   <h3>Publisher</h3><p>Sankofa is an independent educational project run by Noham Deshouilleres Battikh, a private individual.<br>Contact: <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>In accordance with article 6, III, 2 of French law no. 2004-575 of 21 June 2004 on confidence in the digital economy, the publisher, a private individual acting in a non-professional capacity, has provided their postal address to the host.</p>
-   <h3>Publication director</h3><p>Noham Deshouilleres Battikh.</p>
-   <h3>Hosting</h3><p>The site is hosted by Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, United States (netlify.com). Progress data is stored by Supabase, Inc. (supabase.com).</p>
+  mentions:`<div class="eyebrow">Legal information</div><h2>Legal notice</h2><p class="lupd">Last updated: 16 November 2026</p>
+   <h3>Publisher</h3><p>Sankofa is an independent, non-commercial educational project published by a private individual acting in a non-professional capacity.<br>Contact: <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a><br>In accordance with article 6, III, 2 of French law no. 2004-575 of 21 June 2004 on confidence in the digital economy, the publisher has chosen not to make their name and address public, and has provided their identification details to the host.</p>
+   <h3>Hosting</h3><p>Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, United States. Website: netlify.com.<br>Progress, accounts and synced data are hosted by Supabase, Inc., on servers in Frankfurt (Germany).</p>
    <h3>Content and sources</h3><p>The texts, layout, logo and the Sankofa name are protected. The figures belong to the organisations that publish them: each one links to its source and carries its date. Sankofa is a learning tool and does not replace the original reports.</p>
    <h3>Credits</h3><p>Base map: Natural Earth (public domain), via world-atlas. Libraries: D3 and TopoJSON (ISC licence). Fonts: Instrument Serif and Geist (SIL Open Font Licence).</p>
    <h3>Report an error</h3><p>Does a figure look wrong or out of date? Write to <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a> with the page and the source. Every report is checked and the correction is dated.</p>`,
-  confidentialite:`<div class="eyebrow">Your data</div><h2>Privacy policy</h2><p class="lupd">Last updated: 11 November 2026</p>
+  confidentialite:`<div class="eyebrow">Your data</div><h2>Privacy policy</h2><p class="lupd">Last updated: 16 November 2026</p>
    <div class="lsum"><b>In short</b><ul><li>No ads, no data sales, no profiling.</li><li>We count page views anonymously (no cookies, no IP address) to learn what is useful.</li><li>No account needed: your progress is tied to your browser by an anonymous identifier.</li><li>Under 15, a parent must agree before you create a passport.</li><li>You can erase everything at any time.</li></ul></div>
    <h3>Data controller</h3><p>The site's publisher, named in the <a href="#mentions">legal notice</a>.</p>
    <h3>What we keep</h3><p><b>Your progress:</b> your stamps, streak, points and passport are stored in your browser and backed up online under an anonymous identifier, with no name or email address. Your settings, highlighted passages and where you stopped in a dossier stay only in your browser. Quote images are created on your device.</p><p><b>Your passport:</b> the nickname you choose, your emblem colours, your age group (under or over 15) and, where relevant, parental consent. Your cause and country close to your heart are optional; they stay private and only appear on your card if you choose to share it.</p><p><b>Error reports:</b> if you report an error, your message and, if you give it, your email address are used only to check the page and to reply to you.</p><p><b>If you are signed in:</b> these details are synced so they follow you across devices.</p><p><b>Your account (optional):</b> if you create an account, we keep your email address to send you sign-in links and to write to you about your account. No password is created or stored.</p><p><b>Weekly counter:</b> each week, we count how many people completed a lesson or a course. The counter keeps no names or nicknames.</p><p><b>Referrals:</b> if you sign up with a friend's link, we keep a short code that lets them see how many people they invited, never who.</p><p><b>Classes:</b> if you join a teacher's class with the code they gave you, they see your nickname, emblem, stamps, points and the date of your last activity. Other students see nothing. You can leave the class at any time from “Teacher space”, at the bottom of the site.</p><p><b>Live quizzes:</b> if you play a quiz projected by a teacher, we keep the nickname you type, your answers and your score. Your nickname and score appear on the board during the game. Everything is deleted after one day.</p><p><b>Proposals and votes:</b> if you propose a country or vote, we keep your proposal and your vote, linked to your account. Your proposal is shown to everyone without your name.</p><p><b>Notifications:</b> if you turn them on, we keep the technical address your browser gives us to send you notifications, your language and your topic choices. You can turn them off at any time in settings: this data is then deleted.</p>
    <h3>Why</h3><p>Only to run your passport and progress (performance of the service), and with your consent for the optional details.</p>
    <h3>Under 15</h3><p>In France, a minor under 15 cannot consent alone to the processing of their data: the consent of a person with parental authority is required (article 45 of the French Data Protection Act, article 8 of the GDPR). Sankofa asks for it when you create a passport. The person creating the passport confirms that a parent has agreed. Without consent, you can still use Sankofa without a passport: your progress then stays on your device.</p>
    <h3>Retention</h3><p>Local data stays until you erase it. Account data is deleted after two years of inactivity.</p>
-   <h3>Service providers</h3><p>Netlify (site hosting) and Supabase (progress backup, weekly counter, error reports). Fonts load from Google Fonts, which receives your IP address when the page loads.</p>
+   <h3>Service providers</h3><p>Netlify (website hosting) and Supabase (progress backup, accounts, live quizzes, proposals, votes and error reports; servers in Frankfurt, Germany). Fonts load from Google Fonts, which receives your IP address when the page loads. If you turn on notifications, your browser receives them through its maker's service (Google, Apple or Mozilla).</p>
    <h3>Your rights</h3><p>You can access, correct, erase, object to and retrieve your data. The “Erase my data” button, in your identity, deletes everything immediately. For any request: <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>. You can also complain to the CNIL, the French data protection authority (cnil.fr).</p>`
  }
 };
@@ -9888,7 +9899,8 @@ Object.assign(EN, {
   function row(){
     const cur = get();
     return `<div class="setrow seticon"><span class="eyebrow">${t("Icône de l'application")}</span>
-      <div class="icopick" role="radiogroup" aria-label="${t("Icône de l'application")}">${Object.keys(T).map(k=>`<button type="button" role="radio" aria-checked="${k === cur}" data-ico="${k}" title="${t(NAMES[k])}">${mini(k)}<span>${t(NAMES[k])}</span></button>`).join("")}</div>
+      <div class="icopick" role="radiogroup" aria-label="${t("Icône de l'application")}">${Object.keys(T).map(k=>{ const need = (window.ICON_LV||{})[k]||1, lk = typeof level==="function" && level() < need && k !== cur;
+        return `<button type="button" role="radio" aria-checked="${k === cur}" data-ico="${k}" ${lk?`data-lock="${need}" aria-disabled="true"`:""} title="${lk?t("Niveau {n}",{n:need}):t(NAMES[k])}">${mini(k)}<span>${lk?t("Niv. {n}",{n:need}):t(NAMES[k])}</span></button>`; }).join("")}</div>
       <p class="sethint" id="icoHint">${isApp() ? t("Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.") : t("Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.")}</p></div>`;
   }
   function inject(){
@@ -9898,6 +9910,7 @@ Object.assign(EN, {
     links.insertAdjacentHTML("beforebegin", row());
     p.querySelectorAll("[data-ico]").forEach(b=>b.onclick = e=>{
       e.stopPropagation();
+      if(b.dataset.lock){ toast(t("Cette couleur se débloque au niveau {n}.", {n:b.dataset.lock})); return; }
       const k = b.dataset.ico; try{ localStorage.setItem("skf-icon", k); }catch(x){}
       apply(k);
       p.querySelectorAll("[data-ico]").forEach(x=>x.setAttribute("aria-checked", x === b));
@@ -9914,7 +9927,7 @@ Object.assign(EN, {
  "Icône de l'application":"App icon","Nuit":"Night","Ivoire":"Ivory","Or":"Gold","Terre":"Earth","Océan":"Ocean","Forêt":"Forest","Prune":"Plum","Corail":"Coral",
  "Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.":"To see the new icon on your home screen, remove the app and add it again. On Android, it sometimes updates on its own within a day.",
  "Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.":"Pick your colour before adding Sankofa to your home screen: the icon will be that colour.",
- "Icône {n} choisie.":"{n} icon selected."
+ "Icône {n} choisie.":"{n} icon selected.","Niv. {n}":"Lv. {n}","Niveau {n}":"Level {n}","Cette couleur se débloque au niveau {n}.":"This colour unlocks at level {n}."
 });
 
 /* ---------- La communauté choisit le prochain pays (proposer en semaine, voter le week-end) + limite de quiz sans compte ---------- */
@@ -10142,6 +10155,187 @@ Object.assign(EN, {
 });
 
 Object.assign(EN, {"{n} nouveaux tampons":"{n} new stamps","Nouveau tampon":"New stamp","Nouveau badge":"New badge","et {n} de plus":"and {n} more"});
+
+/* ---------- Récompenses par niveau : chaque palier débloque quelque chose de visible ---------- */
+window.ICON_LV = {nuit:1, ivoire:1, ocean:2, foret:2, terre:5, prune:5, corail:7, or:7};
+const PERKS = [
+  {l:1, k:"icon",  fr:"Ton passeport, et les icônes Nuit et Ivoire", en:"Your passport, and the Night and Ivory icons"},
+  {l:2, k:"icon",  fr:"Icônes Océan et Forêt", en:"Ocean and Forest icons"},
+  {l:3, k:"frame", fr:"Cadre bronze autour de ton emblème", en:"Bronze frame around your emblem"},
+  {l:4, k:"vote",  fr:"Proposer un pays et voter chaque mois", en:"Suggest a country and vote every month"},
+  {l:5, k:"icon",  fr:"Icônes Terre et Prune", en:"Earth and Plum icons"},
+  {l:6, k:"frame", fr:"Cadre argent", en:"Silver frame"},
+  {l:7, k:"icon",  fr:"Icônes Corail et Or", en:"Coral and Gold icons"},
+  {l:8, k:"frame", fr:"Cadre or", en:"Gold frame"},
+  {l:9, k:"cover", fr:"Couverture de passeport Nuit", en:"Night passport cover"},
+  {l:10,k:"frame", fr:"Cadre mythique, rouge et animé", en:"Mythic frame, red and animated"},
+  {l:11,k:"card",  fr:"Carte d'identité Sankofa, en rouge mythique", en:"Sankofa identity card, in mythic red"}
+];
+function skfFrame(l){ return l>=10 ? "myth" : l>=8 ? "or" : l>=6 ? "argent" : l>=3 ? "bronze" : ""; }
+function perkIco(k){
+  const p = {icon:'<rect x="4" y="4" width="16" height="16" rx="4"/>', frame:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/>',
+    vote:'<path d="M5 12l4 4 10-10"/>', cover:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="11" r="3"/>',
+    card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5"/>'}[k];
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+function perksHTML(){
+  const l = level();
+  const nx = PERKS.find(p=>p.l > l);
+  return `<details class="perks" ${l < 3 ? "open" : ""}>
+    <summary><span>${t("Ce que débloquent les niveaux")}</span><em>${nx ? t("Prochain : {x}, au niveau {n}", {x:LANG==="en"?nx.en:nx.fr, n:nx.l}) : t("Tout est débloqué.")}</em></summary>
+    <ol class="perkl">${PERKS.map(p=>`<li class="${p.l<=l?"ok":""}${nx&&p.l===nx.l?" next":""}">
+      <span class="pkn">${p.l}</span><span class="pki">${perkIco(p.k)}</span>
+      <span class="pkt"><b>${esc(TITLES[p.l-1]||"")}</b>${esc(LANG==="en"?p.en:p.fr)}</span>
+      <span class="pks">${p.l<=l ? "✓" : (XP_THR[p.l-1]||0)+" XP"}</span></li>`).join("")}</ol>
+  </details>`;
+}
+(function(){
+  const _rp = renderPass;
+  renderPass = function(){
+    _rp.apply(this, arguments);
+    const l = level(), fr = skfFrame(l), head = $("#passHead");
+    if(head){
+      head.classList.toggle("cv-nuit", l >= 9);
+      if(!head.querySelector(".perks")){
+        const note = head.querySelector(".xpnote");
+        if(note) note.insertAdjacentHTML("afterend", perksHTML()); else head.insertAdjacentHTML("beforeend", perksHTML());
+      }
+    }
+    document.querySelectorAll(".avring,.idc-photo").forEach(el=>{
+      el.classList.remove("fr-bronze","fr-argent","fr-or","fr-myth"); if(fr) el.classList.add("fr-"+fr);
+    });
+    document.querySelectorAll(".idcard.idc").forEach(el=>el.classList.toggle("idc-gold", l >= 11));
+  };
+})();
+
+Object.assign(EN, {
+ "Ce que débloquent les niveaux":"What levels unlock","Prochain : {x}, au niveau {n}":"Next: {x}, at level {n}","Tout est débloqué.":"Everything is unlocked."
+});
+
+/* ---------- Partage : tampon et résultat en format story (1080×1920), avec l'adresse du site ---------- */
+(function(){
+  const SITE = "sankofa-atlas.org";
+  const svgImg = async svg=>{ const im = new Image(); im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.includes("xmlns=") ? svg : svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ')); await new Promise(r=>{ im.onload = r; im.onerror = r; }); return im; };
+  const stampImg = (id, r, d)=>svgImg(stampSVG(id, r, d).replace(/^\s*<div[^>]*>/, "").replace(/<\/div>\s*$/, ""));
+
+  async function story(kind, id, ex){
+    const W = 1080, H = 1920, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
+    try{ await document.fonts.ready; }catch(e){}
+    const c = C[id], en = LANG === "en", st = state.stamps[id];
+    const r = kind === "result" ? (ex.won ? Math.max(st?.r || 0, ex.lv + 1) : 0) : (st?.r || 1);
+    const col = r ? RARITY[r].col : mainLayer(c).hex;
+    // fond sombre et halo de la couleur du tampon
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#15171C"); g.addColorStop(1, "#0B0C0F"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const hg = x.createRadialGradient(W/2, 820, 80, W/2, 820, 720); hg.addColorStop(0, col + "55"); hg.addColorStop(1, col + "00"); x.fillStyle = hg; x.fillRect(0, 0, W, H);
+    drawMark(x, 80, 110, 76, "#F2F3EF", "#B4233A", "#15171C");
+    x.textAlign = "left"; x.fillStyle = "#F2F3EF"; x.font = "500 30px 'Geist Mono', monospace"; x.fillText("SANKOFA", 178, 160);
+    x.textAlign = "center";
+    if(r){
+      const im = await stampImg(id, r, st ? st.d : new Date().toLocaleDateString("fr-FR"));
+      x.save(); x.translate(W/2, 820); x.rotate(-6 * Math.PI / 180); x.drawImage(im, -380, -380, 760, 760); x.restore();
+    } else {
+      const sc = document.createElement("canvas"); sc.style.cssText = "position:fixed;left:-9999px;top:0;width:640px;height:560px"; document.body.appendChild(sc); sc.getBoundingClientRect = ()=>({width:640, height:560});
+      silhouette(sc, id, col, {pad:.06, step:15}); x.drawImage(sc, W/2 - 320, 540, 640, 560); sc.remove();
+    }
+    x.fillStyle = "#F7F7F4";
+    if(kind === "result"){
+      x.font = "400 200px 'Instrument Serif', serif"; x.fillText(`${ex.score}/${ex.n}`, W/2, 1430);
+      x.font = "500 44px Geist, Arial"; x.fillStyle = "#D5D7DB";
+      x.fillText(t("en {l} · {c}", {l:LEVELS[ex.lv].name, c:c.short}), W/2, 1510);
+    } else {
+      x.font = "400 104px 'Instrument Serif', serif"; x.fillText(c.short, W/2, 1390);
+      x.font = "500 30px 'Geist Mono', monospace"; x.fillStyle = col; x.fillText(t("TAMPON {r}", {r:RARITY[r].name.toUpperCase()}), W/2, 1460);
+    }
+    x.font = "400 40px Geist, Arial"; x.fillStyle = "#C9CCD1";
+    wrapText(x, kind === "result" ? t("Et toi, tu connais l'histoire de ce pays ?") : t("J'ai réussi le parcours {x}. Et toi, tu connais son histoire ?", {x:c.short}), W/2, 1610, 880, 54);
+    // pied : l'adresse
+    x.fillStyle = "#F7F7F4"; x.beginPath(); x.roundRect(W/2 - 330, 1730, 660, 100, 50); x.fill();
+    x.fillStyle = "#121315"; x.font = "600 44px Geist, Arial"; x.fillText(SITE, W/2, 1795);
+    return cv;
+  }
+
+  const _mk = makeCard;
+  makeCard = async function(kind, id, extra){
+    if(kind === "stamp" && state.stamps[id]) return story("stamp", id, extra);
+    if(kind === "result") return story("result", id, extra);
+    return _mk(kind, id, extra);
+  };
+
+  shareCard = async function(kind, id, extra){
+    const m = $("#modal");
+    m.innerHTML = `<div class="mbox share"><button class="mclose" aria-label="${t("Fermer")}">×</button><div class="eyebrow">${t("Carte à partager")}</div><h2>${t("Prête pour ta story.")}</h2><div class="cardprev">${t("Création…")}</div><div class="pact" id="shareAct"></div></div>`;
+    m.classList.add("show"); m.querySelector(".mclose").onclick = ()=>m.classList.remove("show"); m.onclick = e=>{ if(e.target === m) m.classList.remove("show"); };
+    const cv = await makeCard(kind, id, extra);
+    const blob = await new Promise(r=>cv.toBlob(r, "image/png"));
+    const name = `sankofa-${C[id].slug}${kind === "result" ? "-quiz" : kind === "stamp" ? "-tampon" : ""}.png`;
+    const file = new File([blob], name, {type:"image/png"}), url = URL.createObjectURL(blob);
+    m.querySelector(".cardprev").innerHTML = `<img src="${url}" alt="${esc(t("Carte Sankofa"))} ${esc(C[id].short)}">`;
+    const canFile = !!(navigator.canShare && navigator.canShare({files:[file]}));
+    const act = m.querySelector("#shareAct");
+    act.innerHTML = `${canFile ? `<button class="cta" id="shNat">${t("Partager")}</button>` : ""}<a class="cta ${canFile ? "ghost" : ""}" id="shDl" href="${url}" download="${name}">${t("Télécharger l'image")}</a>
+      <span class="src">${t("Sur téléphone, tu peux aussi appuyer longuement sur l'image pour l'enregistrer.")}</span>`;
+    const txt = t("Sur Sankofa, l'atlas des peuples éprouvés :") + " https://" + SITE + "/" + C[id].slug + "/";
+    if(canFile) $("#shNat").onclick = async ()=>{ try{ await navigator.share({files:[file], text:txt}); if(window.skfEvent) skfEvent("share", kind + ":" + C[id].slug); }catch(e){} };
+    $("#shDl").onclick = ()=>{ if(window.skfEvent) skfEvent("share", "dl:" + kind + ":" + C[id].slug); };
+  };
+})();
+
+Object.assign(EN, {
+ "Partager mon tampon":"Share my stamp","Partager mon résultat":"Share my result","Partager":"Share",
+ "en {l} · {c}":"in {l} · {c}","TAMPON {r}":"{r} STAMP","Et toi, tu connais l'histoire de ce pays ?":"Do you know this country's story?",
+ "J'ai réussi le parcours {x}. Et toi, tu connais son histoire ?":"I completed the {x} course. Do you know its story?",
+ "Sur Sankofa, l'atlas des peuples éprouvés :":"On Sankofa, the atlas of peoples in crisis:"
+});
+
+/* ---------- Bienvenue : trois écrans à la première visite, qu'on peut passer ---------- */
+(function(){
+  const KEY = "skf-welcome";
+  let seen = false; try{ seen = !!localStorage.getItem(KEY); }catch(e){ seen = true; }
+  if(seen) return;
+  const ICO = {
+    globe:'<circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c7 7 7 37 0 44M32 10c-7 7-7 37 0 44"/>',
+    quiz:'<rect x="12" y="10" width="40" height="44" rx="8"/><path d="M22 26l4 4 8-8M22 42h20"/>',
+    pass:'<rect x="14" y="8" width="36" height="48" rx="5"/><circle cx="32" cy="28" r="9"/><path d="M24 46h16"/>'
+  };
+  const STEPS = [
+    {i:"globe", h:"Tourne le globe.", p:"42 pays et peuples éprouvés. Touche un pays pour comprendre sa crise en 3 minutes, chiffres sourcés et datés."},
+    {i:"quiz",  h:"Teste-toi.", p:"Chaque pays a son parcours de quiz, du niveau Découverte au Défi légendaire. Les questions changent à chaque essai."},
+    {i:"pass",  h:"Remplis ton passeport.", p:"Chaque parcours réussi te donne un tampon. Monte de niveau pour débloquer des couleurs, des cadres et le vote du mois."}
+  ];
+  function open(){
+    if(document.getElementById("skfWel")) return;
+    const h = location.hash.slice(1);
+    if(h && h !== "globe") return;
+    let k = 0, prev = document.activeElement;
+    const el = document.createElement("div"); el.id = "skfWel"; el.className = "welroot";
+    el.innerHTML = `<div class="welcard" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="welH"><div class="welbody"></div>
+      <div class="welfoot"><button type="button" class="welskip">${t("Passer")}</button><div class="weldots" aria-hidden="true">${STEPS.map(()=>"<i></i>").join("")}</div><button type="button" class="cta welnext"></button></div></div>`;
+    document.body.appendChild(el);
+    const close = ()=>{ try{ localStorage.setItem(KEY, "1"); }catch(e){} el.classList.remove("on"); setTimeout(()=>el.remove(), 250); document.removeEventListener("keydown", key); if(prev && prev.focus) prev.focus(); };
+    const key = e=>{ if(e.key === "Escape") close(); };
+    const draw = ()=>{
+      const s = STEPS[k];
+      el.querySelector(".welbody").innerHTML = `<div class="welico"><svg viewBox="0 0 64 64" aria-hidden="true">${ICO[s.i]}</svg></div><div class="eyebrow">${k+1} / ${STEPS.length}</div><h2 id="welH">${t(s.h)}</h2><p>${t(s.p)}</p>`;
+      el.querySelectorAll(".weldots i").forEach((d, j)=>d.classList.toggle("on", j === k));
+      const nx = el.querySelector(".welnext"); nx.textContent = k === STEPS.length - 1 ? t("C'est parti") : t("Suivant"); if(k) nx.focus(); else el.querySelector(".welcard").focus();
+    };
+    el.querySelector(".welskip").onclick = close;
+    el.querySelector(".welnext").onclick = ()=>{ if(k < STEPS.length - 1){ k++; draw(); } else close(); };
+    el.onclick = e=>{ if(e.target === el) close(); };
+    document.addEventListener("keydown", key);
+    draw(); requestAnimationFrame(()=>el.classList.add("on"));
+    if(window.skfEvent) skfEvent("welcome", "open");
+  }
+  let n = 0;
+  const wait = setInterval(()=>{ n++; if(!document.getElementById("splash") || n > 40){ clearInterval(wait); setTimeout(open, 700); } }, 250);
+})();
+
+Object.assign(EN, {
+ "Passer":"Skip","Mise à jour : {d}":"Updated: {d}","Suivant":"Next","C'est parti":"Let's go",
+ "Tourne le globe.":"Spin the globe.","42 pays et peuples éprouvés. Touche un pays pour comprendre sa crise en 3 minutes, chiffres sourcés et datés.":"42 countries and peoples in crisis. Tap a country to understand its crisis in 3 minutes, with sourced and dated figures.",
+ "Teste-toi.":"Test yourself.","Chaque pays a son parcours de quiz, du niveau Découverte au Défi légendaire. Les questions changent à chaque essai.":"Each country has its quiz course, from Discovery to the Legendary challenge. The questions change every time.",
+ "Remplis ton passeport.":"Fill your passport.","Chaque parcours réussi te donne un tampon. Monte de niveau pour débloquer des couleurs, des cadres et le vote du mois.":"Each course you pass gives you a stamp. Level up to unlock colours, frames and the monthly vote."
+});
 
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();

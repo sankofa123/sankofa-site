@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Page introuvable · Sankofa</title>
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F3EF;--ink:#121315;--ink2:#4A4D52;--line:rgba(18,19,21,.14);--acc:#B4233A}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1114;--ink:#F2F3EF;--ink2:#B9BCC2;--line:rgba(255,255,255,.14);--acc:#E0566B}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:32px}
+main{max-width:560px;width:100%}
+.brand{display:flex;align-items:center;gap:12px;font-family:"Geist Mono",monospace;font-size:14px;letter-spacing:.22em;font-weight:500;color:var(--ink)}
+.brand img{width:48px;height:48px;border-radius:12px}
+.code{margin-top:56px;font-family:"Geist Mono",monospace;font-size:13px;letter-spacing:.18em;color:var(--ink2)}
+h1{margin:10px 0 0;font-family:"Instrument Serif",serif;font-weight:400;font-size:clamp(48px,11vw,84px);line-height:.98;letter-spacing:-.015em}
+h1 em{color:var(--acc)}
+p{margin:18px 0 0;font-size:18px;line-height:1.5;color:var(--ink2)}
+.acts{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+a.btn{display:inline-flex;align-items:center;min-height:48px;padding:0 22px;border-radius:999px;font-weight:600;font-size:16px;text-decoration:none}
+a.main{background:var(--ink);color:var(--bg)}
+a.sec{border:1.5px solid var(--line);color:var(--ink)}
+a:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+.en{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:14px;color:var(--ink2)}
+.en a{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<a class="brand" href="/" aria-label="Sankofa, accueil" style="text-decoration:none"><img src="/icons/icon-192.png" alt="">SANKOFA</a>
+<div class="code">ERREUR 404</div>
+<h1>Cette page s'est <em>perdue.</em></h1>
+<p>L'adresse est peut-être mal tapée, ou la page a changé de place. Le globe, lui, est toujours là.</p>
+<div class="acts">
+<a class="btn main" href="/#globe">Revenir au globe</a>
+<a class="btn sec" href="/#explorer">Voir les 42 pays</a>
+</div>
+<div class="en">Page not found. <a href="/#globe">Back to the globe</a></div>
+</main>
+</body>
+</html>
