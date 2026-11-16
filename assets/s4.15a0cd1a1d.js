@@ -1,6 +1,7 @@
 
 /* ================= RÉGLAGES : langue, thème, contenus sensibles ================= */
 const PREFS = (()=>{ const d = {lang:null,theme:"auto",sens:"ask"}; try{ return Object.assign(d, JSON.parse(localStorage.getItem("sankofa-prefs")||"{}")); }catch(e){ return d; } })();
+try{ document.documentElement.dataset.fs = PREFS.fs || "1"; }catch(e){}
 function savePrefs(){ try{ localStorage.setItem("sankofa-prefs", JSON.stringify(PREFS)); }catch(e){} }
 const LANG = PREFS.lang || (((navigator.languages&&navigator.languages[0])||navigator.language||"fr").toLowerCase().startsWith("fr") ? "fr" : "en");
 const LOC = LANG==="en" ? "en-GB" : "fr-FR";
@@ -3065,8 +3066,9 @@ function renderPays(id){
         ${updOf(id)?`<p class="cupd"><i></i>${t("Mise à jour : {d}",{d:updOf(id)})}</p>`:""}
         <p class="resume">${gl(c.resume,3)}</p>
         ${DOSSIERS[id]?`<a class="dlink" href="#dossier-${c.slug}"><span class="dli">${ico("doc")}</span><span><b>${t("Lire le dossier complet")}</b><em>${t("{n} chapitres",{n:dossierOf(id).ch.length})} · ${t("{n} min de lecture",{n:readMin(dossierOf(id))})}</em></span><span class="dla">→</span></a>`:""}
+        <a class="dlink qlink" href="#quiz-${c.slug}"><span class="dli">${ico("check")}</span><span><b>${state.stamps[id]?t("Continuer le parcours"):t("Faire le quiz")}</b><em>${state.stamps[id]?t("Tampon {r} obtenu",{r:RARITY[state.stamps[id].r].name}):t("{n} niveaux · un tampon à gagner",{n:(typeof topLv==="function"?topLv(id):3)+1})}</em></span><span class="dla">→</span></a>
         ${D?`<div class="reperes">${D.rep.map(([k,v])=>`<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}<div><span>${id==="104"?t("Superficie du Myanmar"):t("Superficie")}</span><b>${areaVsFrance(id)}</b></div></div>`:""}
-        <div class="pact">${c.quiz?`<a class="cta" href="#quiz-${c.slug}">${t("Faire le parcours")}</a>`:""}<button class="cta ghost" id="goGlobe">${t("Voir sur le globe")}</button><button class="cta ghost" id="shareImg">${t("Partager en image")}</button><button class="cta ghost" id="share">${t("Copier le lien")}</button></div>
+        <div class="pact"><button class="cta ghost" id="goGlobe">${t("Voir sur le globe")}</button><button class="cta ghost" id="shareImg">${t("Partager en image")}</button><button class="cta ghost" id="share">${t("Copier le lien")}</button></div>
       </div>
       <div class="part"><canvas id="bigSil"></canvas><button class="locator" id="locator" type="button" aria-label="${esc(t("Voir sur le globe"))}"><canvas id="locCv"></canvas><span>${t("{x} sur le globe",{x:esc(c.short)})}</span></button></div>
     </div>
@@ -3425,11 +3427,19 @@ function renderPass(){
   const pe=$("#pEdit"); if(pe) pe.onclick=()=>openOnboarding(true);
   const psh=$("#pShare"); if(psh) psh.onclick=()=>shareCard("id",state.profile.heart||FEATURED[0]);
   $("#tiers").innerHTML = [1,2,3,4,5].map(r=>`<div class="tier r${r}"><i style="background:${RARITY[r].col}"></i><b>${RARITY[r].name}</b><span>${RARITY[r].how}</span><em>${counts[r-1]}</em></div>`).join("");
-  $("#stamps").innerHTML = FEATURED.map(id=>{
+  const dnum = d=>{ const m = String(d||"").split("/"); return m.length===3 ? +(m[2]+m[1].padStart(2,"0")+m[0].padStart(2,"0")) : 0; };
+  const won = FEATURED.filter(id=>state.stamps[id]).sort((a,b)=>(state.stamps[b].r-state.stamps[a].r) || (dnum(state.stamps[b].d)-dnum(state.stamps[a].d)));
+  const todo = FEATURED.filter(id=>!state.stamps[id]).sort((a,b)=>C[a].short.localeCompare(C[b].short, LANG));
+  const SF = window.STAMP_FILTER || "all";
+  const sfl = [["all",t("Tous"),FEATURED.length],["won",t("Obtenus"),won.length],["todo",t("À conquérir"),todo.length]];
+  const stf = $("#stampFilt") || (()=>{ $("#stamps").insertAdjacentHTML("beforebegin", `<div class="stfilt" id="stampFilt" role="group" aria-label="${t("Filtrer les tampons")}"></div>`); return $("#stampFilt"); })();
+  stf.innerHTML = sfl.map(([k,l,n])=>`<button type="button" data-sf="${k}" aria-pressed="${SF===k}">${l} <em>${n}</em></button>`).join("");
+  stf.querySelectorAll("[data-sf]").forEach(b=>b.onclick=()=>{ window.STAMP_FILTER = b.dataset.sf; renderPass(); });
+  $("#stamps").innerHTML = (SF==="won" ? won : SF==="todo" ? todo : won.concat(todo)).map(id=>{
     const c=C[id], s=state.stamps[id];
     return s?`<div class="slot">${stampSVG(id,s.r,s.d)}<span>${esc(c.short)}</span><button class="slotshare" data-id="${id}">${t("Partager")}</button></div>`
             :`<a class="slot locked" href="#quiz-${c.slug}">${GHOST(id)}<span>${esc(c.short)} · ${t("à conquérir")}</span></a>`;
-  }).join("");
+  }).join("") || `<p class="clsmall">${t("Aucun tampon pour l'instant. Réussis un parcours pour gagner le premier.")}</p>`;
   $("#cards").innerHTML = FEATURED.map(id=>{ const D=DEEP[id], s=state.stamps[id], col = s?RARITY[s.r].col:"#9AA0A6";
     return s?`<div class="mcard" style="--c:${col}"><div class="mtop"><span class="eyebrow">${esc(C[id].short)}</span><span class="mr">${RARITY[s.r].name}</span></div><b>${esc(D.fig.n)}</b><span class="fd">${esc(D.fig.d)}</span><p>${esc(D.fig.t)}</p></div>`
             :`<a class="mcard locked" href="#quiz-${C[id].slug}"><div class="mtop"><span class="eyebrow">${esc(C[id].short)}</span>${LOCK}</div><b>${t("Carte mémoire")}</b><p>${t("Gagne un tampon {x} pour découvrir cette carte.",{x:esc(C[id].short)})}</p></a>`; }).join("");
@@ -3464,7 +3474,7 @@ function route(){
   if(h.startsWith("pays-")){ id = bySlug[h.slice(5)]; v = id?"pays":"globe"; }
   if(h.startsWith("quiz-")){ id = bySlug[h.slice(5)]; v = id && C[id].quiz ? "quiz" : "globe"; }
   if(h==="methode"){ v = "globe"; setTimeout(()=>$("#methode").scrollIntoView({behavior:"smooth"}),60); }
-  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","sources","mentions","confidentialite"].includes(v)) v="globe";
+  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","sources","mentions","confidentialite","apropos","presse"].includes(v)) v="globe";
   if(tourOn && v!=="globe") tourEnd();
   $("#modal").classList.remove("show"); closeSettings();
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
@@ -3479,6 +3489,8 @@ function route(){
   if(v==="sources") renderSources();
   if(v==="mentions") renderLegal("mentions");
   if(v==="confidentialite") renderLegal("confidentialite");
+  if(v==="apropos") renderLegal("apropos");
+  if(v==="presse") renderLegal("presse");
   if(v==="globe"){ renderRail(); gResize(); }
   if(h!=="methode") window.scrollTo({top:0,behavior:"instant"});
 }
@@ -3539,7 +3551,7 @@ const LEGAL = {
  }
 };
 function renderLegal(k){
-  const el = $(k==="mentions" ? "#mentionsIn" : "#privacyIn");
+  const el = $({mentions:"#mentionsIn", confidentialite:"#privacyIn", apropos:"#aproposIn", presse:"#presseIn"}[k]);
   el.innerHTML = `<div class="card legaltext">${LEGAL[LANG][k]}</div>`;
 }
 
@@ -3549,9 +3561,10 @@ function openSettings(){
   const seg = (k, opts, cur)=>`<div class="segs" data-k="${k}">${opts.map(([v,n])=>`<button type="button" data-v="${v}" aria-pressed="${cur===v}">${n}</button>`).join("")}</div>`;
   p.innerHTML = `<div class="setrow"><span class="eyebrow">${t("Langue")}</span>${seg("lang",[["fr","Français"],["en","English"]],LANG)}</div>
     <div class="setrow"><span class="eyebrow">${t("Apparence")}</span>${seg("theme",[["light",t("Clair")],["dark",t("Sombre")],["auto",t("Auto")]],PREFS.theme)}</div>
+    <div class="setrow"><span class="eyebrow">${t("Taille du texte")}</span>${seg("fs",[["1",t("Normal")],["2",t("Grand")],["3",t("Très grand")]],String(PREFS.fs||"1"))}</div>
     <div class="setrow"><span class="eyebrow">${t("Images et passages sensibles")}</span>${seg("sens",[["ask",t("Prévenir")],["show",t("Afficher")],["soft",t("Masquer")]],PREFS.sens)}
       <p class="sethint">${t("Avant une fiche sur des violences de masse, Sankofa te prévient. Ce réglage s'appliquera aussi aux photos et aux vidéos dès leur arrivée.")}</p></div>
-    <div class="setlinks"><a href="#methode">${t("Méthode")}</a><a href="#install" class="setinstall">${t("Installer l'application")}</a><a href="#confidentialite">${t("Confidentialité")}</a><a href="#mentions">${t("Mentions légales")}</a><a href="#sources">${t("Sources")}</a></div>`;
+    <div class="setlinks"><a href="#apropos">${t("À propos")}</a><a href="#methode">${t("Méthode")}</a><a href="#presse">${t("Presse")}</a><a href="#install" class="setinstall">${t("Installer l'application")}</a><a href="#confidentialite">${t("Confidentialité")}</a><a href="#mentions">${t("Mentions légales")}</a><a href="#sources">${t("Sources")}</a></div>`;
   p.classList.add("show"); $("#setBtn").setAttribute("aria-expanded","true");
   p.querySelectorAll(".segs button").forEach(b=>b.onclick=()=>{
     const k = b.parentElement.dataset.k, v = b.dataset.v;
@@ -3559,6 +3572,7 @@ function openSettings(){
     PREFS[k] = v; savePrefs();
     b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
     if(k==="theme"){ applyTheme(); const y = scrollY; route(); scrollTo({top:y,behavior:"instant"}); renderLayerCard(); }
+    if(k==="fs") document.documentElement.dataset.fs = v;
     if(k==="sens"){ gateOk = {}; document.documentElement.dataset.sens = v; if(location.hash.startsWith("#pays-")){ const y = scrollY; route(); scrollTo({top:y,behavior:"instant"}); } }
   });
 }
@@ -4260,7 +4274,7 @@ function routeNow(){
   if(h.startsWith("dossier-")){ id = bySlug[h.slice(8)]; v = id && DOSSIERS[id] ? "dossier" : "globe"; }
   if(h.startsWith("dch-")) return;
   if(h==="methode"){ v = "globe"; setTimeout(()=>$("#methode").scrollIntoView({behavior:"smooth"}),60); }
-  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","dossier","sources","mentions","confidentialite"].includes(v)) v="globe";
+  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","dossier","sources","mentions","confidentialite","apropos","presse"].includes(v)) v="globe";
   if(tourOn && v!=="globe") tourEnd();
   $("#modal").classList.remove("show"); closeSettings(); closeSheet();
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
@@ -4276,6 +4290,8 @@ function routeNow(){
   if(v==="sources") renderSources();
   if(v==="mentions") renderLegal("mentions");
   if(v==="confidentialite") renderLegal("confidentialite");
+  if(v==="apropos") renderLegal("apropos");
+  if(v==="presse") renderLegal("presse");
   if(v==="globe"){ renderRail(); gResize(); }
   if(h!=="methode") window.scrollTo({top:0,behavior:"instant"});
   revealIn($("#v-"+v));
@@ -4511,7 +4527,7 @@ function routeNow(){
   if(h.startsWith("quiz-")){ id = bySlug[h.slice(5)]; v = id && C[id].quiz ? "quiz" : "globe"; }
   if(h.startsWith("dossier-")){ id = bySlug[h.slice(8)]; v = id && DOSSIERS[id] ? "dossier" : "globe"; }
   if(h.startsWith("dch-")) return;
-  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","dossier","sources","mentions","confidentialite","methode"].includes(v)) v="globe";
+  if(!["globe","explorer","apprendre","actu","passeport","pays","quiz","dossier","sources","mentions","confidentialite","apropos","presse","methode"].includes(v)) v="globe";
   if(tourOn && v!=="globe") tourEnd();
   $("#modal").classList.remove("show"); closeSettings(); closeSheet();
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="v-"+v));
@@ -4528,6 +4544,8 @@ function routeNow(){
   if(v==="methode") renderMethode();
   if(v==="mentions") renderLegal("mentions");
   if(v==="confidentialite") renderLegal("confidentialite");
+  if(v==="apropos") renderLegal("apropos");
+  if(v==="presse") renderLegal("presse");
   if(v==="globe"){ renderRail(); gResize(); }
   window.scrollTo({top:0,behavior:"instant"});
   revealIn($("#v-"+v));
@@ -9901,7 +9919,7 @@ Object.assign(EN, {
     return `<div class="setrow seticon"><span class="eyebrow">${t("Icône de l'application")}</span>
       <div class="icopick" role="radiogroup" aria-label="${t("Icône de l'application")}">${Object.keys(T).map(k=>{ const need = (window.ICON_LV||{})[k]||1, lk = typeof level==="function" && level() < need && k !== cur;
         return `<button type="button" role="radio" aria-checked="${k === cur}" data-ico="${k}" ${lk?`data-lock="${need}" aria-disabled="true"`:""} title="${lk?t("Niveau {n}",{n:need}):t(NAMES[k])}">${mini(k)}<span>${lk?t("Niv. {n}",{n:need}):t(NAMES[k])}</span></button>`; }).join("")}</div>
-      <p class="sethint" id="icoHint">${isApp() ? t("Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.") : t("Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.")}</p></div>`;
+      <p class="sethint" id="icoHint">${isApp() ? t("Pour voir la nouvelle icône, supprime l'application puis installe-la de nouveau : sur téléphone comme sur ordinateur (Dock du Mac, barre des tâches), l'icône est fixée au moment de l'installation. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.") : t("Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.")}</p></div>`;
   }
   function inject(){
     const p = document.getElementById("setPop"); if(!p) return;
@@ -9925,7 +9943,7 @@ Object.assign(EN, {
 
 Object.assign(EN, {
  "Icône de l'application":"App icon","Nuit":"Night","Ivoire":"Ivory","Or":"Gold","Terre":"Earth","Océan":"Ocean","Forêt":"Forest","Prune":"Plum","Corail":"Coral",
- "Pour voir la nouvelle icône sur ton écran d'accueil, supprime l'application puis ajoute-la de nouveau. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.":"To see the new icon on your home screen, remove the app and add it again. On Android, it sometimes updates on its own within a day.",
+ "Pour voir la nouvelle icône, supprime l'application puis installe-la de nouveau : sur téléphone comme sur ordinateur (Dock du Mac, barre des tâches), l'icône est fixée au moment de l'installation. Sur Android, elle se met parfois à jour toute seule au bout d'un jour.":"To see the new icon, remove the app and install it again: on phones and computers alike (Mac Dock, taskbar), the icon is fixed when you install. On Android, it sometimes updates on its own within a day.",
  "Choisis ta couleur avant d'ajouter Sankofa à ton écran d'accueil : l'icône sera de cette couleur.":"Pick your colour before adding Sankofa to your home screen: the icon will be that colour.",
  "Icône {n} choisie.":"{n} icon selected.","Niv. {n}":"Lv. {n}","Niveau {n}":"Level {n}","Cette couleur se débloque au niveau {n}.":"This colour unlocks at level {n}."
 });
@@ -10173,14 +10191,14 @@ const EMB_NEW = [
 const EMB_BASE = AV_BG.length; EMB_NEW.forEach(e=>AV_BG.push(e[3]));
 const embLv = i => i < EMB_BASE ? 1 : EMB_NEW[i-EMB_BASE][4];
 
-const SKINS = {
-  classique:{l:1, fr:"Classique", en:"Classic", sw:["#D3DCE9","#FBFBF9"]},
-  nuit:{l:5, fr:"Nuit", en:"Night", sw:["#0B1222","#2B3140"], th:{sea0:"#17213A",sea1:"#070B16",land:"#2B3140",landLine:"rgba(255,255,255,.12)",grat:"rgba(255,255,255,.05)",halo:"rgba(120,150,255,.32)",halo0:"rgba(120,150,255,0)",shade:"rgba(0,0,0,.35)"}},
-  ocean:{l:9, fr:"Océan profond", en:"Deep ocean", sw:["#0E3C66","#E9EEF2"], th:{sea0:"#2276B3",sea1:"#0A2C4F",land:"#E9EEF2",landLine:"rgba(10,40,70,.25)",grat:"rgba(255,255,255,.08)",halo:"rgba(60,160,230,.35)",halo0:"rgba(60,160,230,0)",shade:"rgba(0,10,30,.35)"}},
-  ardoise:{l:13, fr:"Ardoise", en:"Slate", sw:["#3A4049","#C9CDD3"], th:{sea0:"#5D6572",sea1:"#2B3038",land:"#C9CDD3",landLine:"rgba(20,22,26,.3)",grat:"rgba(255,255,255,.06)",halo:"rgba(160,170,185,.3)",halo0:"rgba(160,170,185,0)",shade:"rgba(0,0,0,.3)"}},
-  craie:{l:17, fr:"Craie", en:"Chalk", sw:["#ECECE8","#BDBDB6"], th:{sea0:"#FFFFFF",sea1:"#E4E4DF",land:"#C4C4BD",landLine:"rgba(0,0,0,.22)",grat:"rgba(0,0,0,.05)",halo:"rgba(0,0,0,.08)",halo0:"rgba(0,0,0,0)",shade:"rgba(0,0,0,.12)"}},
-  satellite:{l:23, fr:"Satellite", en:"Satellite", sw:["#06111F","#3B4A36"], th:{sea0:"#0D2440",sea1:"#020A14",land:"#3B4A36",landLine:"rgba(255,255,255,.09)",grat:"rgba(255,255,255,.04)",halo:"rgba(90,170,255,.3)",halo0:"rgba(90,170,255,0)",shade:"rgba(0,0,0,.4)"}},
-  aurore:{l:29, fr:"Aurore", en:"Aurora", sw:["#1A1340","#4FE0B8"], th:{sea0:"#1F1650",sea1:"#05030F",land:"#2C2545",landLine:"rgba(190,160,255,.18)",grat:"rgba(190,160,255,.06)",halo:"rgba(80,230,190,.45)",halo0:"rgba(80,230,190,0)",shade:"rgba(0,0,0,.35)"}}
+const INKS = {
+  classique:{l:1, fr:"Classique", en:"Classic", sw:["#B4233A","#3D6BFF"]},
+  noire:{l:5, fr:"Encre noire", en:"Black ink", c:"#26282C", sw:["#26282C","#4A4D52"]},
+  indigo:{l:9, fr:"Indigo", en:"Indigo", c:"#3A3F9E", sw:["#2C3080","#5A60C8"]},
+  rouge:{l:13, fr:"Rouge", en:"Red", c:"#B4233A", sw:["#8E1A2D","#D2445A"]},
+  sapin:{l:17, fr:"Vert sapin", en:"Fir green", c:"#1F5A3D", sw:["#174630","#2E7D55"]},
+  argent:{l:23, fr:"Argent", en:"Silver", c:"#7F8792", sw:["#6B727C","#B9C0C9"]},
+  holo:{l:29, fr:"Holographique", en:"Holographic", c:"#7A55F5", sw:["#4FE0B8","#B57EDC"]}
 };
 const FRAMES = {
   aucun:{l:1, fr:"Aucun", en:"None"}, bronze:{l:4, fr:"Bronze", en:"Bronze"}, argent:{l:10, fr:"Argent", en:"Silver"}, or:{l:15, fr:"Or", en:"Gold"},
@@ -10193,41 +10211,42 @@ const COVERS = {
   carte:{l:32, fr:"Carte du monde", en:"World map", sw:["#14161B","#2A3140"]}
 };
 const PERKS = [
-  {l:1, k:"icon", fr:"Ton passeport, le globe Classique, les icônes Nuit et Ivoire", en:"Your passport, the Classic globe, the Night and Ivory icons"},
+  {l:1, k:"icon", fr:"Ton passeport, l'encre Classique, les icônes Nuit et Ivoire", en:"Your passport, the Classic ink, the Night and Ivory icons"},
   ...EMB_NEW.map(e=>({l:e[4], k:"emb", fr:"Couleur d'emblème "+e[1], en:e[2]+" emblem colour"})),
   {l:3, k:"icon", fr:"Icônes Océan et Forêt", en:"Ocean and Forest icons"},
   {l:11, k:"icon", fr:"Icônes Terre et Prune", en:"Earth and Plum icons"},
   {l:19, k:"icon", fr:"Icônes Corail et Or", en:"Coral and Gold icons"},
   {l:8, k:"vote", fr:"Proposer un pays et voter chaque mois", en:"Suggest a country and vote every month"},
-  ...Object.entries(SKINS).filter(([k])=>k!=="classique").map(([k,s])=>({l:s.l, k:"globe", fr:"Thème du globe "+s.fr+(k==="aurore"?", animé":""), en:s.en+" globe theme"+(k==="aurore"?", animated":"")})),
+  ...Object.entries(INKS).filter(([k])=>k!=="classique").map(([k,s])=>({l:s.l, k:"ink", fr:"Encre de tampon "+s.fr.replace("Encre noire","noire")+(k==="holo"?", animée":""), en:s.en+" stamp ink"+(k==="holo"?", animated":"")})),
   ...Object.entries(FRAMES).filter(([k])=>k!=="aucun").map(([k,s])=>({l:s.l, k:"frame", fr:"Cadre "+s.fr.toLowerCase()+(k==="aurore"?", animé":""), en:s.en+" frame"+(k==="aurore"?", animated":"")})),
   ...Object.entries(COVERS).filter(([k])=>k!=="clair").map(([k,s])=>({l:s.l, k:"cover", fr:"Couverture de passeport "+s.fr, en:s.en+" passport cover"})),
   {l:37, k:"card", fr:"Carte d'identité Sankofa, en rouge mythique", en:"Sankofa identity card, in mythic red"},
   {l:40, k:"stamp", fr:"Tampons animés dans ton passeport", en:"Animated stamps in your passport"}
 ].sort((a,b)=>a.l-b.l);
 
-const cos = ()=>Object.assign({globe:"classique", cover:"clair"}, state.cos||{});
+const cos = ()=>Object.assign({ink:"classique", cover:"clair"}, state.cos||{});
 const nm = o=>LANG==="en" ? o.en : o.fr;
 function bestFrame(l){ let b = "aucun"; for(const k of ["bronze","argent","or","rouge"]) if(FRAMES[k].l <= l) b = k; return b; }
 function curFrame(){ const l = level(), c = state.cos||{}; return c.frame && FRAMES[c.frame] && FRAMES[c.frame].l <= l ? c.frame : bestFrame(l); }
-function curSkin(){ const k = cos().globe; return SKINS[k] && SKINS[k].l <= level() ? k : "classique"; }
+function curInk(){ const k = cos().ink; return INKS[k] && INKS[k].l <= level() ? k : "classique"; }
 function curCover(){ const k = cos().cover; return COVERS[k] && COVERS[k].l <= level() ? k : "clair"; }
 
-/* Thème du globe : par-dessus les couleurs du thème clair ou sombre */
-const _readTheme = readTheme;
-readTheme = function(){
-  _readTheme.apply(this, arguments);
-  let k = "classique"; try{ k = curSkin(); }catch(e){}
-  const s = SKINS[k]; if(s && s.th && TH) Object.assign(TH, s.th);
-  document.documentElement.dataset.globe = k;
+/* Encre des tampons : recolore tous les tampons */
+const _stampSVG = stampSVG;
+stampSVG = function(id, r, date, small){
+  let out = _stampSVG.apply(this, arguments), k = "classique";
+  try{ k = curInk(); }catch(e){}
+  if(k === "classique" || !RARITY[r]) return out;
+  out = out.split(RARITY[r].col).join(INKS[k].c);
+  return out.replace('class="stampwrap', 'class="stampwrap ink-'+k);
 };
-function applyCos(){ readTheme(); try{ grads = null; dirty = true; }catch(e){} document.body.classList.toggle("skf-l40", level() >= 40); }
+function applyCos(){ document.body.classList.toggle("skf-l40", level() >= 40); }
 
 function perkIco(k){
   const p = {icon:'<rect x="4" y="4" width="16" height="16" rx="4"/>', frame:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/>',
     vote:'<path d="M5 12l4 4 10-10"/>', cover:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="11" r="3"/>',
     card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5"/>', globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/>',
-    emb:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', stamp:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2 2"/>'}[k];
+    ink:'<path d="M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z"/>', emb:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', stamp:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2 2"/>'}[k];
   return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 }
 function perksHTML(){
@@ -10241,15 +10260,16 @@ function perksHTML(){
   </details>`;
 }
 function cosHTML(){
-  const l = level(), fr = curFrame(), sk = curSkin(), cv = curCover();
+  const l = level(), fr = curFrame(), ik = curInk(), cv = curCover();
   const opt = (grp, k, o, on, sw)=>{ const lk = o.l > l;
     return `<button type="button" class="cosopt" data-g="${grp}" data-k="${k}" aria-pressed="${on}" ${lk?`data-lock="${o.l}" aria-disabled="true"`:""}>
       <span class="cossw ${grp}${grp==="frame"?" f-"+k:""}" ${sw?`style="--cs1:${sw[0]};--cs2:${sw[1]}"`:""}></span><span class="cosn">${lk ? t("Niv. {n}",{n:o.l}) : esc(nm(o))}</span></button>`; };
   const p = state.profile;
   const embs = AV_BG.map((b,i)=>({l:embLv(i), fr:i<EMB_BASE?"Couleur "+(i+1):EMB_NEW[i-EMB_BASE][1], en:i<EMB_BASE?"Colour "+(i+1):EMB_NEW[i-EMB_BASE][2], b}));
-  return `<div class="card cosbox" id="cosBox">
-    <div class="eyebrow">${t("Personnaliser")}</div><h3>${t("Ce que tu as gagné, à toi de choisir.")}</h3>
-    <div class="cosgrp"><b>${t("Thème du globe")}</b><div class="cosrow">${Object.entries(SKINS).map(([k,o])=>opt("globe",k,o,k===sk,o.sw)).join("")}</div></div>
+  return `<div class="cosbox" id="cosBox" role="dialog" aria-modal="true" aria-labelledby="cosH">
+    <button type="button" class="mclose cosx" aria-label="${t("Fermer")}">×</button>
+    <div class="eyebrow">${t("Personnaliser")}</div><h3 id="cosH">${t("Ce que tu as gagné, à toi de choisir.")}</h3>
+    <div class="cosgrp"><b>${t("Encre des tampons")}</b><div class="cosrow">${Object.entries(INKS).map(([k,o])=>opt("ink",k,o,k===ik,o.sw)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Cadre de l'emblème")}</b><div class="cosrow">${Object.entries(FRAMES).map(([k,o])=>opt("frame",k,o,k===fr)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Couverture du passeport")}</b><div class="cosrow">${Object.entries(COVERS).map(([k,o])=>opt("cover",k,o,k===cv,o.sw)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Couleur de l'emblème")}</b>${p ? `<div class="cosrow">${embs.map((o,i)=>opt("emb",i,o,p.bg===i,o.b)).join("")}</div>` : `<p class="clsmall">${t("Crée ton passeport pour choisir la couleur de ton emblème.")}</p>`}</div>
@@ -10262,9 +10282,22 @@ function bindCos(box){
     const g = b.dataset.g, k = b.dataset.k;
     if(g === "emb"){ if(state.profile) state.profile.bg = +k; }
     else state.cos = Object.assign({}, state.cos||{}, {[g]:k});
-    save(); applyCos(); renderPass();
+    save(); applyCos(); renderPass(); openCos(true);
     if(window.skfEvent) skfEvent("cos", g+":"+k);
   });
+  box.querySelector(".cosx").onclick = closeCos;
+}
+function cosNew(){ const seen = state.cosSeen || 1, l = level(); return PERKS.some(p=>p.l > seen && p.l <= l && ["frame","cover","emb","ink"].includes(p.k)); }
+function closeCos(){ const o = $("#cosOv"); if(o){ o.classList.remove("show"); setTimeout(()=>o.remove(), 200); } }
+function openCos(keep){
+  let o = $("#cosOv"); const sc = o ? o.querySelector(".cosbox").scrollTop : 0;
+  if(o) o.remove();
+  o = document.createElement("div"); o.id = "cosOv"; o.className = "cosov"; o.innerHTML = cosHTML(); document.body.appendChild(o);
+  bindCos(o.querySelector("#cosBox")); o.onclick = e=>{ if(e.target === o) closeCos(); };
+  o.querySelector(".cosbox").scrollTop = sc;
+  if(keep) o.classList.add("show","nofx"); else requestAnimationFrame(()=>o.classList.add("show"));
+  if(state.cosSeen !== level()){ state.cosSeen = level(); store.set(state); const d = $("#cosBtn i"); if(d) d.remove(); }
+  addEventListener("keydown", function esc(e){ if(e.key === "Escape"){ closeCos(); removeEventListener("keydown", esc); } });
 }
 (function(){
   const _rp = renderPass;
@@ -10278,8 +10311,8 @@ function bindCos(box){
         const note = head.querySelector(".xpnote");
         if(note) note.insertAdjacentHTML("afterend", perksHTML()); else head.insertAdjacentHTML("beforeend", perksHTML());
       }
-      const old = $("#cosBox"); if(old) old.remove();
-      head.insertAdjacentHTML("afterend", cosHTML()); bindCos($("#cosBox"));
+      const lv = head.querySelector(".lvline");
+      if(lv && !head.querySelector("#cosBtn")){ lv.insertAdjacentHTML("afterend", `<button type="button" class="cosbtn" id="cosBtn">${perkIco("frame")}${t("Personnaliser")}${cosNew()?'<i aria-label="'+t("Nouveau")+'"></i>':""}</button>`); head.querySelector("#cosBtn").onclick = ()=>openCos(false); }
     }
     document.querySelectorAll(".avring,.idc-photo").forEach(el=>{
       el.classList.remove(...[...el.classList].filter(c=>c.startsWith("fr-"))); if(fr !== "aucun") el.classList.add("fr-"+fr);
@@ -10296,7 +10329,7 @@ function bindCos(box){
 
 Object.assign(EN, {
  "Ce que débloquent les niveaux":"What levels unlock","Prochain : {x}, au niveau {n}":"Next: {x}, at level {n}","Tout est débloqué.":"Everything is unlocked.",
- "Personnaliser":"Customise","Ce que tu as gagné, à toi de choisir.":"What you've earned, yours to choose.","Thème du globe":"Globe theme","Cadre de l'emblème":"Emblem frame",
+ "Personnaliser":"Customise","Ce que tu as gagné, à toi de choisir.":"What you've earned, yours to choose.","Encre des tampons":"Stamp ink","Nouveau":"New","Tous":"All","Obtenus":"Earned","À conquérir":"To win","Filtrer les tampons":"Filter stamps","Aucun tampon pour l'instant. Réussis un parcours pour gagner le premier.":"No stamps yet. Pass a course to win your first.","Cadre de l'emblème":"Emblem frame",
  "Couverture du passeport":"Passport cover","Couleur de l'emblème":"Emblem colour","Crée ton passeport pour choisir la couleur de ton emblème.":"Create your passport to choose your emblem colour.",
  "Les couleurs de l'icône se choisissent dans les réglages.":"App icon colours are chosen in the settings.","Se débloque au niveau {n}.":"Unlocks at level {n}.",
  "avant le niveau {n}":"before level {n}"
@@ -10383,7 +10416,7 @@ Object.assign(EN, {
   const HAND = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 26V10.5a3.5 3.5 0 0 1 7 0V22l9.6 2a4 4 0 0 1 3.1 4.5L37 39a5 5 0 0 1-5 4H22.5a5 5 0 0 1-4-2l-7.3-9.6a3 3 0 0 1 4.4-4L19 30" fill="#fff" stroke="#121315" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>';
   const STEPS = [
     {route:"globe", h:"Tourne le globe.", p:"Fais glisser ton doigt pour tourner la Terre. Chaque pays en couleur est une crise expliquée. Touche-le pour l'ouvrir.", run:"globe"},
-    {route:"pays-"+DEMO, h:"Lis la fiche.", p:"En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le parcours.", run:"fiche"},
+    {route:"pays-"+DEMO, h:"Lis la fiche.", p:"En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le quiz.", run:"fiche"},
     {route:"quiz-"+DEMO, h:"Passe les niveaux.", p:"Découverte, Initié, Expert, puis le Défi légendaire. Chaque niveau réussi ouvre le suivant.", run:"quiz"},
     {route:"passeport", h:"Remplis ton passeport.", p:"Chaque parcours réussi te donne un tampon. En montant de niveau, tu débloques des thèmes du globe, des cadres et le vote du mois.", run:"pass"}
   ];
@@ -10415,7 +10448,7 @@ Object.assign(EN, {
     fiche(){
       const r = $("#paysIn .resume") || $(".resume");
       into(r, ()=>{ spot(r, 10); noHand();
-        later(()=>{ const b = [...document.querySelectorAll(".pact .cta")].find(a=>/quiz-/.test(a.getAttribute("href")||""));
+        later(()=>{ const b = document.querySelector("#paysIn .qlink") || document.querySelector(".qlink");
           into(b, ()=>{ if(!b) return; spot(b, 8); const [x, y] = centerOf(b); hand(x + 10, y + 6, "tap"); }); }, 2200); });
     },
     quiz(){
@@ -10491,11 +10524,109 @@ Object.assign(EN, {
 })();
 
 Object.assign(EN, {
- "Passer":"Skip","Suivant":"Next","C'est parti":"Let's go","Mise à jour : {d}":"Updated: {d}","Revoir le tutoriel":"Replay the tutorial",
+ "Passer":"Skip","Faire le quiz":"Take the quiz","Tampon {r} obtenu":"{r} stamp earned","{n} niveaux · un tampon à gagner":"{n} levels · a stamp to earn","Suivant":"Next","C'est parti":"Let's go","Mise à jour : {d}":"Updated: {d}","Revoir le tutoriel":"Replay the tutorial",
  "Tourne le globe.":"Spin the globe.","Fais glisser ton doigt pour tourner la Terre. Chaque pays en couleur est une crise expliquée. Touche-le pour l'ouvrir.":"Swipe to spin the Earth. Each coloured country is an explained crisis. Tap it to open it.",
- "Lis la fiche.":"Read the page.","En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le parcours.":"In 3 minutes: the summary, sourced and dated figures, the history. Then start the course.",
+ "Lis la fiche.":"Read the page.","En 3 minutes : le résumé, les chiffres sourcés et datés, l'histoire. Ensuite, lance le quiz.":"In 3 minutes: the summary, sourced and dated figures, the history. Then take the quiz.",
  "Passe les niveaux.":"Clear the levels.","Découverte, Initié, Expert, puis le Défi légendaire. Chaque niveau réussi ouvre le suivant.":"Discovery, Initiate, Expert, then the Legendary challenge. Each level you pass opens the next.",
  "Remplis ton passeport.":"Fill your passport.","Chaque parcours réussi te donne un tampon. En montant de niveau, tu débloques des thèmes du globe, des cadres et le vote du mois.":"Each course you pass gives you a stamp. As you level up, you unlock globe themes, frames and the monthly vote."
+});
+
+/* ---------- Outils de la fiche (imprimer, signaler), pages À propos et Presse ---------- */
+(function(){
+  const strip = s=>String(s||"").replace(/<[^>]+>/g, "");
+  function printSheet(id){
+    const c = C[id], en = LANG === "en", qz = (c.quiz || Q[id] || {}).d || [];
+    const qs = qz.slice(0, 5), L = ["A","B","C","D"];
+    const figs = (c.figs||[]).map(f=>`<li>${f.n ? `<b>${esc(f.n)}</b> ${esc(strip(f.d))}` : esc(strip(f.t))}<small>${f.at ? esc(fmtAt(f.at)) + " · " : ""}${t("Source")} : ${esc((S[f.s]||{}).t || "")}</small></li>`).join("");
+    const hist = (c.hist||[]).map(h=>`<li><b>${esc(h[0])}</b> ${esc(h[1])}</li>`).join("");
+    const quiz = qs.map((q, i)=>`<li><p>${esc(q.q)}</p><ol type="A">${q.o.map(o=>`<li>${esc(o)}</li>`).join("")}</ol></li>`).join("");
+    const ans = qs.map((q, i)=>`${i+1}. ${L[q.a]}`).join(" · ");
+    let el = $("#printSheet"); if(!el){ el = document.createElement("div"); el.id = "printSheet"; document.body.appendChild(el); }
+    el.innerHTML = `<header><div class="psbrand">SANKOFA</div><div class="psurl">sankofa-atlas.org/${c.slug}/</div></header>
+      <div class="psey">${esc(c.region)}</div><h1>${esc(c.name)}</h1><p class="psres">${esc(strip(c.resume))}</p>
+      <h2>${t("Les chiffres")}</h2><ul class="psfigs">${figs}</ul>
+      ${hist ? `<h2>${t("Les dates clés")}</h2><ul class="pshist">${hist}</ul>` : ""}
+      ${quiz ? `<h2>${t("5 questions")}</h2><ol class="psquiz">${quiz}</ol><p class="psans">${t("Réponses")} : ${ans}</p>` : ""}
+      <footer>${t("Chiffres vérifiés le {d}. Chaque chiffre indique sa source et sa date.", {d:fmtDay(VERIFIED)})} · sankofa-atlas.org</footer>`;
+    document.body.classList.add("printing");
+    const done = ()=>{ document.body.classList.remove("printing"); removeEventListener("afterprint", done); };
+    addEventListener("afterprint", done);
+    setTimeout(()=>{ window.print(); setTimeout(done, 1500); }, 80);
+    if(window.skfEvent) skfEvent("print", c.slug);
+  }
+  window.skfPrint = printSheet;
+  const _ape = addPaysExtras;
+  addPaysExtras = function(id){
+    _ape.apply(this, arguments);
+    const pact = $("#paysIn .phero .pact") || $("#paysIn .pact");
+    if(pact && !$("#pTools")){
+      pact.insertAdjacentHTML("afterend", `<div class="ptools" id="pTools"><button type="button" class="ptool" id="pPrint">${ico("doc")}${t("Imprimer la fiche")}</button><button type="button" class="ptool" id="pRep">${ico("check")}${t("Signaler une erreur")}</button></div>`);
+      $("#pPrint").onclick = ()=>printSheet(id);
+      $("#pRep").onclick = ()=>openReport(C[id].name);
+    }
+  };
+
+  const NQ = ()=>Object.keys(Q).reduce((n, k)=>n + ["d","i","e","m"].reduce((m, x)=>m + ((Q[k][x]||[]).length), 0), 0);
+  const NM = ()=>Object.keys(Q).filter(k=>(Q[k].m||[]).length >= 6).length;
+  LEGAL.fr.apropos = ()=>`<div class="eyebrow">À propos</div><h2>Pourquoi Sankofa existe</h2>
+   <p>Sankofa est un mot akan, une langue du Ghana. Il veut dire : revenir chercher ce qu'on a laissé derrière soi. Le symbole est un oiseau qui marche vers l'avant, la tête tournée vers l'arrière.</p>
+   <p>Certaines crises font la une pendant des mois. D'autres touchent des millions de personnes et presque personne n'en parle. Sankofa les rassemble sur un globe : ${FEATURED.length} pays et peuples, chacun expliqué en 3 minutes, puis en détail pour ceux qui veulent aller plus loin.</p>
+   <h3>Pour qui</h3><p>Les élèves, les étudiants, les profs et les curieux. Sankofa est gratuit, sans publicité, sans revente de données, et fonctionne sans compte.</p>
+   <h3>Comment les chiffres sont choisis</h3><p>Chaque chiffre vient d'une source publique, indiquée et datée : agences de l'ONU (HCR, OCHA, Haut-Commissariat aux droits de l'homme, UNICEF), organisations reconnues (Human Rights Watch, Amnesty International, Médecins sans frontières, Comité pour la protection des journalistes), centres de référence (IDMC pour les déplacements, IPC pour la faim, Global Slavery Index, Global Witness) et agences de presse (AFP, AP, Reuters, RFI).</p>
+   <p>Quand les sources ne sont pas d'accord, Sankofa donne la fourchette ou les deux chiffres. Quand une partie conteste une conclusion, c'est écrit. Les textes décrivent les faits sans images choquantes.</p>
+   <h3>En chiffres</h3><ul><li>${FEATURED.length} pays et peuples</li><li>${NQ()} questions de quiz, en français et en anglais</li><li>${NM()} cours complets avec un niveau Maître</li><li>40 niveaux à gravir dans ton passeport</li></ul>
+   <h3>Une erreur ?</h3><p>Chaque fiche a un bouton « Signaler une erreur ». Chaque signalement est lu, vérifié, et la correction est datée. Tu peux aussi écrire à <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>.</p>
+   <h3>Qui fait Sankofa</h3><p>Un projet indépendant et non commercial, porté par une seule personne. <a href="#presse">Espace presse</a> · <a href="#methode">Méthode</a> · <a href="#mentions">Mentions légales</a></p>`;
+  LEGAL.en.apropos = ()=>`<div class="eyebrow">About</div><h2>Why Sankofa exists</h2>
+   <p>Sankofa is a word in Akan, a language of Ghana. It means: go back and fetch what was left behind. Its symbol is a bird walking forward with its head turned back.</p>
+   <p>Some crises make headlines for months. Others affect millions of people and almost nobody talks about them. Sankofa brings them together on a globe: ${FEATURED.length} countries and peoples, each explained in 3 minutes, then in depth for those who want more.</p>
+   <h3>Who it's for</h3><p>Students, teachers and curious minds. Sankofa is free, ad-free, sells no data and works without an account.</p>
+   <h3>How the figures are chosen</h3><p>Every figure comes from a public source, named and dated: UN agencies (UNHCR, OCHA, the Office of the High Commissioner for Human Rights, UNICEF), recognised organisations (Human Rights Watch, Amnesty International, Médecins Sans Frontières, the Committee to Protect Journalists), reference centres (IDMC for displacement, IPC for hunger, the Global Slavery Index, Global Witness) and news agencies (AFP, AP, Reuters, RFI).</p>
+   <p>When sources disagree, Sankofa gives the range or both figures. When a party disputes a finding, it says so. The texts describe the facts without shocking images.</p>
+   <h3>In numbers</h3><ul><li>${FEATURED.length} countries and peoples</li><li>${NQ()} quiz questions, in French and English</li><li>${NM()} full courses with a Master level</li><li>40 levels to climb in your passport</li></ul>
+   <h3>Spotted an error?</h3><p>Every page has a “Report an error” button. Every report is read and checked, and corrections are dated. You can also write to <a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>.</p>
+   <h3>Who makes Sankofa</h3><p>An independent, non-commercial project run by one person. <a href="#presse">Press area</a> · <a href="#methode">Method</a> · <a href="#mentions">Legal notice</a></p>`;
+  const kit = en=>[["/icons/icon-512.png", en?"Logo (PNG, 512 px)":"Logo (PNG, 512 px)"],["/og-image.jpg", en?"Share image (1200 × 630)":"Image de partage (1200 × 630)"],["/presse/globe.jpg", en?"Screenshot: the globe":"Capture : le globe"],["/presse/fiche.jpg", en?"Screenshot: a country page":"Capture : une fiche pays"],["/presse/passeport.jpg", en?"Screenshot: the passport":"Capture : le passeport"]];
+  const kitHTML = en=>`<div class="kit">${kit(en).map(([u,n])=>`<a class="kitit" href="${u}" download><img src="${u}" alt="" loading="lazy"><span>${n}</span></a>`).join("")}</div>`;
+  LEGAL.fr.presse = ()=>`<div class="eyebrow">Presse</div><h2>Espace presse</h2>
+   <h3>En une phrase</h3><p class="kitq">Sankofa est un atlas interactif et gratuit qui explique en 3 minutes les crises que le monde oublie, avec des chiffres sourcés et datés.</p>
+   <h3>En un paragraphe</h3><p class="kitq">Sankofa rassemble sur un globe ${FEATURED.length} pays et peuples éprouvés : Soudan, Congo, Palestine, Ouïghours, Haïti, Rohingyas… Chaque fiche se lit en 3 minutes, chaque chiffre renvoie à sa source (ONU, ONG, agences de presse) et porte sa date. Des cours complets, ${NQ()} questions de quiz, un passeport à tamponner et un mode quiz en direct pour la classe en font un outil pour les élèves, les profs et les curieux. Gratuit, sans publicité, en français et en anglais.</p>
+   <h3>Visuels à télécharger</h3>${kitHTML(false)}
+   <h3>Contact</h3><p><a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>. Les visuels peuvent être reproduits pour parler de Sankofa, avec la mention « Sankofa, sankofa-atlas.org ».</p>`;
+  LEGAL.en.presse = ()=>`<div class="eyebrow">Press</div><h2>Press area</h2>
+   <h3>In one sentence</h3><p class="kitq">Sankofa is a free interactive atlas that explains, in 3 minutes, the crises the world forgets, with sourced and dated figures.</p>
+   <h3>In one paragraph</h3><p class="kitq">Sankofa brings together ${FEATURED.length} countries and peoples in crisis on a globe: Sudan, Congo, Palestine, the Uyghurs, Haiti, the Rohingya… Each page takes 3 minutes to read, every figure links to its source (UN, NGOs, news agencies) and carries its date. Full courses, ${NQ()} quiz questions, a passport to stamp and a live quiz mode for the classroom make it a tool for students, teachers and curious minds. Free, ad-free, in French and English.</p>
+   <h3>Visuals to download</h3>${kitHTML(true)}
+   <h3>Contact</h3><p><a href="mailto:sankofa.atlas0@gmail.com">sankofa.atlas0@gmail.com</a>. The visuals may be reproduced to talk about Sankofa, credited “Sankofa, sankofa-atlas.org”.</p>`;
+  /* Sur téléphone : rappel discret du quiz tant que le bouton de la fiche n'est pas à l'écran */
+  let qio = null;
+  function quizPill(){
+    let p = $("#qPill"); const m = (location.hash||"").match(/^#pays-(.+)$/), q = $("#paysIn .qlink");
+    if(qio){ qio.disconnect(); qio = null; }
+    if(!m || !q){ if(p) p.classList.remove("on"); return; }
+    if(!p){ p = document.createElement("a"); p.id = "qPill"; p.className = "qpill"; document.body.appendChild(p); }
+    p.href = q.getAttribute("href"); p.innerHTML = `${ico("check")}<span>${q.querySelector("b").textContent}</span><i>→</i>`;
+    qio = new IntersectionObserver(es=>{ const on = !es[0].isIntersecting && /^#pays-/.test(location.hash); p.classList.toggle("on", on); }, {rootMargin:"-70px 0px -90px 0px"});
+    qio.observe(q);
+  }
+  const _ape2 = addPaysExtras;
+  addPaysExtras = function(){ _ape2.apply(this, arguments); setTimeout(quizPill, 60); };
+  addEventListener("hashchange", ()=>setTimeout(quizPill, 80));
+  const _rl = renderLegal;
+  renderLegal = function(k){
+    const v = LEGAL[LANG][k];
+    if(typeof v === "function"){ const el = $({apropos:"#aproposIn", presse:"#presseIn"}[k]); if(el) el.innerHTML = `<div class="card legaltext">${v()}</div>`; return; }
+    return _rl.apply(this, arguments);
+  };
+  /* Pied de page : liens vers À propos et Presse */
+  const foot = document.querySelector("footer .flinks, footer nav, .foot .links");
+  if(foot && !foot.querySelector('[href="#apropos"]')){ const a0 = foot.querySelector("a"); if(a0) a0.insertAdjacentHTML("beforebegin", `<a href="#apropos">${t("À propos")}</a><a href="#presse">${t("Presse")}</a>`); }
+})();
+
+Object.assign(EN, {
+ "Taille du texte":"Text size","Normal":"Normal","Grand":"Large","Très grand":"Extra large","À propos":"About","Presse":"Press",
+ "Imprimer la fiche":"Print this page","Les dates clés":"Key dates","5 questions":"5 questions","Réponses":"Answers",
+ "Chiffres vérifiés le {d}. Chaque chiffre indique sa source et sa date.":"Figures checked on {d}. Each figure shows its source and date."
 });
 
 /* ================= DÉMARRAGE ================= */

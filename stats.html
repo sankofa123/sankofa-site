@@ -599,10 +599,23 @@ async function props(code, hideId, hide){
     box.querySelectorAll("[data-pid]").forEach(b => b.onclick = () => props(code, +b.dataset.pid, b.dataset.h === "1"));
   }catch(e){}
 }
+/* ---------- signalements d'erreurs ---------- */
+async function reps(code){
+  try{
+    const r = await fetch(URL_ + "/rest/v1/rpc/report_admin", {method:"POST", headers:{apikey:KEY, Authorization:"Bearer " + KEY, "Content-Type":"application/json"}, body:JSON.stringify({code})});
+    if(!r.ok) return; const list = await r.json();
+    let box = document.getElementById("reps"); if(!box){ box = document.createElement("section"); box.id = "reps"; box.style.cssText = "margin:28px 0;padding:18px;border:1px solid rgba(128,128,128,.3);border-radius:16px"; $("#dash").appendChild(box); }
+    const esc = x => String(x == null ? "" : x).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const PART = {chiffre:"Un chiffre", fait:"Un fait ou une date", mot:"Un mot", source:"Une source", autre:"Autre"};
+    box.innerHTML = "<h2 style='margin:0 0 4px;font-size:20px'>Signalements d'erreurs</h2><p style='margin:0 0 12px;opacity:.7;font-size:13px'>Les 100 derniers, du plus récent au plus ancien. L'adresse e-mail n'apparaît que si la personne l'a donnée pour avoir une réponse.</p>" +
+      (list.length ? list.map(p => `<div style="padding:10px 0;border-top:1px solid rgba(128,128,128,.25)"><b>${esc(p.page)}</b> · ${esc(PART[p.part] || p.part)} · ${new Date(p.at).toLocaleString("fr-FR")} · ${esc(p.lang)}
+        <p style="margin:4px 0;font-size:14px;white-space:pre-wrap">${esc(p.txt)}</p>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-size:13px">${esc(p.url)}</a>` : ""}${p.email ? ` <span style="font-size:13px;opacity:.8">· ${esc(p.email)}</span>` : ""}</div>`).join("") : "<p style='opacity:.7'>Aucun signalement pour l'instant.</p>");
+  }catch(e){}
+}
 async function open_(code, quiet){
   if(!quiet) $("#err").textContent = "";
   $("#dash").classList.add("loading");
-  try{ const s = await load(code); localStorage.setItem("skf-stats", code); $("#gate").hidden = true; $("#dash").hidden = false; render(s); props(code);
+  try{ const s = await load(code); localStorage.setItem("skf-stats", code); $("#gate").hidden = true; $("#dash").hidden = false; render(s); props(code); reps(code);
     clearInterval(timer); timer = setInterval(() => { if(!document.hidden) open_(code, true); }, 60000); }
   catch(e){ if(quiet) return; $("#err").textContent = e.message === "code" ? "Code incorrect." : e.message === "v3" ? "Il manque la mise à jour de la base : colle stats-setup-v3.sql dans Supabase, puis réessaie." : "Impossible de joindre la base pour le moment."; $("#gate").hidden = false; $("#dash").hidden = true; }
   finally{ $("#dash").classList.remove("loading"); }

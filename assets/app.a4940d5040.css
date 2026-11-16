@@ -1624,7 +1624,6 @@ body.livemode{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.avring.fr-aurore,.idc-photo.fr-aurore{animation:none}}
 
 /* Personnaliser */
-.cosbox{margin-top:16px;padding:22px}
 .cosbox h3{margin:6px 0 4px;font-family:var(--display);font-weight:400;font-size:28px;line-height:1.1}
 .cosgrp{margin-top:18px}
 .cosgrp>b{display:block;font-size:14px;font-weight:600;margin-bottom:10px}
@@ -1646,12 +1645,30 @@ body.livemode{overflow:hidden}
 .pkc{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--ink2);font-weight:400;margin-left:auto;margin-right:12px}
 .swb[data-lock]{opacity:.3;filter:grayscale(1);cursor:not-allowed}
 
-/* Thème Aurore : lueur animée derrière le globe */
-html[data-globe=aurore] #stage{position:relative}
-html[data-globe=aurore] #stage::before{content:"";position:absolute;left:50%;top:50%;width:80%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(from 0deg,rgba(79,224,184,.0),rgba(79,224,184,.35),rgba(122,85,245,.35),rgba(79,224,184,.0));filter:blur(40px);animation:aurspin 14s linear infinite;pointer-events:none;z-index:0}
-html[data-globe=aurore] #globe{position:relative;z-index:1}
-@keyframes aurspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){html[data-globe=aurore] #stage::before{animation:none}}
+/* Encres de tampon */
+[data-theme=dark] .stampwrap.ink-noire svg{filter:invert(.82) hue-rotate(180deg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .stampwrap.ink-noire svg{filter:invert(.82) hue-rotate(180deg)}}
+.stampwrap.ink-holo svg{animation:inkholo 6s linear infinite}
+@keyframes inkholo{to{filter:hue-rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.stampwrap.ink-holo svg{animation:none}}
+
+/* Bouton et panneau Personnaliser */
+.cosbtn{position:relative;display:inline-flex;align-items:center;gap:8px;margin-top:14px;min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface2);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.cosbtn svg{width:16px;height:16px}
+.cosbtn i{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#B4233A;box-shadow:0 0 0 2px var(--surface)}
+.cosov{position:fixed;inset:0;z-index:90;background:rgba(10,11,14,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.cosov.show{opacity:1}
+.cosov .cosbox{position:relative;width:100%;max-width:560px;max-height:86vh;overflow:auto;background:var(--surface);color:var(--ink);border-radius:26px 26px 0 0;padding:26px 22px calc(28px + env(safe-area-inset-bottom));margin:0;transform:translateY(24px);transition:transform .25s;box-shadow:0 -20px 60px -20px rgba(0,0,0,.5)}
+.cosov.show .cosbox{transform:none}
+.cosov.nofx,.cosov.nofx .cosbox{transition:none}
+@media(min-width:640px){.cosov{align-items:center}.cosov .cosbox{border-radius:26px}}
+.cosx{position:absolute;top:14px;right:14px}
+
+/* Filtres des tampons */
+.stfilt{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.stfilt button{min-height:38px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:none;color:var(--ink2);font:inherit;font-size:14px;cursor:pointer}
+.stfilt button em{font-style:normal;font-family:var(--mono);font-size:12px;margin-left:4px;opacity:.8}
+.stfilt button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 
 /* Niveau 40 : tampons animés */
 body.skf-l40 .slot .stampwrap svg,body.skf-l40 .reveal .stampwrap svg{animation:stamplive 5s ease-in-out infinite}
@@ -1700,3 +1717,55 @@ body.skf-l40 .slot .stampwrap svg,body.skf-l40 .reveal .stampwrap svg{animation:
 .lvl.tuglow{box-shadow:0 0 0 3px var(--ink),0 10px 26px -10px rgba(0,0,0,.4)!important;transform:translateY(-2px);transition:all .25s}
 @media (prefers-reduced-motion:reduce){.turoot,.tuspot,.tuhand{transition:none}.tuhand.drag,.tuhand.tap,.tuhand.tap::after,.tustamp.press{animation:none}.tustamp.press{opacity:1}}
 .nvacts{flex-direction:column;align-items:center}.nvacts .cta.ghost{background:transparent!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1.5px var(--line)!important;margin:0!important}.nvacts .cta{margin:0!important}
+/* Outils de la fiche */
+.ptools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ptool{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:none;color:var(--ink2);font:inherit;font-size:14px;cursor:pointer}
+.ptool svg{width:16px;height:16px}
+.ptool:hover{color:var(--ink);border-color:var(--ink2)}
+/* Taille du texte */
+html[data-fs="2"] .view:not(#v-globe){zoom:1.12}
+html[data-fs="3"] .view:not(#v-globe){zoom:1.25}
+html[data-fs="2"] #v-globe .rail,html[data-fs="2"] #v-globe .sect{zoom:1.12}
+html[data-fs="3"] #v-globe .rail,html[data-fs="3"] #v-globe .sect{zoom:1.25}
+/* Kit presse */
+.kit{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:10px 0 6px}
+.kitit{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);font-size:13px}
+.kitit img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line)}
+.kitq{font-size:17px;line-height:1.55}
+/* Fiche imprimable */
+#printSheet{display:none}
+@media print{
+  body.printing > *:not(#printSheet){display:none!important}
+  html,body.printing{background:#fff!important}
+  body.printing{background-image:none!important}
+  body.printing #printSheet{display:block;font-family:Geist,Arial,sans-serif;color:#111;background:#fff;font-size:9.5pt;line-height:1.35;padding:0}
+  @page{size:A4;margin:11mm}
+  #printSheet header{display:flex;justify-content:space-between;border-bottom:1.5px solid #111;padding-bottom:6px;margin-bottom:12px;font-family:"Geist Mono",monospace;font-size:9pt;letter-spacing:.12em}
+  #printSheet h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:26pt;margin:2px 0 4px;line-height:1}
+  #printSheet .psey{font-family:"Geist Mono",monospace;font-size:8.5pt;letter-spacing:.12em;text-transform:uppercase;color:#444}
+  #printSheet .psres{font-size:11pt;margin:0 0 6px}
+  #printSheet h2{font-size:11pt;margin:8px 0 3px;border-bottom:1px solid #999;padding-bottom:2px}
+  #printSheet ul,#printSheet ol{margin:4px 0;padding-left:18px}
+  #printSheet li{margin:2px 0;break-inside:avoid}
+  #printSheet .pshist{columns:2;column-gap:18px}
+  #printSheet small{display:block;color:#555;font-size:8.5pt}
+  #printSheet .psquiz>li>p{margin:4px 0 1px;font-weight:600}
+  #printSheet .psquiz ol{columns:4;font-size:9pt;margin:0}
+  #printSheet .psans{font-size:8.5pt;color:#555;margin-top:8px}
+  #printSheet footer{margin-top:8px;border-top:1px solid #999;padding-top:6px;font-size:8.5pt;color:#555}
+}
+
+/* Quiz visible dès le haut de la fiche */
+.dlink.qlink{margin-top:-10px;box-shadow:var(--shadow),inset 0 0 0 1.5px var(--ink)}
+.dlink.qlink .dli{background:var(--ink);color:var(--bg)}
+/* Fenêtres : la page derrière ne défile plus */
+html:has(#modal.show),html:has(body.sheeton),html:has(#skfLive){overflow:hidden}
+.mbox,.sheetbody,.modal{overscroll-behavior:contain}
+.modal.show{overflow-y:auto}
+.qpill{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translate(-50%,16px);z-index:40;display:none;align-items:center;gap:8px;padding:0 16px 0 12px;min-height:44px;border-radius:999px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14.5px;text-decoration:none;box-shadow:0 14px 34px -12px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
+.qpill svg{width:18px;height:18px}
+.qpill i{font-style:normal;opacity:.7}
+.qpill.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+@media(max-width:760px){.qpill{display:inline-flex}}
+html:has(#modal.show) .qpill,html:has(body.sheeton) .qpill,html:has(#skfTuto) .qpill{display:none}
+@media (prefers-reduced-motion:reduce){.qpill{transition:none}}
