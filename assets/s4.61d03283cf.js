@@ -10654,12 +10654,26 @@ Object.assign(EN, {
     if(typeof v === "function"){ const el = $({apropos:"#aproposIn", presse:"#presseIn"}[k]); if(el) el.innerHTML = `<div class="card legaltext">${v()}</div>`; return; }
     return _rl.apply(this, arguments);
   };
+  /* Réglages : état du mode hors ligne */
+  function offlineLine(){
+    const p = document.getElementById("setPop"); if(!p || p.querySelector(".setoff")) return;
+    const links = p.querySelector(".setlinks"); if(!links) return;
+    links.insertAdjacentHTML("beforebegin", `<div class="setoff" id="setOff"><i></i><span>${t("Lecture hors ligne : enregistrement en cours…")}</span></div>`);
+    const el = p.querySelector("#setOff");
+    if(!("serviceWorker" in navigator) || !navigator.serviceWorker.controller){ el.querySelector("span").textContent = t("Lecture hors ligne : disponible après l'installation ou une seconde visite."); return; }
+    const onMsg = e=>{ if(!e.data || typeof e.data.offline === "undefined") return; navigator.serviceWorker.removeEventListener("message", onMsg);
+      el.classList.toggle("ok", e.data.offline); el.querySelector("span").textContent = e.data.offline ? t("Lecture hors ligne : les 42 fiches, les cours et les quiz sont enregistrés sur cet appareil.") : t("Lecture hors ligne : enregistrement en cours…"); };
+    navigator.serviceWorker.addEventListener("message", onMsg);
+    try{ navigator.serviceWorker.controller.postMessage("offline-status"); }catch(e){}
+  }
+  const sp = document.getElementById("setPop"); if(sp) new MutationObserver(offlineLine).observe(sp, {childList:true}); offlineLine();
   /* Pied de page : liens vers À propos et Presse */
   const foot = document.querySelector("footer .flinks, footer nav, .foot .links");
   if(foot && !foot.querySelector('[href="#apropos"]')){ const a0 = foot.querySelector("a"); if(a0) a0.insertAdjacentHTML("beforebegin", `<a href="#apropos">${t("À propos")}</a><a href="#presse">${t("Presse")}</a>`); }
 })();
 
 Object.assign(EN, {
+ "Lecture hors ligne : enregistrement en cours…":"Offline reading: saving in progress…","Lecture hors ligne : disponible après l'installation ou une seconde visite.":"Offline reading: available after installing or a second visit.","Lecture hors ligne : les 42 fiches, les cours et les quiz sont enregistrés sur cet appareil.":"Offline reading: all 42 pages, courses and quizzes are saved on this device.",
  "Taille du texte":"Text size","Normal":"Normal","Grand":"Large","Très grand":"Extra large","À propos":"About","Presse":"Press",
  "Imprimer la fiche":"Print this page","Les dates clés":"Key dates","5 questions":"5 questions","Réponses":"Answers",
  "Chiffres vérifiés le {d}. Chaque chiffre indique sa source et sa date.":"Figures checked on {d}. Each figure shows its source and date."
@@ -10931,6 +10945,89 @@ async function loadFigs(){
   const _la = loadActu;
   loadActu = async function(){ try{ await loadFigs(); }catch(e){} return _la.apply(this, arguments); };
 })();
+
+/* ---------- Glossaire : tous les termes du site, classés par ordre alphabétique, avec recherche ---------- */
+(function(){
+  /* Compléments au glossaire : des termes qu'on croise dans les fiches sans qu'ils soient soulignés */
+  const EXTRA_FR = [
+    ["Apatride","Personne qu'aucun État ne reconnaît comme son ressortissant. Sans papiers, elle a du mal à aller à l'école, se soigner, travailler ou voyager."],
+    ["Cessez-le-feu","Arrêt des combats décidé par les parties, souvent provisoire. Ce n'est pas encore un accord de paix."],
+    ["Cour internationale de Justice (CIJ)","Tribunal de l'ONU, à La Haye, qui tranche les différends entre États. Elle ne juge pas des personnes, contrairement à la CPI."],
+    ["Déplacé interne","Personne qui a fui son foyer mais reste dans son pays. Elle dépend de l'État qu'elle a dû fuir."],
+    ["Famine (IPC phase 5)","Niveau le plus grave de l'échelle IPC : au moins 20 % des foyers sans nourriture, 30 % des enfants en malnutrition aiguë et plus de 2 morts pour 10 000 personnes par jour."],
+    ["Insécurité alimentaire aiguë","Situation où une personne ne peut plus manger assez pour vivre normalement. L'IPC la classe de la phase 3 (crise) à la phase 5 (catastrophe, famine)."],
+    ["IPC","Cadre intégré de classification de la sécurité alimentaire. Échelle de 1 à 5 utilisée par l'ONU et les ONG pour mesurer la faim."],
+    ["Kafala","Système de parrainage du Golfe : le titre de séjour d'un travailleur étranger dépend de son employeur, qui peut le garder sous sa coupe."],
+    ["Mandat d'arrêt international","Décision d'un tribunal international demandant aux États d'arrêter une personne. La CPI n'a pas de police : elle dépend des États membres."],
+    ["Réfugié","Personne qui a franchi une frontière pour fuir la guerre ou la persécution. Elle est protégée par la Convention de Genève de 1951."],
+    ["Violations graves contre les enfants","Six violations que l'ONU vérifie chaque année : meurtres et mutilations, recrutement, violences sexuelles, enlèvements, attaques d'écoles et d'hôpitaux, refus d'accès humanitaire."]
+  ];
+  const EXTRA_EN = [
+    ["Stateless person","Someone no state recognises as its national. Without papers, they struggle to go to school, get healthcare, work or travel."],
+    ["Ceasefire","A halt to fighting decided by the parties, often temporary. It is not yet a peace agreement."],
+    ["International Court of Justice (ICJ)","The UN's court in The Hague, which settles disputes between states. Unlike the ICC, it does not try individuals."],
+    ["Internally displaced person","Someone who has fled their home but remains in their country. They depend on the state they had to flee."],
+    ["Famine (IPC phase 5)","The most severe level of the IPC scale: at least 20% of households without food, 30% of children acutely malnourished and more than 2 deaths per 10,000 people a day."],
+    ["Acute food insecurity","When a person can no longer eat enough to live normally. The IPC classifies it from phase 3 (crisis) to phase 5 (catastrophe, famine)."],
+    ["IPC","Integrated Food Security Phase Classification. A 1-to-5 scale used by the UN and NGOs to measure hunger."],
+    ["Kafala","The Gulf sponsorship system: a foreign worker's residence permit depends on their employer, who can keep them under control."],
+    ["International arrest warrant","A decision by an international court asking states to arrest someone. The ICC has no police: it depends on its member states."],
+    ["Refugee","Someone who has crossed a border to flee war or persecution. They are protected by the 1951 Geneva Convention."],
+    ["Grave violations against children","Six violations the UN verifies every year: killing and maiming, recruitment, sexual violence, abduction, attacks on schools and hospitals, denial of humanitarian access."]
+  ];
+  const norm = s=>s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  function entries(){
+    const base = TERMS.map(([,n,d], i)=>({n, d, k:i}));
+    const ex = (LANG === "en" ? EXTRA_EN : EXTRA_FR).map(([n,d])=>({n, d}));
+    const seen = new Set(); const all = [];
+    for(const e of base.concat(ex)){ const key = norm(e.n); if(seen.has(key)) continue; seen.add(key); all.push(e); }
+    return all.sort((a,b)=>norm(a.n).localeCompare(norm(b.n)));
+  }
+  function render(){
+    const el = $("#glossIn"); if(!el) return;
+    const all = entries(), q = norm(el.dataset.q || "");
+    const list = q ? all.filter(e=>norm(e.n).includes(q) || norm(e.d).includes(q)) : all;
+    const seenT = state.termsSeen || [];
+    let letter = "";
+    const items = list.map(e=>{ const L = norm(e.n)[0].toUpperCase(), head = L !== letter ? `<div class="gl-letter">${L}</div>` : ""; letter = L;
+      return head + `<div class="gl-item${e.k != null && seenT.includes(e.k) ? " seen" : ""}"><b>${esc(e.n)}</b><p>${esc(e.d)}</p></div>`; }).join("");
+    el.innerHTML = `<div class="secthead"><div><div class="eyebrow">${t("Glossaire")}</div><h2>${t("Les mots pour comprendre.")}</h2></div></div>
+      <p class="clsmall">${t("{n} termes. Les mêmes définitions s'ouvrent dans les fiches quand un mot est souligné.", {n:all.length})}</p>
+      <label class="gl-search"><span class="sr">${t("Chercher un terme")}</span><input type="search" id="glossQ" placeholder="${esc(t("Chercher un terme"))}" value="${esc(el.dataset.q || "")}" autocomplete="off"></label>
+      <div class="gl-list">${items || `<p class="clsmall">${t("Aucun terme ne correspond.")}</p>`}</div>
+      <div class="pact"><a class="cta ghost" href="#apprendre">${t("Les 10 notions")}</a></div>`;
+    const inp = $("#glossQ"); inp.oninput = ()=>{ el.dataset.q = inp.value; const pos = inp.selectionStart; render(); const i2 = $("#glossQ"); i2.focus(); try{ i2.setSelectionRange(pos, pos); }catch(e){} };
+  }
+  if(!$("#v-glossaire")){ const ref = $("#v-apropos"); if(ref) ref.insertAdjacentHTML("afterend", `<section class="view" id="v-glossaire"><div class="wrap sect" id="glossIn"></div></section>`); }
+  const showGl = ()=>{
+    if(location.hash.slice(1) !== "glossaire") return;
+    try{ if(typeof tourOn !== "undefined" && tourOn) tourEnd(); }catch(e){}
+    const m = $("#modal"); if(m) m.classList.remove("show");
+    try{ closeSettings(); }catch(e){}
+    document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id === "v-glossaire"));
+    document.body.classList.remove("focus"); document.querySelectorAll("[data-v]").forEach(a=>a.removeAttribute("aria-current"));
+    render(); window.scrollTo(0, 0);
+  };
+  const _rn = routeNow;
+  routeNow = function(){ if(location.hash.slice(1) === "glossaire"){ showGl(); return; } return _rn.apply(this, arguments); };
+  if(location.hash.slice(1) === "glossaire") setTimeout(showGl, 0);
+  /* Liens : réglages, page Apprendre, pied de page */
+  const addLinks = ()=>{
+    const p = document.getElementById("setPop"), links = p && p.querySelector(".setlinks");
+    if(links && !links.querySelector('[href="#glossaire"]')){ const a0 = links.querySelector('[href="#methode"]'); (a0 || links.firstChild).insertAdjacentHTML("afterend", `<a href="#glossaire">${t("Glossaire")}</a>`); }
+    const foot = document.querySelector("footer .flinks, footer nav, .foot .links");
+    if(foot && !foot.querySelector('[href="#glossaire"]')){ const a = foot.querySelector('[href="#presse"]'); if(a) a.insertAdjacentHTML("afterend", `<a href="#glossaire">${t("Glossaire")}</a>`); }
+  };
+  const pop = document.getElementById("setPop"); if(pop) new MutationObserver(addLinks).observe(pop, {childList:true}); addLinks();
+  const _rl = renderLearn;
+  renderLearn = function(){ _rl.apply(this, arguments);
+    const v = $("#v-apprendre .wrap") || $("#v-apprendre"); if(v && !v.querySelector(".gl-cta")) v.insertAdjacentHTML("beforeend", `<div class="sect gl-cta"><a class="dlink" href="#glossaire"><span class="dli">${ico("doc")}</span><span><b>${t("Glossaire")}</b><em>${t("Tous les mots du site, de « apatride » à « violations graves »")}</em></span><span class="dla">→</span></a></div>`); };
+})();
+
+Object.assign(EN, {
+ "Glossaire":"Glossary","Les mots pour comprendre.":"The words to understand.","{n} termes. Les mêmes définitions s'ouvrent dans les fiches quand un mot est souligné.":"{n} terms. The same definitions open in the country pages when a word is underlined.",
+ "Chercher un terme":"Search a term","Aucun terme ne correspond.":"No term matches.","Les 10 notions":"The 10 key ideas","Tous les mots du site, de « apatride » à « violations graves »":"Every word on the site, from “ceasefire” to “stateless”"
+});
 
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();

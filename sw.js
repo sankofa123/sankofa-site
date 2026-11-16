@@ -1,8 +1,10 @@
 /* Sankofa : lecture hors ligne. La page et ses bibliothèques sont gardées après la première visite. */
-const V = "sankofa-20261117000851";
-const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
-self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
+const V = "sankofa-20261117002100";
+const CORE = ["./", "index.html", "404.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "assets/app.41ac0341dc.css", "assets/s1.7d28c4f53c.js", "assets/s2.bc057598e8.js", "assets/s3.7a82afcaa7.js", "assets/s4.61d03283cf.js", "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"];
+/* Hors ligne complet : les 42 fiches, les cours et les quiz sont dans ces fichiers ; tout est enregistré dès la première visite. */
+self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener("message", e => { if (e.data === "offline-status") { caches.open(V).then(c => c.keys()).then(ks => { const have = ks.map(k => new URL(k.url).pathname); const ok = CORE.filter(u => u !== "./" && !/^https?:/.test(u)).every(u => have.some(p => p.endsWith(u.replace(/^\.?\//, "")))); e.source && e.source.postMessage({offline: ok, n: ks.length}); }); } });
 self.addEventListener("fetch", e => {
   const r = e.request;
   if (r.method !== "GET") return;
@@ -12,7 +14,13 @@ self.addEventListener("fetch", e => {
   /* La page elle-même : toujours le réseau d'abord, la copie seulement hors ligne */
   if (r.mode === "navigate" || (url.origin === location.origin && /(\/|\.html)$/.test(url.pathname))) {
     e.respondWith(fetch(r).then(res => { if (res && res.ok) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; })
-      .catch(() => caches.match(r, {ignoreSearch:true}).then(h => h || caches.match("./") || caches.match("index.html"))));
+      .catch(() => caches.match(r, {ignoreSearch:true}).then(h => {
+        if (h) return h;
+        /* Fiche pays (/colombie/) hors ligne : on ouvre la même fiche dans l'application */
+        const m = url.pathname.match(/^\/([a-z0-9-]+)\/?$/);
+        if (r.mode === "navigate" && m && !/\./.test(m[1])) return Response.redirect("/#pays-" + m[1], 302);
+        return caches.match("./") || caches.match("index.html");
+      })));
     return;
   }
   e.respondWith(caches.match(r).then(hit => {
