@@ -10806,8 +10806,7 @@ Object.assign(EN, {
 (function(){
   const INK = "#121315", GOLD = "#C8962E";
   const BIRD = `
-  <defs><clipPath id="sp3eye"><circle cx="15.6" cy="7.9" r=".95"/></clipPath></defs>
-  <ellipse class="s3shadow" cx="15" cy="30.2" rx="9" ry="1.1" fill="${INK}" opacity=".12"/>
+    <ellipse class="s3shadow" cx="15" cy="30.2" rx="9" ry="1.1" fill="${INK}" opacity=".12"/>
   <g class="s3all">
     <g class="s3legs" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" fill="none">
       <g class="s3legA"><path d="M12.6 25.4v3.6"/><path d="M10.8 29.3h3.8M12.6 29v1.3" stroke-width="1.3"/></g>
@@ -10824,9 +10823,7 @@ Object.assign(EN, {
         <g class="s3head">
           <circle cx="14.6" cy="8.6" r="3.3" fill="${INK}"/>
           <g class="s3beak"><path class="s3beakU" d="M12.2 9.6 10.1 12.2l3.3-1.1z" fill="${INK}"/><path class="s3beakL" d="M12.4 10.5 10.3 13.4l3.3-1.5z" fill="${INK}"/></g>
-          <circle cx="15.6" cy="7.9" r=".9" fill="var(--bg)"/>
-          <circle cx="15.8" cy="8" r=".42" fill="${INK}"/>
-          <rect class="s3lid" x="14.4" y="5.9" width="2.5" height="2.2" fill="${INK}" clip-path="url(#sp3eye)" style="transform-origin:15.6px 6.9px;transform:scaleY(0)"/>
+          <rect class="s3lid" x="0" y="0" width="0" height="0" fill="none"/>
         </g>
       </g>
     </g>
