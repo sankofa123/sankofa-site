@@ -1,0 +1,936 @@
+[
+ {
+  "id": "180",
+  "slug": "congo",
+  "name": "Congo",
+  "figs": [
+   {
+    "i": 0,
+    "n": "9,7 M",
+    "d": "déplacements forcés par les conflits en 2025, un record. En moyenne, un toutes les 3,2 secondes.",
+    "at": "Y2025",
+    "src": "IDMC, GRID 2026, Afrique (via Nairametrics)",
+    "url": "https://nairametrics.com/2026/06/20/10-african-countries-with-the-most-internally-displaced-persons-in-2026/"
+   },
+   {
+    "i": 1,
+    "n": "26,6 M",
+    "d": "personnes en insécurité alimentaire aiguë (janvier 2026).",
+    "at": "M2026-01",
+    "src": "Commission européenne (ECHO), fiche RDC",
+    "url": "https://civil-protection-humanitarian-aid.ec.europa.eu/where/africa/democratic-republic-congo_en"
+   },
+   {
+    "i": 2,
+    "n": "4 114",
+    "d": "violations graves contre des enfants vérifiées par l'ONU en 2025, le deuxième chiffre au monde.",
+    "at": "Y2025",
+    "src": "Rapport Enfants et conflits armés 2026, pays les plus touchés (via Security Council Report)",
+    "url": "https://www.securitycouncilreport.org/whatsinblue/2026/06/children-and-armed-conflict-annual-open-debate-5.php"
+   },
+   {
+    "i": 3,
+    "n": "14,9 M",
+    "d": "personnes ont besoin d'aide en 2026. Faute d'argent, la réponse n'en vise que 7,3 millions.",
+    "at": "Y2026",
+    "src": "OCHA, Plan de réponse humanitaire RDC 2026",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/facing-critical-funding-gap-humanitarian-community-drc-forced-strictly-prioritize-its-response-2026"
+   },
+   {
+    "i": 4,
+    "n": null,
+    "d": "Lors de la prise de Goma par le M23 en janvier 2025, le Haut-Commissariat aux droits de l'homme a documenté des exécutions sommaires, du travail forcé et des conscriptions forcées.",
+    "at": "M2025-02",
+    "src": "Haut-Commissariat de l'ONU aux droits de l'homme, février 2025 (via AllAfrica)",
+    "url": "https://fr.allafrica.com/stories/202502040464.html"
+   }
+  ]
+ },
+ {
+  "id": "275",
+  "slug": "palestine",
+  "name": "Palestine",
+  "figs": [
+   {
+    "i": 0,
+    "n": "73 651",
+    "d": "Palestiniens tués à Gaza depuis octobre 2023, selon le ministère de la Santé de Gaza (5 septembre 2026).",
+    "at": "2026-09-05",
+    "src": "Ministère de la Santé de Gaza, 5 septembre 2026 (via Middle East Eye)",
+    "url": "https://www.middleeasteye.net/live-blog/live-blog-update/gaza-death-toll-october-2023-rises-73651-health-ministry-says"
+   },
+   {
+    "i": 1,
+    "n": null,
+    "d": "Le 16 septembre 2025, la Commission d'enquête internationale indépendante de l'ONU a conclu qu'Israël avait commis un génocide à Gaza. La commission ne parle pas au nom de l'ONU. Israël rejette cette conclusion.",
+    "at": "2025-09-16",
+    "src": "Commission d'enquête internationale indépendante de l'ONU, 16 septembre 2025",
+    "url": "https://www.un.org/unispal/document/israel-has-committed-genocide-in-the-gaza-strip-un-commission-finds-16sep25/"
+   },
+   {
+    "i": 2,
+    "n": "12 445",
+    "d": "violations graves contre des enfants vérifiées par l'ONU en 2025 en Israël et dans le Territoire palestinien occupé, le chiffre le plus élevé au monde.",
+    "at": "Y2025",
+    "src": "Rapport Enfants et conflits armés 2026, pays les plus touchés (via Security Council Report)",
+    "url": "https://www.securitycouncilreport.org/whatsinblue/2026/06/children-and-armed-conflict-annual-open-debate-5.php"
+   },
+   {
+    "i": 3,
+    "n": null,
+    "d": "En 2025, plus de 60 % des 86 journalistes et travailleurs des médias tués par des tirs israéliens étaient des Palestiniens qui couvraient Gaza. Israël n'autorise pas la presse étrangère à y entrer.",
+    "at": "Y2025",
+    "src": "CPJ, rapport 2025 (via The Sun)",
+    "url": "https://thesun.my/?p=313466"
+   },
+   {
+    "i": 4,
+    "n": "2,76 M",
+    "d": "déplacements forcés en Palestine en 2025. En moyenne, un toutes les 11 secondes.",
+    "at": "Y2025",
+    "src": "IDMC, GRID 2026, Palestine (via Vajiram & Ravi)",
+    "url": "https://vajiramandravi.com/current-affairs/global-report-on-internal-displacement-2026/"
+   },
+   {
+    "i": 5,
+    "n": null,
+    "d": "Famine confirmée dans le gouvernorat de Gaza en août 2025. Après le cessez-le-feu d'octobre 2025, la situation s'est améliorée, mais 59 % de la population restait en crise ou pire au printemps 2026.",
+    "at": "M2026-04",
+    "src": "IPC, Bande de Gaza, analyses 2025 et 2026",
+    "url": "https://www.ipcinfo.org/ipc-country-analysis/en/?country=PSE"
+   },
+   {
+    "i": 6,
+    "n": "6 M",
+    "d": "réfugiés palestiniens sous mandat de l'UNRWA.",
+    "at": "2025-12-31",
+    "src": "HCR, chiffres clés au 31 décembre 2025",
+    "url": "https://www.unhcr.org/ie/node/5388"
+   }
+  ]
+ },
+ {
+  "id": "422",
+  "slug": "liban",
+  "name": "Liban",
+  "figs": [
+   {
+    "i": 0,
+    "n": "4,5 s",
+    "d": "En mars 2026, un enfant était déplacé toutes les 4,5 secondes : 19 000 par jour selon les agences de l'ONU.",
+    "at": "M2026-03",
+    "src": "Agences de l'ONU, mars 2026 (via Hespress)",
+    "url": "https://fr.hespress.com/467474-467474.html"
+   },
+   {
+    "i": 1,
+    "n": "> 1 M",
+    "d": "personnes déplacées de force, presque un cinquième de la population.",
+    "at": "M2026-07",
+    "src": "Ministère libanais de la Santé publique (via IEMed, juillet 2026)",
+    "url": "https://www.iemed.org/wp-content/uploads/2026/07/13Helena-Pelicano-1.pdf"
+   },
+   {
+    "i": 2,
+    "n": "> 4 000",
+    "d": "morts depuis la reprise des combats le 2 mars 2026, selon le ministère libanais de la Santé.",
+    "at": "M2026-07",
+    "src": "Ministère libanais de la Santé publique (via IEMed, juillet 2026)",
+    "url": "https://www.iemed.org/wp-content/uploads/2026/07/13Helena-Pelicano-1.pdf"
+   }
+  ]
+ },
+ {
+  "id": "760",
+  "slug": "syrie",
+  "name": "Syrie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "16,5 M",
+    "d": "personnes ont besoin d'aide humanitaire en 2026.",
+    "at": "M2026-01",
+    "src": "HCR, mise à jour opérationnelle Syrie, janvier 2026",
+    "url": "https://data.unhcr.org/en/documents/details/121289"
+   },
+   {
+    "i": 1,
+    "n": "4,9 M",
+    "d": "réfugiés syriens fin 2025, contre 6 millions un an plus tôt. Environ 1,3 million sont rentrés en 2025.",
+    "at": "2025-12-31",
+    "src": "HCR, Global Trends 2026 (via The Online Citizen)",
+    "url": "https://theonlinecitizen.com/2026/06/11/global-forced-displacement-falls-in-2025-but-remains-at-historic-levels-unhcr-says"
+   },
+   {
+    "i": 2,
+    "n": "> 9 M",
+    "d": "personnes en insécurité alimentaire aiguë.",
+    "at": "M2026-02",
+    "src": "UNFPA, fiche Syrie, février 2026",
+    "url": "https://www.unfpa.org/fr/r%C3%A9publique-arabe-syrienne"
+   }
+  ]
+ },
+ {
+  "id": "729",
+  "slug": "soudan",
+  "name": "Soudan",
+  "figs": [
+   {
+    "i": 0,
+    "n": null,
+    "d": "En juillet 2026, la Mission d'établissement des faits de l'ONU a conclu que les Forces de soutien rapide avaient commis un génocide à El-Fasher : massacres, viols de masse et famine délibérée contre les Zaghawa et les Four.",
+    "at": "M2026-07",
+    "src": "Mission d'établissement des faits de l'ONU sur le Soudan, juillet 2026 (via Al Jazeera)",
+    "url": "https://aljazeera.com/news/2026/7/9/un-probe-finds-mass-killings-gang-rapes-by-sudans-rsf-amount-to-genocide"
+   },
+   {
+    "i": 1,
+    "n": "6 000",
+    "d": "personnes tuées dans les trois premiers jours de l'offensive sur El-Fasher : une toutes les 43 secondes (calcul Sankofa).",
+    "at": "M2025-10",
+    "src": "Haut-Commissariat de l'ONU aux droits de l'homme, février 2026 (via AllAfrica)",
+    "url": "https://allafrica.com/stories/202602190289.html"
+   },
+   {
+    "i": 2,
+    "n": "9,1 M",
+    "d": "déplacés à l'intérieur du pays, la plus grande situation au monde.",
+    "at": "2025-12-31",
+    "src": "HCR, Global Trends 2026 (via The Statesman)",
+    "url": "https://www.thestatesman.com/world/unhcr-2026-global-trends-117-million-forcibly-displaced-worldwide-1503604458.html"
+   },
+   {
+    "i": 3,
+    "n": null,
+    "d": "Famine classée à El-Fasher et à Kadugli en septembre 2025.",
+    "at": "M2025-09",
+    "src": "IPC, Soudan, septembre 2025 à mai 2026",
+    "url": "https://www.ipcinfo.org/ipc-country-analysis/details-map/en/c/1159787/"
+   },
+   {
+    "i": 4,
+    "n": "9",
+    "d": "journalistes tués en 2025, dont cinq par des drones des Forces de soutien rapide.",
+    "at": "Y2025",
+    "src": "CPJ, rapport 2025 (via The Sun)",
+    "url": "https://thesun.my/?p=313466"
+   }
+  ]
+ },
+ {
+  "id": "887",
+  "slug": "yemen",
+  "name": "Yémen",
+  "figs": [
+   {
+    "i": 0,
+    "n": "18,3 M",
+    "d": "personnes en insécurité alimentaire aiguë.",
+    "at": "M2026-01",
+    "src": "OCHA, Plan de réponse humanitaire Yémen 2026",
+    "url": "https://reliefweb.int/report/yemen/yemen-humanitarian-crisis-deepens-aid-agencies-appeal-us216-billion-assist-millions-2026-enar"
+   },
+   {
+    "i": 1,
+    "n": "22,3 M",
+    "d": "personnes ont besoin d'aide humanitaire en 2026.",
+    "at": "M2026-01",
+    "src": "OCHA, Plan de réponse humanitaire Yémen 2026",
+    "url": "https://reliefweb.int/report/yemen/yemen-humanitarian-crisis-deepens-aid-agencies-appeal-us216-billion-assist-millions-2026-enar"
+   },
+   {
+    "i": 2,
+    "n": "31",
+    "d": "travailleurs des médias tués dans une seule frappe israélienne contre un centre de médias houthi en 2025.",
+    "at": "Y2025",
+    "src": "Comité pour la protection des journalistes (CPJ), rapport 2025 (via Reuters)",
+    "url": "https://kathmandupost.com/world/2026/02/25/record-129-journalists-and-media-workers-killed-in-2025-mostly-by-israel-says-cpj"
+   },
+   {
+    "i": 3,
+    "n": "5,2 M",
+    "d": "déplacés internes.",
+    "at": "M2026-01",
+    "src": "OCHA, Plan de réponse humanitaire Yémen 2026",
+    "url": "https://reliefweb.int/report/yemen/yemen-humanitarian-crisis-deepens-aid-agencies-appeal-us216-billion-assist-millions-2026-enar"
+   }
+  ]
+ },
+ {
+  "id": "332",
+  "slug": "haiti",
+  "name": "Haïti",
+  "figs": [
+   {
+    "i": 0,
+    "n": "1,47 M",
+    "d": "déplacés internes, soit 12 % de la population (juin 2026).",
+    "at": "M2026-06",
+    "src": "OIM, juin 2026 (via AFP et Jamaica Observer)",
+    "url": "https://www.jamaicaobserver.com/2026/06/05/nearly-1-5-million-displaced-haiti-un/"
+   },
+   {
+    "i": 1,
+    "n": "≈ 1 M",
+    "d": "déplacements forcés en 2025. En moyenne, un toutes les 32 secondes.",
+    "at": "Y2025",
+    "src": "IDMC, GRID 2026, Amériques (via Colombia One)",
+    "url": "https://m.colombiaone.com/wordpress/c/0/i/223610/colombia-ranks-second-worldwide-number-internally-displaced-people"
+   },
+   {
+    "i": 2,
+    "n": null,
+    "d": "En septembre 2024, l'IPC a recensé 5 636 personnes en catastrophe alimentaire, le niveau le plus grave.",
+    "at": "M2024-09",
+    "src": "IPC, Haïti, septembre 2024 (via Wikipédia)",
+    "url": "https://en.wikipedia.org/wiki/2024_famine_in_Haiti"
+   }
+  ]
+ },
+ {
+  "id": "104",
+  "slug": "rohingyas",
+  "name": "Rohingyas",
+  "figs": [
+   {
+    "i": 0,
+    "n": null,
+    "d": "La Cour internationale de Justice a entendu l'affaire Gambie contre Myanmar en janvier 2026. Elle a annoncé son arrêt pour le 19 novembre 2026.",
+    "at": "M2026-01",
+    "src": "Cour internationale de Justice, calendrier de l'arrêt (via Foley Hoag)",
+    "url": "https://foleyhoag.com/news-and-insights/news/2026/november/international-court-of-justice-to-issue-judgment-in-the-gambia-v-myanmar-genocide-case-on-november/"
+   },
+   {
+    "i": 1,
+    "n": null,
+    "d": "Les Rohingyas forment le plus grand groupe apatride du monde. Près de 90 % des 1,28 million de Rohingyas déplacés vivent au Bangladesh.",
+    "at": "2025-12-31",
+    "src": "HCR, apatridie fin 2025 (via News Arena)",
+    "url": "https://newsarenaindia.com/international/un-reports-drop-in-refugees-internally-displaced/79651"
+   },
+   {
+    "i": 2,
+    "n": "2 203",
+    "d": "violations graves contre des enfants vérifiées par l'ONU au Myanmar en 2025.",
+    "at": "Y2025",
+    "src": "Rapport Enfants et conflits armés 2026, pays les plus touchés (via Security Council Report)",
+    "url": "https://www.securitycouncilreport.org/whatsinblue/2026/06/children-and-armed-conflict-annual-open-debate-5.php"
+   }
+  ]
+ },
+ {
+  "id": "004",
+  "slug": "afghanistan",
+  "name": "Afghanistan",
+  "figs": [
+   {
+    "i": 0,
+    "n": null,
+    "d": "En juillet 2025, la Cour pénale internationale a émis des mandats d'arrêt contre le chef suprême des talibans et le président de leur Cour suprême pour persécution fondée sur le genre, un crime contre l'humanité. Une première. Les talibans rejettent ces mandats.",
+    "at": "M2025-07",
+    "src": "Cour pénale internationale, 8 juillet 2025 (via The Irish Times)",
+    "url": "https://www.irishtimes.com/world/2025/07/08/international-criminal-court-issues-arrest-warrants-for-taliban-leaders-over-persecution-of-women"
+   },
+   {
+    "i": 1,
+    "n": "3,7 M",
+    "d": "réfugiés afghans fin 2025, après le retour d'environ 2,9 millions de personnes, souvent forcé.",
+    "at": "2025-12-31",
+    "src": "HCR, Global Trends 2026 (via The Online Citizen)",
+    "url": "https://theonlinecitizen.com/2026/06/11/global-forced-displacement-falls-in-2025-but-remains-at-historic-levels-unhcr-says"
+   },
+   {
+    "i": 2,
+    "n": "13 ‰",
+    "d": "prévalence de l'esclavage moderne, parmi les dix plus fortes du monde.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   },
+   {
+    "i": 3,
+    "n": null,
+    "d": "L'une des quatre plus grandes crises alimentaires du monde en 2025.",
+    "at": "Y2025",
+    "src": "Global Report on Food Crises 2026 (via Rural 21)",
+    "url": "https://www.rural21.com/english/news/detail/article/acute-food-insecurity-and-malnutrition-remain-alarmingly-high.html"
+   }
+  ]
+ },
+ {
+  "id": "156",
+  "slug": "ouighours",
+  "name": "Ouïghours",
+  "figs": [
+   {
+    "i": 0,
+    "n": "≈ 1 M",
+    "d": "Ouïghours détenus arbitrairement dans des camps dits d'« éducation politique », selon Human Rights Watch. Des centaines de milliers restent emprisonnés.",
+    "at": "M2026-08",
+    "src": "Human Rights Watch, « Chine : une décennie d'impunité pour les crimes commis contre les Ouïghours », 27 août 2026",
+    "url": "https://www.hrw.org/fr/news/2026/08/27/chine-une-decennie-dimpunite-pour-les-crimes-commis-contre-les-ouighours"
+   },
+   {
+    "i": 1,
+    "n": null,
+    "d": "En août 2022, le Haut-Commissariat de l'ONU aux droits de l'homme a jugé que l'ampleur de ces détentions pouvait constituer des crimes contre l'humanité. Pékin rejette ce rapport.",
+    "at": "M2022-08",
+    "src": "Amnesty International, trois ans après le rapport de l'ONU sur le Xinjiang, août 2025",
+    "url": "https://www.amnesty.org/fr/latest/news/2025/08/china-still-no-accountability-for-crimes-against-humanity-in-xinjiang-three-years-after-major-un-report/"
+   }
+  ]
+ },
+ {
+  "id": "466",
+  "slug": "mali",
+  "name": "Mali",
+  "figs": [
+   {
+    "i": 0,
+    "n": "415 000",
+    "d": "déplacés internes au premier trimestre 2026, et près de 280 000 réfugiés accueillis, selon l'UNICEF.",
+    "at": "M2026-03",
+    "src": "UNICEF, premier trimestre 2026 (via APA News)",
+    "url": "https://fr.apanews.net/disasters/mali-bamako-cherche-des-solutions-durables-pour-les-deplaces/"
+   },
+   {
+    "i": 1,
+    "n": "5,1 M",
+    "d": "personnes ont besoin d'aide humanitaire en 2026.",
+    "at": "Y2026",
+    "src": "OCHA, Plan de réponse humanitaire Mali 2026 (via APA News)",
+    "url": "https://fr.apanews.net/?p=306779"
+   },
+   {
+    "i": 2,
+    "n": "1,5 M",
+    "d": "personnes en insécurité alimentaire aiguë pendant la soudure, de juin à août 2026.",
+    "at": "M2026-08",
+    "src": "PAM, soudure juin-août 2026 (via APA News)",
+    "url": "https://fr.apanews.net/society/mali-un-deficit-de-736-millions-de-dollars-menace-laide-humanitaire/"
+   }
+  ]
+ },
+ {
+  "id": "854",
+  "slug": "burkina-faso",
+  "name": "Burkina Faso",
+  "figs": [
+   {
+    "i": 0,
+    "n": "2,06 M",
+    "d": "déplacés internes, selon le dernier recensement officiel (mars 2023). L'enregistrement est suspendu depuis.",
+    "at": "2023-03-31",
+    "src": "HCR, Burkina Faso, mise à jour opérationnelle avril-juin 2025",
+    "url": "https://www.unhcr.org/sites/default/files/2025-08/Quaterly%20Operational%20update%20UNHCR%20Burkina%20Faso%20April%20-%20June.pdf"
+   },
+   {
+    "i": 1,
+    "n": null,
+    "d": "Au Sahel, près de 10 000 écoles ont fermé à cause des violences. Plus de la moitié se trouvent au Burkina Faso.",
+    "at": "M2025-06",
+    "src": "OCHA, Sahel, juin 2025 (via AllAfrica)",
+    "url": "https://fr.allafrica.com/stories/202506080090.html"
+   }
+  ]
+ },
+ {
+  "id": "231",
+  "slug": "ethiopie",
+  "name": "Éthiopie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "1,92 M",
+    "d": "déplacés internes au 31 mai 2026.",
+    "at": "2026-05-31",
+    "src": "HCR, Éthiopie : réfugiés et déplacés internes au 31 mai 2026",
+    "url": "https://data.unhcr.org/en/documents/download/123000"
+   },
+   {
+    "i": 1,
+    "n": "1,01 M",
+    "d": "réfugiés accueillis, venus surtout du Soudan du Sud, de Somalie, d'Érythrée et du Soudan.",
+    "at": "2026-05-31",
+    "src": "HCR, Éthiopie : réfugiés et déplacés internes au 31 mai 2026",
+    "url": "https://data.unhcr.org/en/documents/download/123000"
+   }
+  ]
+ },
+ {
+  "id": "862",
+  "slug": "venezuela",
+  "name": "Venezuela",
+  "figs": [
+   {
+    "i": 0,
+    "n": "7,9 M",
+    "d": "Vénézuéliens ont quitté leur pays. Plus de 6,9 millions vivent en Amérique latine et dans les Caraïbes.",
+    "at": "M2025-11",
+    "src": "HCR, situation au Venezuela",
+    "url": "https://www.unhcr.org/Venezuela-emergency.html"
+   }
+  ]
+ },
+ {
+  "id": "508",
+  "slug": "mozambique",
+  "name": "Mozambique",
+  "figs": [
+   {
+    "i": 0,
+    "n": "1,3 M",
+    "d": "personnes déplacées depuis le début du conflit, surtout à Cabo Delgado, selon le HCR.",
+    "at": "Y2026",
+    "src": "HCR, nord du Mozambique (via APA News)",
+    "url": "https://fr.apanews.net/news/mozambique-les-violences-dans-le-nord-font-plus-de-100-000-deplaces/"
+   },
+   {
+    "i": 1,
+    "n": "205 000",
+    "d": "déplacés vivaient sur 84 sites de la province en octobre 2026.",
+    "at": "M2026-10",
+    "src": "OIM, Cabo Delgado, octobre 2026 (via APA News)",
+    "url": "https://fr.apanews.net/?p=332384"
+   }
+  ]
+ },
+ {
+  "id": "120",
+  "slug": "cameroun",
+  "name": "Cameroun",
+  "figs": [
+   {
+    "i": 0,
+    "n": "493 402",
+    "d": "déplacés internes dans les régions du Nord-Ouest et du Sud-Ouest (juillet 2026).",
+    "at": "2026-07-31",
+    "src": "OCHA et HCR, Cameroun, données au 31 juillet 2026",
+    "url": "https://data.unhcr.org/fr/country/cmr/349"
+   },
+   {
+    "i": 1,
+    "n": null,
+    "d": "Le conflit a entraîné la fermeture de 80 % des écoles des régions anglophones, selon RFI.",
+    "at": "M2026-09",
+    "src": "RFI, rentrée scolaire dans les régions anglophones, septembre 2026 (via AllAfrica)",
+    "url": "https://fr.allafrica.com/stories/202609070147.html"
+   }
+  ]
+ },
+ {
+  "id": "368",
+  "slug": "yezidis",
+  "name": "Yézidis",
+  "figs": [
+   {
+    "i": 0,
+    "n": "2 526",
+    "d": "Yézidis toujours portés disparus, sur 6 417 enlevés.",
+    "at": "M2026-08",
+    "src": "Gouvernement régional du Kurdistan, 3 août 2026 (via Kurdistan24)",
+    "url": "https://www.kurdistan24.net/en/story/943148"
+   },
+   {
+    "i": 1,
+    "n": "≈ 90 000",
+    "d": "Yézidis vivent encore dans treize camps de déplacés, et environ 180 000 hors des camps.",
+    "at": "M2026-08",
+    "src": "Yazda, douze ans après le génocide, 3 août 2026",
+    "url": "https://www.yazda.org/twelve-years-on-honoring-yazidi-victims-and-calling-for-justice"
+   }
+  ]
+ },
+ {
+  "id": "732",
+  "slug": "sahraouis",
+  "name": "Sahraouis",
+  "figs": [
+   {
+    "i": 0,
+    "n": "173 600",
+    "d": "réfugiés vivent dans cinq camps près de Tindouf, selon le chiffre de planification de l'ONU.",
+    "at": "2017-12-31",
+    "src": "UNRIC, Sahara occidental : réfugiés depuis un demi-siècle",
+    "url": "https://unric.org/fr/sahara-occidental-refugies-depuis-un-demi-siecle/"
+   },
+   {
+    "i": 1,
+    "n": "80 à 88 %",
+    "d": "des réfugiés sont en insécurité alimentaire ou risquent de l'être.",
+    "at": "Y2025",
+    "src": "UNRIC, Sahara occidental : réfugiés depuis un demi-siècle",
+    "url": "https://unric.org/fr/sahara-occidental-refugies-depuis-un-demi-siecle/"
+   }
+  ]
+ },
+ {
+  "id": "076",
+  "slug": "amazonie",
+  "name": "Amazonie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "12",
+    "d": "défenseurs de la terre et de l'environnement tués au Brésil en 2024. Dans le monde, un tiers des victimes sont autochtones.",
+    "at": "Y2024",
+    "src": "Global Witness, Roots of Resistance, septembre 2025",
+    "url": "https://www.scoop.co.nz/stories/WO2509/S00239/at-least-146-land-and-environmental-defenders-killed-or-disappeared-globally-in-2024.htm"
+   }
+  ]
+ },
+ {
+  "id": "360",
+  "slug": "papouasie",
+  "name": "Papouasie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "60 000 à 100 000",
+    "d": "personnes déplacées depuis l'escalade de décembre 2018, selon des experts de l'ONU (2022).",
+    "at": "M2022-03",
+    "src": "ONU Info, rapporteurs spéciaux sur la Papouasie, 1er mars 2022",
+    "url": "https://news.un.org/en/story/2022/03/1113062"
+   }
+  ]
+ },
+ {
+  "id": "586",
+  "slug": "baloutches",
+  "name": "Baloutches",
+  "figs": [
+   {
+    "i": 0,
+    "n": "46",
+    "d": "nouveaux cas de disparition forcée enregistrés par la police du Balouchistan en 2025.",
+    "at": "Y2025",
+    "src": "Commission des droits humains du Pakistan (HRCP), mission au Balouchistan, août 2025 (via Dawn)",
+    "url": "https://www.dawn.com/news/1929114"
+   }
+  ]
+ },
+ {
+  "id": "558",
+  "slug": "nicaragua",
+  "name": "Nicaragua",
+  "figs": [
+   {
+    "i": 0,
+    "n": "452",
+    "d": "Nicaraguayens officiellement déchus de leur nationalité, selon le groupe d'experts de l'ONU.",
+    "at": "M2025-09",
+    "src": "Groupe d'experts de l'ONU sur le Nicaragua, septembre 2025 (via Confidencial)",
+    "url": "https://confidencial.digital/en/?p=175303"
+   }
+  ]
+ },
+ {
+  "id": "804",
+  "slug": "ukraine",
+  "name": "Ukraine",
+  "figs": [
+   {
+    "i": 0,
+    "n": null,
+    "d": "En mars 2023, la Cour pénale internationale a émis un mandat d'arrêt contre Vladimir Poutine, soupçonné de déportation illégale d'enfants ukrainiens. La Russie rejette la compétence de la Cour.",
+    "at": "M2023-03",
+    "src": "Cour pénale internationale, mars 2023 (via Reuters)",
+    "url": "https://www.yahoo.com/news/icc-issues-arrest-warrants-taliban-134339540.html"
+   },
+   {
+    "i": 1,
+    "n": "4",
+    "d": "journalistes tués par des drones russes en 2025, le chiffre le plus élevé depuis 2022 pour ce type d'attaque.",
+    "at": "Y2025",
+    "src": "CPJ, rapport 2025 (via The Sun)",
+    "url": "https://thesun.my/?p=313466"
+   }
+  ]
+ },
+ {
+  "id": "728",
+  "slug": "soudan-du-sud",
+  "name": "Soudan du Sud",
+  "figs": [
+   {
+    "i": 0,
+    "n": "7,8 M",
+    "d": "personnes en insécurité alimentaire sévère et 2,2 millions d'enfants malnutris (avril à juillet 2026).",
+    "at": "M2026-04",
+    "src": "IPC, Soudan du Sud, avril 2026 (cité par Food Policy)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0306919226001016"
+   }
+  ]
+ },
+ {
+  "id": "706",
+  "slug": "somalie",
+  "name": "Somalie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "2 195",
+    "d": "violations graves contre des enfants vérifiées par l'ONU en 2025.",
+    "at": "Y2025",
+    "src": "Rapport Enfants et conflits armés 2026, pays les plus touchés (via Security Council Report)",
+    "url": "https://www.securitycouncilreport.org/whatsinblue/2026/06/children-and-armed-conflict-annual-open-debate-5.php"
+   }
+  ]
+ },
+ {
+  "id": "566",
+  "slug": "nigeria",
+  "name": "Nigeria",
+  "figs": [
+   {
+    "i": 0,
+    "n": "2 560",
+    "d": "violations graves contre des enfants vérifiées par l'ONU en 2025, le troisième chiffre au monde.",
+    "at": "Y2025",
+    "src": "Rapport Enfants et conflits armés 2026, pays les plus touchés (via Security Council Report)",
+    "url": "https://www.securitycouncilreport.org/whatsinblue/2026/06/children-and-armed-conflict-annual-open-debate-5.php"
+   }
+  ]
+ },
+ {
+  "id": "232",
+  "slug": "erythree",
+  "name": "Érythrée",
+  "figs": [
+   {
+    "i": 0,
+    "n": "90,3 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "364",
+  "slug": "iran",
+  "name": "Iran",
+  "figs": [
+   {
+    "i": 0,
+    "n": "3,2 M",
+    "d": "personnes déplacées à l'intérieur de l'Iran en 2026.",
+    "at": "M2026-06",
+    "src": "HCR, Global Trends 2026 (via The Statesman)",
+    "url": "https://www.thestatesman.com/world/unhcr-2026-global-trends-117-million-forcibly-displaced-worldwide-1503604458.html"
+   }
+  ]
+ },
+ {
+  "id": "408",
+  "slug": "coree-du-nord",
+  "name": "Corée du Nord",
+  "figs": [
+   {
+    "i": 0,
+    "n": "104,6 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants, la prévalence la plus forte du monde.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "170",
+  "slug": "colombie",
+  "name": "Colombie",
+  "figs": [
+   {
+    "i": 0,
+    "n": null,
+    "d": "L'un des cinq pays qui concentrent 46 % des déplacés internes du monde, avec le Soudan, la Syrie, le Yémen et l'Afghanistan.",
+    "at": "2025-12-31",
+    "src": "HCR, Global Trends 2026 (via The Statesman)",
+    "url": "https://www.thestatesman.com/world/unhcr-2026-global-trends-117-million-forcibly-displaced-worldwide-1503604458.html"
+   }
+  ]
+ },
+ {
+  "id": "484",
+  "slug": "mexique",
+  "name": "Mexique",
+  "figs": [
+   {
+    "i": 0,
+    "n": "6",
+    "d": "journalistes tués en 2025. Aucune de ces affaires n'est élucidée.",
+    "at": "Y2025",
+    "src": "CPJ, rapport 2025 (via The Sun)",
+    "url": "https://thesun.my/?p=313466"
+   }
+  ]
+ },
+ {
+  "id": "643",
+  "slug": "russie",
+  "name": "Russie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "13 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "384",
+  "slug": "cote-d-ivoire",
+  "name": "Côte d'Ivoire",
+  "figs": [
+   {
+    "i": 0,
+    "n": "931 000",
+    "d": "personnes apatrides fin 2023.",
+    "at": "2023-12-31",
+    "src": "HCR, Global Trends, apatridie fin 2023 (via EMN Belgique)",
+    "url": "https://emnbelgium.be/nl/node/4597"
+   }
+  ]
+ },
+ {
+  "id": "478",
+  "slug": "mauritanie",
+  "name": "Mauritanie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "32 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023 (via Al Jazeera)",
+    "url": "https://www.aljazeera.com/economy/2023/5/24/modern-slavery-most-common-in-north-korea-eritrea-report-says"
+   }
+  ]
+ },
+ {
+  "id": "682",
+  "slug": "arabie-saoudite",
+  "name": "Arabie saoudite",
+  "figs": [
+   {
+    "i": 0,
+    "n": "21,3 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "784",
+  "slug": "emirats",
+  "name": "Émirats",
+  "figs": [
+   {
+    "i": 0,
+    "n": "13,4 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "414",
+  "slug": "koweit",
+  "name": "Koweït",
+  "figs": [
+   {
+    "i": 0,
+    "n": "13 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "792",
+  "slug": "turquie",
+  "name": "Turquie",
+  "figs": [
+   {
+    "i": 0,
+    "n": "15,6 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "050",
+  "slug": "bangladesh",
+  "name": "Bangladesh",
+  "figs": [
+   {
+    "i": 0,
+    "n": "971 900",
+    "d": "Rohingyas apatrides installés au Bangladesh fin 2023.",
+    "at": "2023-12-31",
+    "src": "HCR, Global Trends, apatridie fin 2023 (via EMN Belgique)",
+    "url": "https://emnbelgium.be/nl/node/4597"
+   }
+  ]
+ },
+ {
+  "id": "608",
+  "slug": "philippines",
+  "name": "Philippines",
+  "figs": [
+   {
+    "i": 0,
+    "n": "3",
+    "d": "journalistes abattus en 2025.",
+    "at": "Y2025",
+    "src": "CPJ, rapport 2025 (via The Sun)",
+    "url": "https://thesun.my/?p=313466"
+   }
+  ]
+ },
+ {
+  "id": "762",
+  "slug": "tadjikistan",
+  "name": "Tadjikistan",
+  "figs": [
+   {
+    "i": 0,
+    "n": "14 ‰",
+    "d": "personnes en esclavage moderne pour 1 000 habitants.",
+    "at": "Y2021",
+    "src": "Walk Free, Global Slavery Index 2023, dix pays les plus touchés (via Databoks)",
+    "url": "https://databoks.katadata.co.id/en/consumer-services/statistics/df7f08d4761d809/from-north-korea-to-arab-nations-these-are-the-countries-with-the-highest-prevalence-of-modern-slavery-in-the-world-in-2023"
+   }
+  ]
+ },
+ {
+  "id": "764",
+  "slug": "thailande",
+  "name": "Thaïlande",
+  "figs": [
+   {
+    "i": 0,
+    "n": "586 500",
+    "d": "personnes apatrides fin 2023.",
+    "at": "2023-12-31",
+    "src": "HCR, Global Trends, apatridie fin 2023 (via EMN Belgique)",
+    "url": "https://emnbelgium.be/nl/node/4597"
+   }
+  ]
+ }
+]

@@ -1837,3 +1837,13 @@ body.st-encre #stamps .slot .stampwrap{filter:none!important}
 
 /* Le navigateur ne dessine les sections du passeport que lorsqu'elles approchent de l'écran */
 #visaSect,#launchSect,#cards,#badges{content-visibility:auto;contain-intrinsic-size:auto 600px}
+
+/* ---------- Intro v3 : animation pilotée en JS, pas d'anciennes animations CSS ---------- */
+.splash.play3 .sbird,.splash.play3 .shead,.splash.play3 .segg,.splash.play3 .scrumb{animation:none!important}
+.splash.play3 .sbird{width:168px;height:150px;overflow:visible}
+.splash.play3 .sword{animation:sfade .6s 1.0s forwards}
+.splash.play3 .ssub{animation:sfade .6s 1.3s forwards}
+.splash.play3{clip-path:none!important;--hole:0px;-webkit-mask:radial-gradient(circle at var(--x,50%) var(--y,46%),transparent var(--hole),#000 calc(var(--hole) + 1px));mask:radial-gradient(circle at var(--x,50%) var(--y,46%),transparent var(--hole),#000 calc(var(--hole) + 1px));transition:--hole 1s cubic-bezier(.6,0,.2,1)}
+.splash.play3.sopen{--hole:160vmax}
+.splash .s3lid{transition:none}
+@media (max-width:720px){.splash.play3 .sbird{width:150px;height:134px}}

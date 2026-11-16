@@ -10802,6 +10802,137 @@ Object.assign(EN, {
  "Affichage":"View","Tampons":"Stamps","Globe":"Globe","Style des tampons":"Stamp style","Réservé aux Fondateurs.":"Founders only.","Fondateur":"Founder"
 });
 
+/* ---------- Intro v3 : l'oiseau arrive, regarde la graine, picore trois fois, avale, puis le site s'ouvre ---------- */
+(function(){
+  const INK = "#121315", GOLD = "#C8962E";
+  const BIRD = `
+  <defs><clipPath id="sp3eye"><circle cx="15.6" cy="7.9" r=".95"/></clipPath></defs>
+  <ellipse class="s3shadow" cx="15" cy="30.2" rx="9" ry="1.1" fill="${INK}" opacity=".12"/>
+  <g class="s3all">
+    <g class="s3legs" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" fill="none">
+      <g class="s3legA"><path d="M12.6 25.4v3.6"/><path d="M10.8 29.3h3.8M12.6 29v1.3" stroke-width="1.3"/></g>
+      <g class="s3legB"><path d="M17 25v4"/><path d="M15.2 29.2h3.8M17 29v1.3" stroke-width="1.3"/></g>
+    </g>
+    <g class="s3body">
+      <path class="s3tail" d="M4.5 17.5 1.8 13.2l4.4 2.1z" fill="${INK}"/>
+      <ellipse cx="14.5" cy="20" rx="9.5" ry="6.2" transform="rotate(-12 14.5 20)" fill="${INK}"/>
+      <path class="s3wing" d="M9.6 19.2c2.4-2.2 6.8-2.6 9.8-1.1-1.3 2.5-5 4.1-8.6 3.2-.8-.2-1.3-1.1-1.2-2.1z" fill="var(--bg)" opacity=".10"/>
+      <g class="s3seed"><ellipse cx="11.2" cy="14.9" rx="1.9" ry="1.35" fill="${GOLD}"/><ellipse cx="10.7" cy="14.4" rx=".6" ry=".32" fill="#F2D27A" opacity=".85"/></g>
+      <g class="s3crumbs"></g>
+      <g class="s3neck">
+        <path class="s3neckp" d="M21.5 17.2C25.8 11 21 4.6 15.4 7.4" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/>
+        <g class="s3head">
+          <circle cx="14.6" cy="8.6" r="3.3" fill="${INK}"/>
+          <g class="s3beak"><path class="s3beakU" d="M12.2 9.6 10.1 12.2l3.3-1.1z" fill="${INK}"/><path class="s3beakL" d="M12.4 10.5 10.3 13.4l3.3-1.5z" fill="${INK}"/></g>
+          <circle cx="15.6" cy="7.9" r=".9" fill="var(--bg)"/>
+          <circle cx="15.8" cy="8" r=".42" fill="${INK}"/>
+          <rect class="s3lid" x="14.4" y="5.9" width="2.5" height="2.2" fill="${INK}" clip-path="url(#sp3eye)" style="transform-origin:15.6px 6.9px;transform:scaleY(0)"/>
+        </g>
+      </g>
+    </g>
+  </g>`;
+
+  const ease = {out:t=>1-Math.pow(1-t,3), in:t=>t*t*t, io:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, back:t=>{ const c=1.7; return 1+c*Math.pow(t-1,3)+(c+1)*Math.pow(t-1,2)*0; }, spring:t=>1-Math.cos(t*Math.PI*2.5)*Math.exp(-t*5)};
+  const seg = (t, a, b, f=ease.io)=>t<=a?0:t>=b?1:f((t-a)/(b-a));
+  const lerp = (a,b,k)=>a+(b-a)*k;
+
+  function intro3(){
+    const el = $("#splash"); if(!el) return;
+    if(reduce || document.documentElement.classList.contains("nosplash")){ el.remove(); document.documentElement.classList.add("nosplash"); return; }
+    window.scrollTo(0,0);
+    const svg = el.querySelector(".sbird"); svg.setAttribute("viewBox", "-2 0 36 32"); svg.innerHTML = BIRD;
+    const g = s=>svg.querySelector(s);
+    const all = g(".s3all"), body = g(".s3body"), neck = g(".s3neck"), head = g(".s3head"), beakU = g(".s3beakU"), beakL = g(".s3beakL"), lid = g(".s3lid"),
+      tail = g(".s3tail"), wing = g(".s3wing"), legA = g(".s3legA"), legB = g(".s3legB"), seed = g(".s3seed"), crumbs = g(".s3crumbs"), shadow = g(".s3shadow");
+    const set = (n, tr, o)=>{ n.setAttribute("transform", tr); if(o != null) n.setAttribute("opacity", o); };
+    /* miettes : trois salves */
+    const CR = [];
+    const burst = (n, t0)=>{ for(let i=0;i<n;i++){ const a = Math.PI*(.9+Math.random()*1.3), v = 2.2+Math.random()*3.2, c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      c.setAttribute("r", (.22+Math.random()*.28).toFixed(2)); c.setAttribute("fill", Math.random()<.3 ? "#F2D27A" : GOLD); crumbs.appendChild(c);
+      CR.push({c, t0, vx:Math.cos(a)*v*.8, vy:-Math.abs(Math.sin(a))*v-1.5, x:11.2, y:14.4}); } };
+    el.classList.add("play3");
+    const T = 3000, PECK = [1.08, 1.44, 1.80], peckDone = [false,false,false];
+    let start = null, done = false, raf = 0;
+    const end = ()=>{ if(done) return; done = true; cancelAnimationFrame(raf);
+      const r = seed.getBoundingClientRect(); el.style.setProperty("--x",(r.left+r.width/2)+"px"); el.style.setProperty("--y",(r.top+r.height/2)+"px");
+      requestAnimationFrame(()=>el.classList.add("sopen")); setTimeout(()=>el.remove(), 1100); };
+    function frame(now){
+      if(done) return; if(!start) start = now; const ms = now - start, t = ms/1000;
+      /* 0 → 0,7 s : il entre en marchant, trois petits pas, le corps oscille */
+      const walk = seg(t, 0, .7, ease.out), stepK = Math.min(1, t/.7)*3*Math.PI;
+      const bob = Math.abs(Math.sin(stepK))*(1-walk)*.9;
+      let bx = lerp(-9, 0, walk), by = -bob, squash = 1 - bob*.03;
+      const legA_ = Math.sin(stepK)*(1-walk)*1.1, legB_ = -legA_;
+      /* 0,7 → 1,0 s : il tourne la tête vers la graine posée sur son dos */
+      const look = seg(t, .7, 1.0, ease.io);
+      let headRot = lerp(4, 10, look), neckDown = lerp(-.3, 0, look), neckRot = 0;
+      /* trois coups de bec : recul (anticipation), frappe sèche, retour souple */
+      let strike = 0, antic = 0; PECK.forEach((p,i)=>{ const u = t - p; if(u < 0) return;
+        if(u < .13) antic = Math.max(antic, ease.out(u/.13));
+        else if(u < .21){ antic = Math.max(antic, 1 - (u-.13)/.08); strike = Math.max(strike, ease.in((u-.13)/.08)); }
+        else if(u < .48) strike = Math.max(strike, 1 - ease.out((u-.21)/.27));
+        if(u >= .21 && !peckDone[i]){ peckDone[i] = true; burst(5 - i, now); } });
+      headRot += antic*-10 - strike*34; neckDown += antic*-.8 + strike*1.6; neckRot += antic*-2 + strike*4;
+      const bodyTilt = strike*1.5, tailLift = -strike*9 + antic*3, hop = 0;
+      /* après le dernier coup : il avale (la tête remonte par à-coups), puis regarde le visiteur */
+      const swallow = seg(t, 2.25, 2.55, ease.io), gulp = Math.sin(swallow*Math.PI*2)*.35;
+      const up = seg(t, 2.3, 2.75, ease.out);
+      headRot = lerp(headRot, -6, up); neckRot = lerp(neckRot, -5, up); neckDown = lerp(neckDown, -.5, up);
+      const blink = Math.max(seg(t,.9,.97,ease.io)*(1-seg(t,.97,1.06,ease.io)), seg(t,2.6,2.67,ease.io)*(1-seg(t,2.67,2.76,ease.io)));
+      const chew = t > 2.02 && t < 2.28 ? Math.abs(Math.sin((t-2.02)*24))*.55 : 0;
+      const beakOpen = Math.max(antic*.7, strike*.5, chew);
+      const legSpread = 0;
+      set(all, `translate(${bx.toFixed(2)} ${by.toFixed(2)})`);
+      set(body, `translate(14.5 ${(26 - 26*squash).toFixed(2)}) scale(1 ${squash.toFixed(3)}) translate(-14.5 0) rotate(${bodyTilt.toFixed(2)} 14 25)`);
+      set(tail, `rotate(${tailLift.toFixed(2)} 6.2 15.3)`);
+      set(wing, `rotate(${(-strike*4).toFixed(2)} 10 20)`);
+      set(neck, `rotate(${neckRot.toFixed(2)} 21 17.5) translate(0 ${neckDown.toFixed(2)})`);
+      set(head, `rotate(${headRot.toFixed(2)} 14.6 8.6) translate(0 ${(gulp*.5).toFixed(2)})`);
+      set(beakU, `rotate(${(-beakOpen*10).toFixed(2)} 12.4 9.8)`);
+      set(beakL, `rotate(${(beakOpen*16).toFixed(2)} 12.4 10.2)`);
+      lid.style.transform = `scaleY(${blink.toFixed(3)})`;
+      set(legA, `translate(${legA_.toFixed(2)} ${(-Math.max(0,legA_)*.5).toFixed(2)})`); set(legB, `translate(${legB_.toFixed(2)} ${(-Math.max(0,legB_)*.5).toFixed(2)})`);
+      set(shadow, `translate(${bx.toFixed(2)} 0) scale(${(1 - bob*.08).toFixed(3)} 1)`, (.12 - bob*.02).toFixed(3));
+      /* la graine : écrasée à chaque coup, réduite par tiers */
+      const eaten = peckDone.filter(Boolean).length, sq = strike > .85 ? .6 : 1;
+      set(seed, `translate(11.2 16) scale(${(1 - eaten*.3).toFixed(2)} ${((1 - eaten*.3)*sq).toFixed(2)}) translate(-11.2 -16)`, eaten >= 3 ? 0 : 1);
+      for(const k of CR){ const u = (now - k.t0)/1000; if(u > .7){ k.c.setAttribute("opacity", 0); continue; }
+        const x = k.x + k.vx*u, y = k.y + k.vy*u + 26*u*u; k.c.setAttribute("cx", x.toFixed(2)); k.c.setAttribute("cy", Math.min(y, 30.5).toFixed(2)); k.c.setAttribute("opacity", (1 - u/.7).toFixed(2)); }
+      if(ms < T) raf = requestAnimationFrame(frame); else end();
+    }
+    raf = requestAnimationFrame(frame);
+    el.onclick = end; setTimeout(end, T + 400);
+  }
+  window.intro = intro3;
+})();
+
+/* ---------- Chiffres mis à jour : la veille hebdomadaire écrit dans la collection « figs », le site l'applique au chargement ----------
+   Document : {"id":"729","i":0,"n":"12,1 M","d":"phrase FR","en":{"n":"12.1 M","d":"phrase EN"},"at":"2026-11-20","src":"...","srcEn":"...","url":"https://…"}
+   i = rang du chiffre dans la fiche (0 = premier). "n" vide = chiffre retiré. */
+async function loadFigs(){
+  if(!DB) return;
+  let docs = [];
+  try{ const qs = await DB.collection("figs").get(); docs = qs.docs.map(x=>({_id:x.id, ...x.data()})); }catch(e){ return; }
+  let n = 0;
+  for(const d of docs){
+    const c = C[d.id]; if(!c || !c.figs || typeof d.i !== "number" || !c.figs[d.i]) continue;
+    const f = c.figs[d.i], en = LANG === "en" && d.en;
+    if(d.n != null) f.n = en && d.en.n != null ? d.en.n : d.n;
+    if(d.d != null) f.d = en && d.en.d != null ? d.en.d : d.d;
+    if(d.t != null) f.t = en && d.en.t != null ? d.en.t : d.t;
+    if(d.people != null) f.people = d.people;
+    if(d.at) f.at = d.at;
+    if(d.src || d.url){ const k = "fig_" + d._id; S[k] = {t:(LANG === "en" && d.srcEn) || d.src || (S[f.s] || {}).t || "", u:d.url || (S[f.s] || {}).u || "#"}; f.s = k; }
+    f._upd = d.at || "";
+    n++;
+  }
+  if(n){ const h = location.hash.slice(1); if(h.startsWith("pays-")){ const id = Object.keys(C).find(k=>"pays-"+C[k].slug === h); if(id) renderPays(id); } }
+}
+(function(){
+  const _la = loadActu;
+  loadActu = async function(){ try{ await loadFigs(); }catch(e){} return _la.apply(this, arguments); };
+})();
+
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();
 translateStatic();
