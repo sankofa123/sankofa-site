@@ -10654,17 +10654,29 @@ Object.assign(EN, {
   const dnum = d=>{ const m = String(d||"").split("/"); return m.length===3 ? +(m[2]+m[1].padStart(2,"0")+m[0].padStart(2,"0")) : 0; };
   const founder = ()=>{ try{ return window.skfFounder ? window.skfFounder() : 0; }catch(e){ return 0; } };
 
-  function visaHTML(){
+  const rng = seed=>()=>{ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  /* Tampons posés au hasard : ils peuvent se toucher, jamais se recouvrir. Les anciens ne bougent pas quand un nouveau arrive. */
+  function layout(keys, W, d){
+    const pts = []; let H = d*2.3;
+    for(const k of keys){ const r = rng(hash(k)); let ok = null, tries = 0;
+      while(!ok){ for(let i = 0; i < 260 && !ok; i++){ const x = d/2 + 4 + r()*(W - d - 8), y = d/2 + 4 + r()*(H - d - 8);
+          if(pts.every(p=>(p.x - x)**2 + (p.y - y)**2 >= (d*1.03)**2)) ok = {x, y}; }
+        if(!ok){ H += d*.4; if(++tries > 80){ ok = {x:d/2 + 4, y:H - d/2}; } } }
+      pts.push({k, x:ok.x, y:ok.y, rot:Math.round(r()*36 - 18)}); }
+    return {pts, H:Math.max(H, ...pts.map(p=>p.y + d/2 + 6))};
+  }
+  function visaHTML(sec){
     const ids = FEATURED.filter(id=>state.stamps[id]).sort((a,b)=>dnum(state.stamps[a].d) - dnum(state.stamps[b].d) || (hash(a) - hash(b)));
     const fr = founder();
     if(!ids.length && !fr) return "";
     const seen = state.visaSeen || {};
-    const item = (key, html, cls)=>{ const h = hash(key), jx = (h % 17) - 8, jy = ((h >> 5) % 15) - 7, rot = ((h >> 9) % 31) - 15;
-      return `<div class="vst ${cls||""}" data-k="${key}" style="--jx:${jx}px;--jy:${jy}px;--rot:${rot}deg;--f:url(#skfInk${h % 4})">${html}</div>`; };
-    let out = ids.map(id=>{ const s = state.stamps[id]; return item(id, stampSVG(id, s.r, s.d), seen[id] === s.r ? "" : "new"); }).join("");
-    if(fr && window.skfMedal) out = item("fondateur", `<div class="stampwrap">${window.skfMedal("f", true, "N° " + String(fr).padStart(3, "0"))}</div>`, seen.fondateur ? "" : "new") + out;
+    const avail = Math.min((sec && sec.clientWidth) || 340, 520), W = avail - 24, d = avail < 420 ? 64 : 76;
+    const keys = (fr && window.skfMedal ? ["fondateur"] : []).concat(ids), L = layout(keys, W, d);
+    const out = L.pts.map(p=>{ const isNew = p.k === "fondateur" ? !seen.fondateur : seen[p.k] !== state.stamps[p.k].r;
+      const inner = p.k === "fondateur" ? `<div class="stampwrap">${window.skfMedal("f", true, "N° " + String(fr).padStart(3, "0"))}</div>` : stampSVG(p.k, state.stamps[p.k].r, state.stamps[p.k].d);
+      return `<div class="vst ${isNew?"new":""}" data-k="${p.k}" title="${p.k === "fondateur" ? esc(t("Fondateur")) : esc(C[p.k].short)}" style="left:${(p.x - d/2).toFixed(1)}px;top:${(p.y - d/2).toFixed(1)}px;width:${d}px;height:${d}px;--rot:${p.rot}deg;--f:url(#skfInk${hash(p.k) % 4})">${inner}</div>`; }).join("");
     return `<div class="secthead"><div><div class="eyebrow">${t("Pages de visas")}</div><h2>${t("Tamponné au fil de tes escales.")}</h2></div></div>
-      <div class="vpage"><div class="vhead"><span>SANKOFA · VISAS</span><span>${ids.length + (fr?1:0)} / ${FEATURED.length}</span></div><div class="vgrid">${out}</div></div>`;
+      <div class="vpage" style="width:${avail}px"><div class="vhead"><span>SANKOFA · VISAS</span><span>${keys.length} / ${FEATURED.length}</span></div><div class="vgrid" style="width:${W}px;height:${Math.ceil(L.H)}px">${out}</div></div>`;
   }
   let playing = false;
   function playNew(){
@@ -10690,32 +10702,42 @@ Object.assign(EN, {
     const dark = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
     const won = FEATURED.filter(id=>state.stamps[id] && featById[id]);
     const counts = [1,2,3,4,5].map(r=>FEATURED.filter(id=>state.stamps[id] && state.stamps[id].r === r).length);
-    box.innerHTML = `<div class="cglobe"><canvas id="cgCv" aria-label="${esc(t("Globe de ta collection"))}" role="img"></canvas>
-      <p class="cgnote">${t("Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais tourner le globe.")}</p>
+    box.innerHTML = `<div class="cglobe"><div class="cgwrap"><canvas id="cgCv" aria-label="${esc(t("Globe de ta collection"))}" role="img"></canvas><div class="cglab" id="cgLab" aria-live="polite"></div></div>
+      <p class="cgnote">${won.length ? t("Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais glisser pour tourner, touche un pays pour voir son nom.") : t("Aucun tampon pour l'instant. Réussis un parcours pour colorer ton premier pays.")}</p>
       <div class="cgleg">${[5,4,3,2,1].filter(r=>RARITY[r]).map(r=>`<span><i style="background:${RARITY[r].col}"></i>${RARITY[r].name} <em>${counts[r-1]}</em></span>`).join("")}</div></div>`;
-    const cv = box.querySelector("#cgCv"), size = Math.min(box.clientWidth || 340, 440), dpr = Math.min(devicePixelRatio || 1, 2);
+    const cv = box.querySelector("#cgCv"), lab = box.querySelector("#cgLab"), size = Math.max(220, Math.min((box.clientWidth || 340) - 8, 400)), dpr = Math.min(devicePixelRatio || 1, 2);
     cv.width = size*dpr; cv.height = size*dpr; cv.style.width = cv.style.height = size + "px";
     const x = cv.getContext("2d"); x.scale(dpr, dpr);
-    if(!rotG){ const last = won.slice().sort((a,b)=>dnum(state.stamps[b].d) - dnum(state.stamps[a].d))[0]; const c = last ? centroid(last) : [20, 10]; rotG = [-c[0], -c[1]]; }
+    if(!rotG){ const last = won.slice().sort((a,b)=>dnum(state.stamps[b].d) - dnum(state.stamps[a].d))[0]; const c = last ? centroid(last) : [20, 10]; rotG = [-c[0], -Math.max(-50, Math.min(50, c[1]))]; }
     const pr = d3.geoOrthographic().translate([size/2, size/2]).scale(size/2 - 10).clipAngle(90), pa = d3.geoPath(pr, x);
     const sea = dark ? "#14171C" : "#E4E6E2", land = dark ? "#2A2E35" : "#C9CCC8", line = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)";
+    let hot = null;
     function draw(){
       pr.rotate(rotG); x.clearRect(0, 0, size, size);
       x.beginPath(); pa({type:"Sphere"}); x.fillStyle = sea; x.fill();
       x.beginPath(); for(const f of F50) pa(f); x.fillStyle = land; x.fill(); x.strokeStyle = line; x.lineWidth = .5; x.stroke();
       for(const id of won){ const r = state.stamps[id].r, col = RARITY[r].col;
-        x.save(); if(r >= 3){ x.shadowColor = col; x.shadowBlur = 4 + r*3; }
+        x.save(); if(r >= 4){ x.shadowColor = col; x.shadowBlur = r*3; }
         x.beginPath(); pa(featById[id]); x.fillStyle = col; x.fill(); x.restore();
-        x.beginPath(); pa(featById[id]); x.strokeStyle = dark ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.9)"; x.lineWidth = r >= 4 ? 1.4 : .8; x.stroke(); }
+        x.beginPath(); pa(featById[id]); x.strokeStyle = id === hot ? (dark ? "#fff" : "#121315") : "rgba(255,255,255,.85)"; x.lineWidth = id === hot ? 2 : .8; x.stroke(); }
       x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = line; x.lineWidth = 1.2; x.stroke();
     }
-    let drag = null, idle = true;
-    cv.onpointerdown = e=>{ drag = [e.clientX, e.clientY, rotG[0], rotG[1]]; idle = false; cv.setPointerCapture(e.pointerId); };
-    cv.onpointermove = e=>{ if(!drag) return; rotG = [drag[2] + (e.clientX - drag[0])*.45, Math.max(-70, Math.min(70, drag[3] - (e.clientY - drag[1])*.45))]; draw(); };
-    cv.onpointerup = cv.onpointercancel = ()=>{ drag = null; };
+    const pick = e=>{ const b = cv.getBoundingClientRect(), ll = pr.invert([e.clientX - b.left, e.clientY - b.top]); if(!ll) return null;
+      return won.find(id=>d3.geoContains(featById[id], ll)) || null; };
+    const show = id=>{ if(id === hot) return; hot = id; lab.innerHTML = id ? `<b>${esc(C[id].short)}</b> · ${t("Tampon {r}", {r:RARITY[state.stamps[id].r].name})}` : ""; lab.classList.toggle("on", !!id); draw(); };
+    let drag = null, idle = true, moved = false;
+    cv.onpointerdown = e=>{ drag = [e.clientX, e.clientY, rotG[0], rotG[1]]; moved = false; idle = false; try{ cv.setPointerCapture(e.pointerId); }catch(x){} };
+    cv.onpointermove = e=>{
+      if(!drag){ if(e.pointerType === "mouse") show(pick(e)); return; }
+      const dx = e.clientX - drag[0], dy = e.clientY - drag[1]; if(Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+      rotG = [drag[2] + dx*.45, Math.max(-70, Math.min(70, drag[3] - dy*.45))]; draw(); };
+    cv.onpointerup = e=>{ if(drag && !moved) show(pick(e)); drag = null; };
+    cv.onpointercancel = ()=>{ drag = null; };
+    cv.onpointerleave = e=>{ if(e.pointerType === "mouse" && !drag) show(null); };
     cancelAnimationFrame(raf);
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    (function spin(){ if(!document.body.contains(cv)) return; if(idle && !still){ rotG = [rotG[0] + .12, rotG[1]]; draw(); } raf = requestAnimationFrame(spin); })();
+    let last = 0;
+    (function spin(ts){ if(!document.body.contains(cv)) return; if(idle && !still && cv.offsetParent && ts - last > 40){ last = ts; rotG = [rotG[0] + .25, rotG[1]]; draw(); } raf = requestAnimationFrame(spin); })(0);
     draw();
   }
 
@@ -10727,15 +10749,18 @@ Object.assign(EN, {
     /* Pages de visas */
     const tiers = $("#tiers");
     if(tiers){ let sec = $("#visaSect"); if(!sec){ tiers.insertAdjacentHTML("beforebegin", `<div class="sect" id="visaSect"></div>`); sec = $("#visaSect"); }
-      const h = visaHTML(); sec.innerHTML = h; sec.style.display = h ? "" : "none"; if(h) setTimeout(playNew, 700); }
-    /* Tampons ou globe */
+      sec.style.display = ""; const h = visaHTML(sec); sec.innerHTML = h; sec.style.display = h ? "" : "none"; if(h) setTimeout(playNew, 700); }
+    /* Tampons ou globe : on bascule sans rien recharger */
     const stf = $("#stampFilt"), st = $("#stamps");
     if(stf && st){
-      const V = window.STAMP_VIEW || "stamps";
-      stf.insertAdjacentHTML("beforeend", `<span class="stview" role="group" aria-label="${t("Affichage")}"><button type="button" data-sv="stamps" aria-pressed="${V==="stamps"}">${t("Tampons")}</button><button type="button" data-sv="globe" aria-pressed="${V==="globe"}">${t("Globe")}</button></span>`);
-      stf.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{ window.STAMP_VIEW = b.dataset.sv; renderPass(); });
-      stf.querySelectorAll("[data-sf]").forEach(b=>b.style.display = V === "globe" ? "none" : "");
-      if(V === "globe") globeView(st);
+      let cg = $("#cgBox"); if(!cg){ st.insertAdjacentHTML("afterend", `<div id="cgBox" hidden></div>`); cg = $("#cgBox"); }
+      stf.insertAdjacentHTML("beforeend", `<span class="stview" role="group" aria-label="${t("Affichage")}"><button type="button" data-sv="stamps">${t("Tampons")}</button><button type="button" data-sv="globe">${t("Globe")}</button></span>`);
+      const setV = v=>{ window.STAMP_VIEW = v; const g = v === "globe";
+        stf.querySelectorAll("[data-sv]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.sv === v));
+        stf.querySelectorAll("[data-sf]").forEach(b=>b.style.display = g ? "none" : "");
+        st.hidden = g; cg.hidden = !g; if(g) globeView(cg); else cg.innerHTML = ""; };
+      stf.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>setV(b.dataset.sv));
+      setV(window.STAMP_VIEW || "stamps");
     }
     /* Fondateur : ruban sur le passeport */
     if(!renderPass._f){ renderPass._f = 1; setTimeout(()=>{ if(founder() && location.hash === "#passeport") renderPass(); }, 2600); }
@@ -10747,7 +10772,7 @@ Object.assign(EN, {
 
 Object.assign(EN, {
  "Pages de visas":"Visa pages","Tamponné au fil de tes escales.":"Stamped along your journey.","Globe de ta collection":"Your collection globe",
- "Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais tourner le globe.":"Here, colour shows the rarity of your stamp, not the type of crisis. Spin the globe.",
+ "Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais glisser pour tourner, touche un pays pour voir son nom.":"Here, colour shows the rarity of your stamp, not the type of crisis. Drag to spin, tap a country to see its name.","Aucun tampon pour l'instant. Réussis un parcours pour colorer ton premier pays.":"No stamps yet. Pass a course to colour your first country.",
  "Affichage":"View","Tampons":"Stamps","Globe":"Globe","Style des tampons":"Stamp style","Réservé aux Fondateurs.":"Founders only.","Fondateur":"Founder"
 });
 
