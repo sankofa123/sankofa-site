@@ -8011,6 +8011,152 @@ moreQ("076",{
     ["How many defenders were killed in Brazil in 2023 and 2024 combined?",["12","25","37","146"],"37: 25 in 2023 and 12 in 2024."]]
 });
 
+/* ---------- Questions supplémentaires, lot 16 : niveau Maître pour Yémen, Ukraine, Ouïghours et Tibétains, Éthiopie, Somalie, Mali ---------- */
+/* Chaque question est tirée du cours complet (dossier) du pays. */
+moreQ("887",{
+ m:[["En quelle année la révolution républicaine met-elle fin à l'imamat zaydite au nord du Yémen ?",["1948","1962","1967","1990"],1,"En 1962. Une guerre suit, où s'affrontent l'Égypte et l'Arabie saoudite."],
+    ["Quelle date marque la réunification des deux Yémen ?",["Le 22 mai 1990","Le 30 novembre 1967","Le 26 septembre 1962","Le 21 septembre 2014"],0,"Le 22 mai 1990, sous la présidence d'Ali Abdallah Saleh."],
+    ["Depuis quelle année Ali Abdallah Saleh dirigeait-il le Nord avant la réunification ?",["1962","1978","1990","2004"],1,"Depuis 1978. Il restera au pouvoir jusqu'en 2011."],
+    ["Quel courant religieux est à l'origine du mouvement houthi ?",["Le renouveau zaydite","Le salafisme","Le soufisme","L'ismaélisme"],0,"Un renouveau religieux zaydite, né dans la région de Saada."],
+    ["Quel événement de 2011 pousse Saleh à céder le pouvoir ?",["Un soulèvement populaire","Une intervention saoudienne","Une défaite face aux Houthis","Une décision de l'ONU"],0,"Le soulèvement populaire de 2011, dans la vague des printemps arabes."],
+    ["En quel mois de 2014 les Houthis prennent-ils Sanaa ?",["En mars","En juin","En septembre","En décembre"],2,"En septembre 2014, alliés à leur ancien ennemi Saleh."],
+    ["Quelle épidémie a frappé le Yémen à une ampleur rarement vue ?",["Le choléra","Ebola","La peste","La rougeole"],0,"Le choléra, dans l'une des plus grandes épidémies jamais enregistrées."],
+    ["Quand la trêve négociée par l'ONU a-t-elle fait baisser les combats ?",["En avril 2022","En mars 2015","En décembre 2017","En novembre 2023"],0,"En avril 2022."],
+    ["Combien de Yéménites ont besoin d'aide en 2026 ?",["2,2 millions","12,3 millions","22,3 millions","32 millions"],2,"22,3 millions, soit deux Yéménites sur trois."],
+    ["Quel organe réclame le retour d'un État du Sud ?",["Le Conseil de transition du Sud","Ansar Allah","Al-Islah","Le Conseil de coopération du Golfe"],0,"Le Conseil de transition du Sud, rival du gouvernement reconnu."]]
+},{
+ m:[["In which year did the republican revolution end the Zaydi imamate in North Yemen?",["1948","1962","1967","1990"],"In 1962. A war followed, in which Egypt and Saudi Arabia faced off."],
+    ["Which date marks the reunification of the two Yemens?",["22 May 1990","30 November 1967","26 September 1962","21 September 2014"],"22 May 1990, under the presidency of Ali Abdullah Saleh."],
+    ["Since which year had Ali Abdullah Saleh led the North before reunification?",["1962","1978","1990","2004"],"Since 1978. He stayed in power until 2011."],
+    ["Which religious current gave birth to the Houthi movement?",["A Zaydi revival","Salafism","Sufism","Ismailism"],"A Zaydi religious revival, born in the Saada region."],
+    ["Which event in 2011 pushed Saleh to hand over power?",["A popular uprising","A Saudi intervention","A defeat by the Houthis","A UN decision"],"The popular uprising of 2011, in the wave of the Arab Spring."],
+    ["In which month of 2014 did the Houthis take Sanaa?",["March","June","September","December"],"September 2014, allied with their former enemy Saleh."],
+    ["Which epidemic struck Yemen on a rarely seen scale?",["Cholera","Ebola","Plague","Measles"],"Cholera, in one of the largest epidemics ever recorded."],
+    ["When did the UN-brokered truce reduce the fighting?",["April 2022","March 2015","December 2017","November 2023"],"April 2022."],
+    ["How many Yemenis need aid in 2026?",["2.2 million","12.3 million","22.3 million","32 million"],"22.3 million, two Yemenis in three."],
+    ["Which body calls for the return of a southern state?",["The Southern Transitional Council","Ansar Allah","Al-Islah","The Gulf Cooperation Council"],"The Southern Transitional Council, a rival of the recognised government."]]
+});
+
+moreQ("804",{
+ m:[["Quelle famine provoquée sous Staline a fait des millions de morts en Ukraine en 1932-1933 ?",["L'Holodomor","La famine de la Volga","Le Grand Bond","La famine de Leningrad"],0,"L'Holodomor, conséquence de la collectivisation forcée, reconnu comme génocide par de nombreux pays."],
+    ["Quelle part des votants approuve l'indépendance de l'Ukraine au référendum du 1er décembre 1991 ?",["Environ 50 %","Environ 70 %","Plus de 90 %","100 %"],2,"Plus de 90 % des votants."],
+    ["Quelle révolution précède l'annexion de la Crimée en 2014 ?",["La révolution de Maïdan","La révolution orange","La révolution de velours","La révolution des roses"],0,"La révolution de Maïdan, qui renverse un président proche de Moscou."],
+    ["Dans quelle région une guerre éclate-t-elle en 2014 entre l'armée ukrainienne et des séparatistes ?",["Le Donbass","La Galicie","La Transcarpatie","La Bessarabie"],0,"Le Donbass, à l'est du pays."],
+    ["Quelle ville est en grande partie détruite au début de l'invasion de 2022 ?",["Marioupol","Lviv","Odessa","Tchernihiv"],0,"Marioupol, sur la mer d'Azov."],
+    ["Combien d'enfants l'ONU a-t-elle vérifiés parmi les civils tués entre février 2022 et juin 2026 ?",["83","803","8 030","80 300"],1,"803 enfants, sur au moins 16 431 civils tués."],
+    ["Combien de réfugiés ukrainiens étaient enregistrés dans le monde fin 2025 ?",["586 000","1,86 million","5,86 millions","15,8 millions"],2,"5,86 millions, auxquels s'ajoutent 3,7 millions de déplacés internes."],
+    ["Pour quel motif la CPI a-t-elle émis un mandat d'arrêt contre Vladimir Poutine en mars 2023 ?",["La déportation illégale d'enfants","Le siège de Marioupol","L'annexion de la Crimée","Les frappes sur le réseau électrique"],0,"La déportation illégale d'enfants ukrainiens vers la Russie."],
+    ["Combien de journalistes ont été tués par des drones russes en 2025 ?",["Un","Quatre","Quatorze","Quarante"],1,"Quatre, le chiffre le plus élevé pour ce type d'attaque depuis 2022."],
+    ["Selon l'ONU, quelles armes causent la plus grande part des victimes civiles ?",["Les missiles et drones à longue portée","Les mines","Les armes légères","Les frappes aériennes sur le front"],0,"Les missiles et drones à longue portée, qui frappent les villes loin du front."]]
+},{
+ m:[["Which famine caused under Stalin killed millions in Ukraine in 1932-1933?",["The Holodomor","The Volga famine","The Great Leap","The Leningrad famine"],"The Holodomor, a result of forced collectivisation, recognised as a genocide by many countries."],
+    ["What share of voters approved Ukraine's independence in the referendum of 1 December 1991?",["About 50%","About 70%","More than 90%","100%"],"More than 90% of voters."],
+    ["Which revolution preceded the annexation of Crimea in 2014?",["The Maidan revolution","The Orange revolution","The Velvet revolution","The Rose revolution"],"The Maidan revolution, which toppled a president close to Moscow."],
+    ["In which region did a war break out in 2014 between the Ukrainian army and separatists?",["The Donbas","Galicia","Transcarpathia","Bessarabia"],"The Donbas, in the east of the country."],
+    ["Which city was largely destroyed at the start of the 2022 invasion?",["Mariupol","Lviv","Odesa","Chernihiv"],"Mariupol, on the Sea of Azov."],
+    ["How many children did the UN verify among civilians killed between February 2022 and June 2026?",["83","803","8,030","80,300"],"803 children, out of at least 16,431 civilians killed."],
+    ["How many Ukrainian refugees were registered worldwide at the end of 2025?",["586,000","1.86 million","5.86 million","15.8 million"],"5.86 million, plus 3.7 million internally displaced people."],
+    ["On what grounds did the ICC issue an arrest warrant for Vladimir Putin in March 2023?",["The unlawful deportation of children","The siege of Mariupol","The annexation of Crimea","Strikes on the power grid"],"The unlawful deportation of Ukrainian children to Russia."],
+    ["How many journalists were killed by Russian drones in 2025?",["One","Four","Fourteen","Forty"],"Four, the highest figure for this type of attack since 2022."],
+    ["According to the UN, which weapons cause the largest share of civilian casualties?",["Long-range missiles and drones","Mines","Small arms","Air strikes on the front"],"Long-range missiles and drones, which strike cities far from the front."]]
+});
+
+moreQ("156",{
+ m:[["En quelle année le Xinjiang devient-il une « région autonome ouïghoure » ?",["1949","1955","1959","2017"],1,"En 1955, six ans après la prise de contrôle par la République populaire."],
+    ["Quel soulèvement pousse le dalaï-lama à l'exil en 1959 ?",["Le soulèvement de Lhassa","Le soulèvement de Kashgar","Le soulèvement d'Urumqi","Le soulèvement de Shigatsé"],0,"Le soulèvement de Lhassa, en 1959. Il s'exile en Inde."],
+    ["Quel secrétaire du Parti, venu du Tibet, lance la détention de masse au Xinjiang en 2017 ?",["Chen Quanguo","Wang Lequan","Zhang Chunxian","Ma Xingrui"],0,"Chen Quanguo, qui avait auparavant dirigé le Tibet."],
+    ["Comment Pékin présente-t-il les camps du Xinjiang ?",["Comme des centres de formation professionnelle","Comme des prisons","Comme des bases militaires","Comme des hôpitaux"],0,"Comme des « centres de formation professionnelle »."],
+    ["Combien de personnes seraient passées par les camps, selon Human Rights Watch ?",["Environ 10 000","Environ 100 000","Environ un million","Environ dix millions"],2,"Environ un million de personnes."],
+    ["Quelle institution publie le rapport du 31 août 2022 sur le Xinjiang ?",["Le Haut-Commissariat aux droits de l'homme","La Cour pénale internationale","Le Conseil de sécurité","L'UNESCO"],0,"Le Haut-Commissariat des Nations unies aux droits de l'homme."],
+    ["Combien de « transferts de main-d'œuvre » prévoyait le plan quinquennal 2021-2025 du Xinjiang ?",["137 500","1,375 million","13,75 millions","137 millions"],2,"Plus de 13,75 millions, un dispositif qui touche aussi les Tibétains."],
+    ["En quelle année l'Union européenne adopte-t-elle une loi contre les produits du travail forcé ?",["2017","2021","2022","2024"],3,"En 2024, trois ans après les États-Unis."],
+    ["Quel pays a renvoyé des Ouïghours vers la Chine en 2025 ?",["La Thaïlande","La Turquie","Le Kazakhstan","La Malaisie"],0,"La Thaïlande."],
+    ["Pourquoi le rapport de l'ONU de 2022 ne parle-t-il pas de génocide ?",["Parce que le génocide exige de prouver l'intention de détruire un groupe","Parce que la Chine l'a interdit","Parce que le mot n'existe pas en droit","Parce que le rapport ne porte que sur le Tibet"],0,"Le génocide suppose de prouver l'intention de détruire un groupe ; le rapport s'en tient aux crimes contre l'humanité."]]
+},{
+ m:[["In which year did Xinjiang become a “Uyghur autonomous region”?",["1949","1955","1959","2017"],"In 1955, six years after the People's Republic took control."],
+    ["Which uprising drove the Dalai Lama into exile in 1959?",["The Lhasa uprising","The Kashgar uprising","The Urumqi uprising","The Shigatse uprising"],"The Lhasa uprising, in 1959. He went into exile in India."],
+    ["Which Party secretary, arriving from Tibet, launched mass detention in Xinjiang in 2017?",["Chen Quanguo","Wang Lequan","Zhang Chunxian","Ma Xingrui"],"Chen Quanguo, who had previously run Tibet."],
+    ["How does Beijing describe the Xinjiang camps?",["As vocational training centres","As prisons","As military bases","As hospitals"],"As “vocational training centres”."],
+    ["How many people are thought to have passed through the camps, according to Human Rights Watch?",["About 10,000","About 100,000","About one million","About ten million"],"About one million people."],
+    ["Which institution published the 31 August 2022 report on Xinjiang?",["The UN Human Rights Office","The International Criminal Court","The Security Council","UNESCO"],"The Office of the UN High Commissioner for Human Rights."],
+    ["How many “labour transfers” did Xinjiang's 2021-2025 five-year plan provide for?",["137,500","1.375 million","13.75 million","137 million"],"More than 13.75 million, a scheme that also affects Tibetans."],
+    ["In which year did the European Union adopt a law against forced-labour products?",["2017","2021","2022","2024"],"In 2024, three years after the United States."],
+    ["In 2025, which country deported Uyghurs to China?",["Thailand","Turkey","Kazakhstan","Malaysia"],"Thailand."],
+    ["Why does the 2022 UN report not speak of genocide?",["Because genocide requires proof of intent to destroy a group","Because China forbade it","Because the word does not exist in law","Because the report only covers Tibet"],"Genocide requires proving the intent to destroy a group; the report sticks to crimes against humanity."]]
+});
+
+moreQ("231",{
+ m:[["Quelle junte militaire renverse l'empereur Haïlé Sélassié en 1974 ?",["Le Derg","Le TPLF","Les Fano","L'OLF"],0,"Le Derg, qui gouverne jusqu'en 1991."],
+    ["Quel mouvement domine la coalition qui prend le pouvoir en 1991 ?",["Le Front de libération du peuple du Tigré","Le Front de libération oromo","Le Derg","Les milices Fano"],0,"Le Front de libération du peuple du Tigré (TPLF)."],
+    ["Pour quelle raison Abiy Ahmed reçoit-il le prix Nobel de la paix en 2019 ?",["La paix avec l'Érythrée","La fin de la guerre du Tigré","L'accueil des réfugiés","La libération des prisonniers politiques"],0,"Pour la paix conclue avec l'Érythrée."],
+    ["En quel mois de 2020 éclate la guerre du Tigré ?",["En mars","En juin","En novembre","En décembre"],2,"En novembre 2020, entre le gouvernement fédéral et les autorités du Tigré."],
+    ["Dans quelle ville est signé l'accord qui met fin aux combats au Tigré ?",["Pretoria","Addis-Abeba","Nairobi","Alger"],0,"À Pretoria, en Afrique du Sud, le 2 novembre 2022."],
+    ["Quelles milices l'armée affronte-t-elle en Amhara depuis 2023 ?",["Les Fano","Les Chabab","Les Janjawids","Les Mai-Mai"],0,"Les milices Fano, autrefois alliées contre le Tigré."],
+    ["Combien de personnes restent déplacées au Tigré ?",["76 000","760 000","1,9 million","7,2 millions"],1,"Plus de 760 000 personnes."],
+    ["Combien d'élèves n'ont pas pu aller à l'école en 2024-2025 à cause des conflits ?",["720 000","1,9 million","7,2 millions","12 millions"],2,"Plus de 7,2 millions d'élèves."],
+    ["Combien de réfugiés l'Éthiopie accueille-t-elle ?",["Environ 100 000","Environ 500 000","Plus d'un million","Plus de cinq millions"],2,"Plus d'un million, venus du Soudan du Sud, de Somalie, d'Érythrée et du Soudan."],
+    ["Le comité Nobel peut-il retirer un prix déjà attribué ?",["Non, il ne retire jamais ses prix","Oui, sur vote des lauréats","Oui, à la demande de l'ONU","Oui, après dix ans"],0,"Non : le comité Nobel ne retire pas ses prix, ce qui a relancé le débat autour d'Abiy Ahmed."]]
+},{
+ m:[["Which military junta overthrew Emperor Haile Selassie in 1974?",["The Derg","The TPLF","The Fano","The OLF"],"The Derg, which ruled until 1991."],
+    ["Which front led the coalition that seized power in Ethiopia in 1991?",["The Tigray People's Liberation Front","The Oromo Liberation Front","The Derg","The Fano militias"],"The Tigray People's Liberation Front (TPLF)."],
+    ["For what achievement was Abiy Ahmed awarded the 2019 Nobel Peace Prize?",["Peace with Eritrea","The end of the Tigray war","Hosting refugees","Freeing political prisoners"],"For the peace concluded with Eritrea."],
+    ["In which month of 2020 did the Tigray war break out?",["March","June","November","December"],"November 2020, between the federal government and the Tigray authorities."],
+    ["In which city was the agreement ending the fighting in Tigray signed?",["Pretoria","Addis Ababa","Nairobi","Algiers"],"In Pretoria, South Africa, on 2 November 2022."],
+    ["Which former allies against Tigray has the army fought in Amhara since 2023?",["The Fano","Al-Shabaab","The Janjaweed","The Mai-Mai"],"The Fano militias, once allies against Tigray."],
+    ["How many people remain displaced in Tigray?",["76,000","760,000","1.9 million","7.2 million"],"More than 760,000 people."],
+    ["How many pupils could not go to school in 2024-2025 because of conflict?",["720,000","1.9 million","7.2 million","12 million"],"More than 7.2 million pupils."],
+    ["Roughly how many refugees live in Ethiopia?",["About 100,000","About 500,000","More than one million","More than five million"],"More than one million, from South Sudan, Somalia, Eritrea and Sudan."],
+    ["Can the Nobel committee withdraw a prize already awarded?",["No, it never withdraws its prizes","Yes, by a vote of laureates","Yes, at the UN's request","Yes, after ten years"],"No: the Nobel committee does not withdraw its prizes, which reignited the debate around Abiy Ahmed."]]
+});
+
+moreQ("706",{
+ m:[["Quelle famine de 1992 entraîne une intervention internationale en Somalie ?",["Celle qui suit la chute de Siad Barre","Celle de 2011","Celle de 1977","Celle de 2026"],0,"La famine de 1992, après l'effondrement de l'État qui suit la chute de Siad Barre."],
+    ["En quelle année Siad Barre prend-il le pouvoir par un coup d'État ?",["1960","1969","1977","1991"],1,"En 1969. Il gouverne jusqu'en 1991."],
+    ["Quelle région du nord se proclame indépendante en 1991 ?",["Le Somaliland","Le Puntland","Le Jubaland","L'Ogaden"],0,"Le Somaliland, sans être reconnu par l'ONU."],
+    ["À quelle organisation Al-Chabab est-il lié ?",["Al-Qaïda","L'État islamique","Boko Haram","Les talibans"],0,"À Al-Qaïda."],
+    ["En quelle année Al-Chabab perd-il Mogadiscio ?",["2006","2007","2011","2017"],2,"En 2011, mais le groupe contrôle encore de vastes zones rurales."],
+    ["Depuis quand une force de l'Union africaine soutient-elle le gouvernement somalien ?",["1992","2006","2007","2011"],2,"Depuis 2007."],
+    ["Combien de violations graves contre des enfants l'ONU a-t-elle vérifiées en Somalie en 2025 ?",["219","2 195","21 950","219 500"],1,"2 195 violations graves."],
+    ["Quelle part des 260 000 morts de la famine de 2011 étaient des enfants de moins de cinq ans ?",["Un dixième","Un quart","La moitié","Les trois quarts"],2,"La moitié, selon une étude commandée par l'ONU."],
+    ["Combien de personnes sont en crise alimentaire ou pire au début de 2026 ?",["650 000","3,3 millions","6,5 millions","16,5 millions"],2,"Environ 6,5 millions, presque deux fois plus qu'à la mi-2025."],
+    ["Combien de personnes ont été nouvellement déplacées depuis janvier 2026, selon le NRC ?",["54 000","540 000","3,3 millions","5,4 millions"],1,"540 000 personnes, déplacées par la sécheresse et les combats."]]
+},{
+ m:[["Which 1992 famine led to an international intervention in Somalia?",["The one after Siad Barre's fall","The 2011 famine","The 1977 famine","The 2026 famine"],"The 1992 famine, after the state collapse that followed Siad Barre's fall."],
+    ["In which year did Siad Barre seize power in a coup?",["1960","1969","1977","1991"],"In 1969. He ruled until 1991."],
+    ["Which northern region declared independence in 1991?",["Somaliland","Puntland","Jubaland","The Ogaden"],"Somaliland, without UN recognition."],
+    ["To which organisation is Al-Shabaab linked?",["Al-Qaeda","Islamic State","Boko Haram","The Taliban"],"To Al-Qaeda."],
+    ["In which year did Al-Shabaab lose Mogadishu?",["2006","2007","2011","2017"],"In 2011, but the group still controls vast rural areas."],
+    ["Since when has an African Union force supported the Somali government?",["1992","2006","2007","2011"],"Since 2007."],
+    ["In 2025, how many grave violations against Somali children did the UN verify?",["219","2,195","21,950","219,500"],"2,195 grave violations."],
+    ["What share of the 260,000 deaths in the 2011 famine were children under five?",["One tenth","One quarter","Half","Three quarters"],"Half, according to a UN-commissioned study."],
+    ["At the start of 2026, how many Somalis were in food crisis or worse?",["650,000","3.3 million","6.5 million","16.5 million"],"About 6.5 million, almost twice as many as in mid-2025."],
+    ["How many people have been newly displaced since January 2026, according to the NRC?",["54,000","540,000","3.3 million","5.4 million"],"540,000 people, displaced by drought and fighting."]]
+});
+
+moreQ("466",{
+ m:[["Quelle ville de l'empire du Mali fut un grand centre d'études au Moyen Âge ?",["Tombouctou","Bamako","Gao","Kayes"],0,"Tombouctou, dont les mausolées sont classés au patrimoine mondial."],
+    ["Combien de déplacés internes le Mali compte-t-il environ en 2026 ?",["41 500","415 000","4,15 millions","5,1 millions"],1,"Environ 415 000 déplacés internes, et près de 280 000 réfugiés accueillis."],
+    ["Quel peuple du nord s'est soulevé en 1963, dans les années 1990 et en 2006 ?",["Les Touaregs","Les Peuls","Les Dogons","Les Bambaras"],0,"Les Touaregs."],
+    ["Quelle juridiction a condamné en 2016 un responsable pour la destruction des mausolées de Tombouctou ?",["La Cour pénale internationale","La Cour internationale de justice","La Cour de justice de la CEDEAO","La Cour suprême du Mali"],0,"La Cour pénale internationale, une première pour la destruction de patrimoine."],
+    ["Comment s'appelle l'opération française lancée en janvier 2013 ?",["Serval","Barkhane","Sangaris","Licorne"],0,"Serval, suivie de Barkhane."],
+    ["Dans quelle ville l'accord de paix de 2015 est-il signé ?",["Alger","Bamako","Ouagadougou","Paris"],0,"À Alger."],
+    ["En quelles années les militaires prennent-ils le pouvoir ?",["2012 et 2015","2020 et 2021","2013 et 2022","2016 et 2023"],1,"En août 2020, puis de nouveau en mai 2021."],
+    ["Combien de personnes ont connu une insécurité alimentaire aiguë pendant la soudure de 2026 ?",["150 000","1,5 million","5,1 millions","15 millions"],1,"1,5 million de personnes, alors que le PAM a dû réduire ses distributions."],
+    ["Avec quels pays le Mali forme-t-il l'Alliance des États du Sahel ?",["Le Burkina Faso et le Niger","Le Sénégal et la Mauritanie","L'Algérie et la Libye","Le Tchad et le Nigeria"],0,"Avec le Burkina Faso et le Niger."],
+    ["Quelle pénurie frappe le Mali depuis le blocus djihadiste de septembre 2025 ?",["De carburant","D'eau","De riz","D'électricité"],0,"Une grave pénurie de carburant, qui paralyse aussi l'aide humanitaire."]]
+},{
+ m:[["Which city of the Mali empire was a great centre of learning in the Middle Ages?",["Timbuktu","Bamako","Gao","Kayes"],"Timbuktu, whose mausoleums are listed as World Heritage."],
+    ["About how many internally displaced people does Mali have in 2026?",["41,500","415,000","4.15 million","5.1 million"],"About 415,000 internally displaced people, plus nearly 280,000 refugees hosted."],
+    ["Which northern people rose up in 1963, in the 1990s and in 2006?",["The Tuareg","The Fulani","The Dogon","The Bambara"],"The Tuareg."],
+    ["Which court convicted a man in 2016 for destroying the mausoleums of Timbuktu?",["The International Criminal Court","The International Court of Justice","The ECOWAS Court of Justice","Mali's Supreme Court"],"The International Criminal Court, a first for the destruction of heritage."],
+    ["What was the French operation launched in January 2013 called?",["Serval","Barkhane","Sangaris","Licorne"],"Serval, followed by Barkhane."],
+    ["In which city was the 2015 peace agreement signed?",["Algiers","Bamako","Ouagadougou","Paris"],"In Algiers."],
+    ["In which years did the military seize power?",["2012 and 2015","2020 and 2021","2013 and 2022","2016 and 2023"],"In August 2020, then again in May 2021."],
+    ["How many people faced acute food insecurity during the 2026 lean season?",["150,000","1.5 million","5.1 million","15 million"],"1.5 million people, while the WFP had to cut its distributions."],
+    ["Which two neighbours joined Mali in the Alliance of Sahel States?",["Burkina Faso and Niger","Senegal and Mauritania","Algeria and Libya","Chad and Nigeria"],"With Burkina Faso and Niger."],
+    ["Which shortage has hit Mali since the jihadist blockade of September 2025?",["Fuel","Water","Rice","Electricity"],"A severe fuel shortage, which also paralyses humanitarian aid."]]
+});
+
 /* ================= Performance (v10) =================
    Principe : on ne redessine que ce qui bouge, et seulement ce qui se voit. */
 
@@ -10853,7 +10999,7 @@ Object.assign(EN, {
     const el = $("#splash"); if(!el) return;
     if(reduce || document.documentElement.classList.contains("nosplash")){ el.remove(); document.documentElement.classList.add("nosplash"); return; }
     window.scrollTo(0,0);
-    const svg = el.querySelector(".sbird"); svg.setAttribute("viewBox", "0 0 32 32"); svg.innerHTML = BIRD;
+    const svg = el.querySelector(".sbird"); svg.setAttribute("viewBox", "-2.55 0.6 32 32"); svg.innerHTML = BIRD;
     const g = s=>svg.querySelector(s);
     const all = g(".s3all"), body = g(".s3body"), neck = g(".s3neck"), head = g(".s3head"), beakU = g(".s3beakU"), beakL = g(".s3beakL"), lid = g(".s3lid"),
       tail = g(".s3tail"), wing = g(".s3wing"), legA = g(".s3legA"), legB = g(".s3legB"), seed = g(".s3seed"), crumbs = g(".s3crumbs"), shadow = g(".s3shadow");
@@ -10871,11 +11017,11 @@ Object.assign(EN, {
       requestAnimationFrame(()=>el.classList.add("sopen")); setTimeout(()=>el.remove(), 1100); };
     function frame(now){
       if(done) return; if(!start) start = now; const ms = now - start, t = ms/1000;
-      /* 0 → 0,7 s : il entre en marchant, trois petits pas, le corps oscille */
-      const walk = seg(t, 0, .7, ease.out), stepK = Math.min(1, t/.7)*3*Math.PI;
-      const bob = Math.abs(Math.sin(stepK))*(1-walk)*.9;
-      let bx = lerp(-9, 0, walk), by = -bob, squash = 1 - bob*.03;
-      const legA_ = Math.sin(stepK)*(1-walk)*1.1, legB_ = -legA_;
+      /* 0 → 0,7 s : l'oiseau est déjà en place, immobile, comme sur le logo ; il apparaît en fondu */
+      const walk = 1, bob = 0;
+      let bx = 0, by = 0, squash = 1;
+      const legA_ = 0, legB_ = 0;
+      all.style.opacity = seg(t, 0, .45, ease.out).toFixed(3);
       /* 0,7 → 1,0 s : il tourne la tête vers la graine posée sur son dos */
       const look = seg(t, .7, 1.0, ease.io);
       let headRot = lerp(4, 10, look), neckDown = lerp(-.3, 0, look), neckRot = 0;
