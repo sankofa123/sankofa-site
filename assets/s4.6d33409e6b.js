@@ -3185,6 +3185,7 @@ function runQuiz(box, qs0, opt={}){
     if(done || !alive()) return;
     done = true;
     const q = qs[i], ok = k===q.a; if(ok) score++;
+    try{ if(window.skfMist) skfMist(q, ok, opt); }catch(er){}
     box.querySelectorAll(".opt").forEach(x=>{x.disabled=true; if(+x.dataset.k===q.a) x.classList.add("ok"); if(+x.dataset.k===k && !ok) x.classList.add("ko");});
     const e = box.querySelector("#exp");
     e.innerHTML = `<b>${ok?t("Exact."):k===-1?t("Temps écoulé."):t("Pas tout à fait.")}</b> ${esc(q.e)}`; e.classList.add("show");
@@ -10291,12 +10292,12 @@ Object.assign(EN, {
 /* ---------- Notifications sur le téléphone : actualités, nouveaux pays, votes ---------- */
 (function(){
   const PUB = "BKOkazH4YpzieifcsAWuNSqNfntEVRlkSLzgmMFPSxjKD8p_rTCLT0b5W7R8vVafeeCYkOv3OvEZzpWD6h56EQY";
-  const TOPICS = [["actu","Actualités","Un résumé par semaine"],["pays","Nouveaux pays","Quand un pays rejoint l'atlas"],["vote","Votes","Ouverture du vote et résultat"]];
+  const TOPICS = [["serie","Rappel de série","Le soir, si ta série va s'arrêter"],["actu","Actualités","Un résumé par semaine"],["pays","Nouveaux pays","Quand un pays rejoint l'atlas"],["vote","Votes","Ouverture du vote et résultat"]];
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
   const supported = ()=>("serviceWorker" in navigator) && ("PushManager" in window) && ("Notification" in window);
   const isIOS = ()=>/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isApp = ()=>{ try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }catch(e){ return false; } };
-  const topics = ()=>{ try{ const a = JSON.parse(ls.get("skf-push-topics") || "null"); return Array.isArray(a) ? a : ["actu","pays","vote"]; }catch(e){ return ["actu","pays","vote"]; } };
+  const topics = ()=>{ try{ const a = JSON.parse(ls.get("skf-push-topics") || "null"); return Array.isArray(a) ? a : ["serie","actu","pays","vote"]; }catch(e){ return ["serie","actu","pays","vote"]; } };
   const b64 = s=>{ const p = "=".repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(r, c=>c.charCodeAt(0)); };
   const key = (sub, k)=>{ const b = sub.getKey(k); return btoa(String.fromCharCode.apply(null, new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
   async function current(){ if(!supported()) return null; try{ const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; }catch(e){ return null; } }
@@ -10348,6 +10349,7 @@ Object.assign(EN, {
 })();
 
 Object.assign(EN, {
+ "Rappel de série":"Streak reminder","Le soir, si ta série va s'arrêter":"In the evening, if your streak is about to end",
  "Notifications":"Notifications","Actualités":"News","Un résumé par semaine":"One summary a week","Nouveaux pays":"New countries","Quand un pays rejoint l'atlas":"When a country joins the atlas","Votes":"Votes","Ouverture du vote et résultat":"When voting opens, and the result",
  "Sur iPhone, ajoute d'abord Sankofa à ton écran d'accueil (bouton Partager, puis « Sur l'écran d'accueil »). Ouvre ensuite l'application et reviens ici.":"On iPhone, first add Sankofa to your home screen (Share button, then “Add to Home Screen”). Then open the app and come back here.",
  "Ton navigateur ne permet pas les notifications.":"Your browser does not support notifications.",
@@ -11299,6 +11301,378 @@ Object.assign(EN, {
  "pour avoir atteint le niveau {n}":"for reaching level {n}","{n} tampons obtenus sur {m} pays et peuples":"{n} stamps earned across {m} countries and peoples","Passeport":"Passport","NIVEAU":"LEVEL",
  "Niveau 40":"Level 40","Le Mur des Gardiens":"The Guardians' wall","Celles et ceux qui ont mené leur passeport jusqu'au sommet. Par ordre alphabétique : ici, personne n'est devant personne.":"Those who took their passport all the way to the top. In alphabetical order: here, no one is ahead of anyone.",
  "Chargement…":"Loading…","Personne n'a encore atteint le niveau 40. Le premier nom gravé ici pourrait être le tien.":"No one has reached level 40 yet. The first name engraved here could be yours."
+});
+
+/* ---------- Habitudes et découverte : mes erreurs, jeu de carte, stories, bilan de l'année, frise, animations ---------- */
+/* Règle de design : une seule chose à faire par écran, un gros bouton, du texte court. */
+(function(){
+  const SITE_URL = "https://sankofa-atlas.org";
+  const dayNo = ()=>Math.floor((Date.now() - new Date().getTimezoneOffset()*60000) / 864e5);
+  const reduce = ()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const go = h=>{ if(location.hash === "#" + h) routeNow(); else location.hash = h; };
+  const show = id=>{ try{ closeSettings(); }catch(e){} document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id === id));
+    document.body.classList.remove("focus"); document.querySelectorAll("[data-v]").forEach(a=>a.removeAttribute("aria-current")); window.scrollTo(0, 0); };
+  const addView = (id, inner)=>{ if(!$("#" + id)){ const ref = $("#v-apropos") || $(".view:last-of-type"); if(ref) ref.insertAdjacentHTML("afterend", `<section class="view" id="${id}">${inner}</section>`); } };
+  const save = ()=>{ store.set(state); try{ cloudSave(); }catch(e){} };
+
+  /* ====== 1. Temps passé et meilleure série (pour le bilan de l'année) ====== */
+  setInterval(()=>{ if(document.visibilityState === "visible"){ state.tsec = (state.tsec || 0) + 15; const y = new Date().getFullYear(); state.ysec = state.ysec || {}; state.ysec[y] = (state.ysec[y] || 0) + 15; store.set(state); } }, 15000);
+  const keepBest = ()=>{ if((state.streak || 0) > (state.bestStreak || 0)){ state.bestStreak = state.streak; store.set(state); } };
+  keepBest(); setInterval(keepBest, 20000);
+
+  /* ====== 2. Mes erreurs : reviennent après 1, 3 puis 7 jours ====== */
+  const STEPS = [1, 3, 7];
+  window.skfMist = function(q, ok, opt){
+    opt = opt || {};
+    const list = state.mist = state.mist || [];
+    if(opt.review){
+      const m = list.find(x=>x.q === q.q); if(!m) return;
+      if(ok){ m.step = (m.step || 0) + 1; state.xp += 2; if(m.step >= STEPS.length) state.mist = list.filter(x=>x !== m); else m.due = dayNo() + STEPS[m.step]; }
+      else { m.step = 0; m.due = dayNo() + 1; }
+      save(); return;
+    }
+    if(ok || !q || !q.q) return;
+    if(!(opt.id && opt.lv != null) && !opt.daily) return;
+    const id = opt.id || q.id; if(!id || !C[id]) return;
+    const a = q.o[q.a], m = list.find(x=>x.q === q.q);
+    if(m){ m.step = 0; m.due = dayNo() + 1; }
+    else list.push({id, q:q.q, o:q.o.slice(), a:q.a, e:q.e || "", step:0, due:dayNo() + 1, ans:a});
+    if(list.length > 80) list.splice(0, list.length - 80);
+    save();
+  };
+  const dueList = ()=>(state.mist || []).filter(m=>m.due <= dayNo());
+  addView("v-erreurs", `<div class="wrap sect narrow" id="erIn"></div>`);
+  function renderErreurs(){
+    show("v-erreurs");
+    const box = $("#erIn"), due = dueList(), all = state.mist || [];
+    const head = `<a class="back" href="#apprendre">← ${t("Apprendre")}</a><div class="eyebrow" style="margin-top:16px">${t("Révision")}</div><h1 class="fxh">${t("Mes erreurs")}</h1>`;
+    if(!due.length){
+      const next = all.length ? Math.min(...all.map(m=>m.due)) - dayNo() : 0;
+      box.innerHTML = head + `<div class="card fxempty"><div class="fxbig">✓</div><p><b>${all.length ? t("Rien à revoir aujourd'hui.") : t("Aucune erreur pour l'instant.")}</b></p>
+        <p class="fxsub">${all.length ? (next <= 1 ? t("{n} questions reviennent demain.", {n:all.length}) : t("{n} questions reviennent dans {d} jours.", {n:all.length, d:next})) : t("Les questions que tu rates dans les quiz reviendront ici, un peu plus tard, pour que tu les retiennes.")}</p>
+        <a class="cta" href="#apprendre">${t("Retour")}</a></div>`;
+      return;
+    }
+    const pick = due.slice(0, 10);
+    box.innerHTML = head + `<p class="fxsub">${t("Une bonne réponse, et la question revient plus tard. Trois de suite, et elle disparaît.")}</p><div class="card quiz" id="erQuiz"></div>`;
+    runQuiz($("#erQuiz"), pick.map(m=>({q:m.q, o:m.o, a:m.a, e:m.e, id:m.id})), {review:true});
+  }
+
+  /* ====== 3. Jeu : trouve le pays sur le globe ====== */
+  const PEOPLES = new Set(["104","156","368","732","076","360","586"]);
+  const gameIds = ()=>FEATURED.filter(id=>!PEOPLES.has(id) && featById[id]);
+  addView("v-jeu", `<div class="wrap sect narrow" id="jeuIn"></div>`);
+  let G = null;
+  function renderJeu(){
+    show("v-jeu");
+    const best = state.gameBest || 0;
+    $("#jeuIn").innerHTML = `<a class="back" href="#apprendre">← ${t("Apprendre")}</a><div class="eyebrow" style="margin-top:16px">${t("Jeu")}</div><h1 class="fxh">${t("Trouve le pays")}</h1>
+      <div class="card fxempty"><div class="fxglobe" aria-hidden="true"></div><p><b>${t("10 pays. Touche-les sur le globe, le plus vite possible.")}</b></p>
+      <p class="fxsub">${best ? t("Ton record : {n} points.", {n:best}) : t("Fais tourner le globe du doigt, puis touche le pays demandé.")}</p>
+      <button class="cta" id="jeuGo">${t("Jouer")}</button></div>`;
+    $("#jeuGo").onclick = startGame;
+  }
+  function startGame(){
+    const ids = d3.shuffle(gameIds().slice()).slice(0, 10);
+    G = {ids, i:0, score:0, found:0, t0:0, total:0, rot:[-(Math.random()*360 - 180), -15], busy:false};
+    $("#jeuIn").innerHTML = `<div class="gtop"><span class="gq" id="gQ"></span><span class="gmeta"><b id="gN">1/10</b> · <span id="gT">0,0 s</span></span></div>
+      <div class="gstage"><canvas id="gCv" aria-label="${esc(t("Globe du jeu"))}"></canvas><div class="gfb" id="gFb" aria-live="polite"></div></div>
+      <div class="gbot"><span id="gS">0 ${t("points")}</span><button class="gskip" id="gSkip">${t("Passer")}</button></div>`;
+    const cv = $("#gCv"), box = cv.parentElement, size = Math.min(box.clientWidth || 340, 560), dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = size*dpr; cv.height = size*dpr; cv.style.width = cv.style.height = size + "px";
+    const x = cv.getContext("2d"); x.scale(dpr, dpr);
+    const dark = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    const pr = d3.geoOrthographic().translate([size/2, size/2]).scale(size/2 - 6).clipAngle(90), pa = d3.geoPath(pr, x);
+    try{ initBase(); }catch(e){}
+    const COL = {sea: dark ? "#12151A" : "#DCE3E8", land: dark ? "#2A2E35" : "#F3F1EA", line: dark ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.14)"};
+    let flash = null;
+    G.draw = function(){
+      pr.rotate(G.rot); x.clearRect(0, 0, size, size);
+      x.beginPath(); pa({type:"Sphere"}); x.fillStyle = COL.sea; x.fill();
+      x.beginPath(); if(LAND110) pa(LAND110); else F110.forEach(f=>pa(f)); x.fillStyle = COL.land; x.fill();
+      x.beginPath(); if(MESH110) pa(MESH110); x.strokeStyle = COL.line; x.lineWidth = .6; x.stroke();
+      if(flash){ x.beginPath(); pa(featById[flash.id]); x.fillStyle = flash.c; x.fill(); }
+      x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = COL.line; x.lineWidth = 1; x.stroke();
+    };
+    const ask = ()=>{ const id = G.ids[G.i]; $("#gQ").innerHTML = `${t("Trouve")} <b>${esc(C[id].short)}</b>`; $("#gN").textContent = (G.i + 1) + "/10"; G.qt = performance.now(); G.busy = false; flash = null; G.draw(); };
+    const tick = ()=>{ if(!G || !document.body.contains(cv)) return; if(!G.busy){ $("#gT").textContent = ((performance.now() - G.qt)/1000).toLocaleString(LOC, {minimumFractionDigits:1, maximumFractionDigits:1}) + " s"; } G.raf = requestAnimationFrame(tick); };
+    const turnTo = (id, done)=>{ const c = centroid(id), from = G.rot.slice(), to = [-c[0], -Math.max(-60, Math.min(60, c[1]))];
+      if(reduce()){ G.rot = to; G.draw(); return done && done(); }
+      const it = d3.interpolate(from, to), t0 = performance.now(), D = 650;
+      const step = now=>{ const k = Math.min(1, (now - t0)/D); G.rot = it(d3.easeCubicInOut(k)); G.draw(); if(k < 1) requestAnimationFrame(step); else done && done(); }; requestAnimationFrame(step); };
+    const next = ()=>{ G.i++; if(G.i >= G.ids.length) return endGame(); ask(); };
+    const guess = (lonlat)=>{
+      if(G.busy) return; const id = G.ids[G.i], fb = $("#gFb"); G.busy = true; const sec = (performance.now() - G.qt)/1000; G.total += sec;
+      const hit = lonlat && d3.geoContains(featById[id], lonlat);
+      if(hit){ const pts = Math.max(20, Math.round(100 - sec*8)); G.score += pts; G.found++; flash = {id, c:"#1A9A55"}; G.draw();
+        fb.innerHTML = `<span class="ok">+${pts}</span>`; if(navigator.vibrate) try{ navigator.vibrate(12); }catch(e){} setTimeout(()=>{ fb.innerHTML = ""; next(); }, 750); }
+      else { let where = ""; if(lonlat){ const f = F110.find(f=>d3.geoContains(f, lonlat)); if(f){ const n = (C[f.id] && C[f.id].short) || (f.properties && f.properties.name) || ""; where = n ? t("Là, c'est : {x}.", {x:n}) : ""; } }
+        fb.innerHTML = `<span class="ko">${where || t("Pas ici.")}</span>`;
+        turnTo(id, ()=>{ flash = {id, c:"#D1343B"}; G.draw(); setTimeout(()=>{ fb.innerHTML = ""; next(); }, 1100); }); }
+      $("#gS").textContent = G.score + " " + t("points");
+    };
+    /* Glisser pour tourner, toucher pour répondre */
+    let down = null;
+    cv.addEventListener("pointerdown", e=>{ cv.setPointerCapture(e.pointerId); down = {x:e.clientX, y:e.clientY, r:G.rot.slice(), moved:false}; });
+    cv.addEventListener("pointermove", e=>{ if(!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if(Math.abs(dx) + Math.abs(dy) > 6) down.moved = true;
+      if(down.moved){ const k = 180 / (size*.9); G.rot = [down.r[0] + dx*k, Math.max(-75, Math.min(75, down.r[1] - dy*k))]; G.draw(); } });
+    cv.addEventListener("pointerup", e=>{ if(!down) return; const m = down.moved; down = null; if(m) return;
+      const r = cv.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top], ll = pr.invert(p);
+      const inside = (p[0] - size/2)**2 + (p[1] - size/2)**2 <= (size/2 - 6)**2; guess(inside ? ll : null); });
+    $("#gSkip").onclick = ()=>guess(null);
+    G.t0 = performance.now(); ask(); tick(); window.skfGame = ()=>G;
+  }
+  function endGame(){
+    cancelAnimationFrame(G.raf);
+    const s = G.score, best = Math.max(state.gameBest || 0, s), rec = s > (state.gameBest || 0); state.gameBest = best; state.xp += G.found*2; save();
+    const tt = Math.round(G.total);
+    $("#jeuIn").innerHTML = `<div class="card fxempty"><div class="eyebrow">${t("Résultat")}</div><div class="fxscore">${s}</div><p><b>${t("{n} pays trouvés sur 10, en {s} secondes.", {n:G.found, s:tt})}</b></p>
+      <p class="fxsub">${rec ? t("Nouveau record.") : t("Ton record : {n} points.", {n:best})} +${G.found*2} XP</p>
+      <div class="fxrow"><button class="cta" id="gAgain">${t("Rejouer")}</button><button class="cta ghost" id="gShare">${t("Défier un ami")}</button></div></div>`;
+    $("#gAgain").onclick = startGame;
+    $("#gShare").onclick = async ()=>{ const txt = t("J'ai trouvé {n} pays sur 10 en {s} secondes sur Sankofa. À toi :", {n:G.found, s:tt}) + " " + SITE_URL + "/#jeu";
+      try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){ if(e && e.name === "AbortError") return; }
+      try{ await navigator.clipboard.writeText(txt); toast(t("Lien copié.")); }catch(e){} };
+  }
+
+  /* ====== 4. Stories : un pays en 6 cartes plein écran ====== */
+  let SV = null;
+  function openStory(cards, opts){
+    closeStory(true);
+    opts = opts || {};
+    document.body.insertAdjacentHTML("beforeend", `<div class="story" id="storyOv" role="dialog" aria-modal="true" aria-label="${esc(opts.label || "Story")}">
+      <div class="stbars">${cards.map(()=>`<i><b></b></i>`).join("")}</div>
+      <button class="stx" id="stX" aria-label="${t("Fermer")}">×</button>
+      <div class="stcard" id="stCard"></div>
+      <button class="stnav stprev" aria-label="${t("Précédent")}"></button><button class="stnav stnext" aria-label="${t("Suivant")}"></button>
+      <button class="stshare" id="stShare">${t("Partager")}</button></div>`);
+    document.documentElement.classList.add("skf-lock");
+    const ov = $("#storyOv"); SV = {cards, i:0, t:0, paused:false, ov, opts, last:performance.now()};
+    const D = 7500;
+    const paint = ()=>{ const c = cards[SV.i]; const el = $("#stCard"); el.className = "stcard " + (c.cls || ""); el.style.setProperty("--sc", c.col || "#B4233A");
+      el.innerHTML = `${c.eyebrow ? `<div class="steb">${c.eyebrow}</div>` : ""}${c.big ? `<div class="stbig">${c.big}</div>` : ""}${c.title ? `<h2 class="stt">${c.title}</h2>` : ""}${c.body ? `<p class="stb">${c.body}</p>` : ""}${c.html || ""}`;
+      if(c.after) try{ c.after(el); }catch(e){}
+      ov.querySelectorAll(".stbars i").forEach((b, k)=>{ b.firstChild.style.width = k < SV.i ? "100%" : "0%"; });
+      SV.t = 0; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); };
+    const nav = d=>{ const n = SV.i + d; if(n < 0){ SV.t = 0; return; } if(n >= cards.length){ closeStory(); return; } SV.i = n; paint(); };
+    SV.nav = nav;
+    const loop = now=>{ if(!SV || SV.ov !== ov) return; const dt = now - SV.last; SV.last = now; if(!SV.paused && !cards[SV.i].hold){ SV.t += dt; if(SV.t >= D){ nav(1); } }
+      const bar = ov.querySelectorAll(".stbars i")[SV.i]; if(bar) bar.firstChild.style.width = cards[SV.i].hold ? "100%" : Math.min(100, SV.t / D * 100) + "%"; SV.raf = requestAnimationFrame(loop); };
+    ov.querySelector(".stprev").onclick = ()=>nav(-1); ov.querySelector(".stnext").onclick = ()=>nav(1);
+    $("#stX").onclick = ()=>closeStory();
+    $("#stShare").onclick = ()=>shareStoryCard(cards[SV.i], opts);
+    let sy = null;
+    ov.addEventListener("pointerdown", e=>{ SV.paused = true; sy = e.clientY; });
+    ov.addEventListener("pointerup", e=>{ SV.paused = false; if(sy != null && e.clientY - sy > 90) closeStory(); sy = null; });
+    ov.addEventListener("pointercancel", ()=>{ SV.paused = false; });
+    SV.key = e=>{ if(e.key === "Escape") closeStory(); if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); };
+    addEventListener("keydown", SV.key);
+    paint(); SV.raf = requestAnimationFrame(loop);
+    if(window.skfEvent) try{ skfEvent("story", opts.key || "open"); }catch(e){}
+  }
+  function closeStory(silent){
+    const ov = $("#storyOv"); if(!ov) return;
+    if(SV){ cancelAnimationFrame(SV.raf); removeEventListener("keydown", SV.key); }
+    ov.remove(); SV = null; document.documentElement.classList.remove("skf-lock");
+    if(!silent && /^#story-/.test(location.hash)) history.replaceState(null, "", location.hash.replace("#story-", "#pays-"));
+  }
+  window.skfOpenStory = openStory;
+  async function shareStoryCard(c, opts){
+    const W = 1080, H = 1920, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+    try{ await document.fonts.ready; }catch(e){}
+    const col = c.col || "#B4233A";
+    const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, "#111214"); grd.addColorStop(1, "#1B1D22"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    g.fillStyle = col; g.globalAlpha = .18; g.beginPath(); g.arc(W*.85, H*.12, 420, 0, Math.PI*2); g.fill(); g.globalAlpha = 1;
+    const strip = s=>String(s || "").replace(/<[^>]+>/g, "");
+    const wrap = (txt, x, y, maxW, lh, font, color)=>{ g.font = font; g.fillStyle = color; const words = strip(txt).split(/\s+/); let line = "", yy = y;
+      for(const w of words){ const test = line ? line + " " + w : w; if(g.measureText(test).width > maxW && line){ g.fillText(line, x, yy); line = w; yy += lh; } else line = test; } if(line) g.fillText(line, x, yy); return yy + lh; };
+    let y = 300;
+    g.textAlign = "left";
+    if(c.eyebrow){ g.font = "500 34px 'Geist Mono', monospace"; g.fillStyle = col; g.fillText(strip(c.eyebrow).toUpperCase(), 96, y); y += 90; }
+    if(c.big) y = wrap(c.big, 96, y + 60, W - 192, 150, "150px 'Instrument Serif', Georgia, serif", "#FFFFFF") + 10;
+    if(c.title) y = wrap(c.title, 96, y + 40, W - 192, 92, "84px 'Instrument Serif', Georgia, serif", "#FFFFFF") + 10;
+    if(c.body) y = wrap(c.body, 96, y + 30, W - 192, 62, "44px Geist, system-ui, sans-serif", "#C9CCD2");
+    g.font = "500 36px 'Geist Mono', monospace"; g.fillStyle = "#E2B24E"; g.fillText("SANKOFA", 96, H - 190);
+    g.font = "36px Geist, system-ui, sans-serif"; g.fillStyle = "#A3A8AF"; g.fillText((opts.url || SITE_URL).replace("https://", ""), 96, H - 130);
+    cv.toBlob(async blob=>{ if(!blob) return; const file = new File([blob], "sankofa-story.png", {type:"image/png"});
+      try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], text:(opts.url || SITE_URL)}); return; } }catch(e){ if(e && e.name === "AbortError") return; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sankofa-story.png"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); }, "image/png");
+  }
+  function countryStory(id){
+    const c = C[id], col = mainLayer(c).hex, D = (typeof dossierOf === "function") ? dossierOf(id) : null;
+    const figs = (c.figs || []).filter(f=>f.n), f1 = figs[0], f2 = figs[1] || (c.figs || []).find(f=>!f.n && f.t);
+    const ev = (c.hist || []).slice(-3);
+    const strip = s=>String(s || "").replace(/<[^>]+>/g, "");
+    const cards = [
+      {eyebrow:esc(c.region), title:esc(c.name), body:t("Un pays en six cartes. Touche à droite pour avancer."), col, cls:"stcover",
+        html:`<canvas class="stsil" width="520" height="520"></canvas>`, after:el=>{ const cv = el.querySelector(".stsil"); if(cv) silhouette(cv, id, col, {pad:.08, step:3}); }},
+      {eyebrow:t("En une phrase"), title:esc(strip(c.resume)), col},
+      f1 ? {eyebrow:t("Un chiffre"), big:esc(f1.n), body:esc(strip(f1.d || f1.t)), col} : null,
+      ev.length ? {eyebrow:t("Comment on en est arrivé là"), col, html:`<ol class="sttl">${ev.map(h=>`<li><b>${esc(h[0])}</b><span>${esc(h[1])}</span></li>`).join("")}</ol>`} : null,
+      (D && D.lede) || f2 ? {eyebrow:t("Aujourd'hui"), title:esc(strip(D && D.lede ? D.lede : (f2.t || f2.d))), col} : null,
+      {eyebrow:t("À toi"), title:t("Tu en sais plus que la plupart des gens."), body:t("Teste-toi en deux minutes, ou lis le dossier complet."), col, hold:true,
+        html:`<div class="stcta"><a class="cta" href="#quiz-${c.slug}">${t("Faire le quiz")}</a>${DOSSIERS[id] ? `<a class="cta ghost" href="#dossier-${c.slug}">${t("Lire le dossier")}</a>` : `<a class="cta ghost" href="#pays-${c.slug}">${t("Voir la fiche")}</a>`}</div>`,
+        after:el=>el.querySelectorAll(".stcta a").forEach(a=>a.addEventListener("click", ()=>closeStory(true)))}
+    ].filter(Boolean);
+    openStory(cards, {label:c.short, key:c.slug, url:SITE_URL + "/" + c.slug + "/"});
+  }
+  window.skfStory = countryStory;
+
+  /* ====== 5. Ton année Sankofa (décembre et début janvier) ====== */
+  const wrappedOpen = ()=>{ const d = new Date(), m = d.getMonth(); return m === 11 || (m === 0 && d.getDate() <= 15) || !!window.skfAdmin; };
+  const wrappedYear = ()=>{ const d = new Date(); return d.getMonth() === 0 ? d.getFullYear() - 1 : d.getFullYear(); };
+  function wrapped(){
+    const Y = wrappedYear(), won = FEATURED.filter(id=>state.stamps[id]), vis = (state.visited || []).length;
+    const sec = (state.ysec && state.ysec[Y]) || state.tsec || 0, mins = Math.round(sec / 60);
+    const byR = [5,4,3,2,1].map(r=>[r, won.filter(id=>state.stamps[id].r === r).length]).filter(x=>x[1]);
+    const reg = {}; won.forEach(id=>{ const r = C[id].region; reg[r] = (reg[r] || 0) + 1; }); const topReg = Object.entries(reg).sort((a, b)=>b[1] - a[1])[0];
+    const rare = won.slice().sort((a, b)=>state.stamps[b].r - state.stamps[a].r)[0];
+    const time = mins >= 120 ? t("{h} heures", {h:Math.round(mins/60)}) : t("{m} minutes", {m:Math.max(1, mins)});
+    const cards = [
+      {eyebrow:t("Ton année Sankofa"), big:String(Y), body:t("Ce que tu as appris cette année, en cinq cartes."), col:"#C8962E", cls:"stcover"},
+      {eyebrow:t("Tu as exploré"), big:String(vis), body:vis > 1 ? t("pays et peuples. Chacun avec une histoire que peu de gens connaissent.") : t("pays ou peuple. Un début, et c'est déjà beaucoup."), col:"#2D6BE0"},
+      {eyebrow:t("Tu as passé"), big:time, body:t("à comprendre ce que vivent d'autres peuples. Du temps bien utilisé."), col:"#1A9A55"},
+      {eyebrow:t("Ta collection"), big:String(won.length), body:t("tampons dans ton passeport.") + (rare ? " " + t("Le plus rare : {x}, {r}.", {x:esc(C[rare].short), r:RARITY[state.stamps[rare].r].name}) : ""), col:"#8B5CF6",
+        html:byR.length ? `<div class="stchips">${byR.map(([r, n])=>`<span style="--c:${RARITY[r].col}"><i></i>${RARITY[r].name} · ${n}</span>`).join("")}</div>` : ""},
+      {eyebrow:topReg ? t("Ta région") : t("Ta série record"), big:topReg ? esc(topReg[0]) : String(state.bestStreak || state.streak || 0), body:topReg ? t("C'est là que tu as gagné le plus de tampons.") : t("jours d'affilée."), col:"#D9620F"},
+      {eyebrow:t("Et maintenant"), title:t("Merci d'avoir regardé le monde en face."), body:t("Partage ta carte. Peut-être qu'un ami découvrira un peuple grâce à toi."), col:"#C8962E", hold:true}
+    ];
+    openStory(cards, {label:t("Ton année Sankofa"), key:"wrapped", url:SITE_URL});
+  }
+  window.skfWrapped = wrapped;
+
+  /* ====== 6. Frise chronologique ====== */
+  function frise(){
+    const evs = []; FEATURED.forEach(id=>(C[id].hist || []).forEach(h=>{ const y = parseInt(h[0], 10); if(y) evs.push({id, y, txt:h[1]}); }));
+    const ys = evs.map(e=>e.y), Y0 = Math.max(1900, Math.min(...ys)), Y1 = new Date().getFullYear();
+    document.body.insertAdjacentHTML("beforeend", `<div class="frov" id="frOv" role="dialog" aria-modal="true" aria-label="${t("Frise chronologique")}"><div class="frbox">
+      <button class="stx dark" id="frX" aria-label="${t("Fermer")}">×</button>
+      <div class="eyebrow">${t("Frise chronologique")}</div><div class="fryear" id="frY"></div>
+      <div class="frglobe"><canvas id="frCv"></canvas></div>
+      <div class="frctl"><button class="frplay" id="frP" aria-label="${t("Lecture")}">▶</button><input type="range" id="frR" min="${Y0}" max="${Y1}" value="${Y1}" step="1" aria-label="${t("Année")}"></div>
+      <div class="frev" id="frE" aria-live="polite"></div></div></div>`);
+    document.documentElement.classList.add("skf-lock");
+    const ov = $("#frOv"), cv = $("#frCv"), size = Math.min(ov.querySelector(".frglobe").clientWidth || 300, 360), dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = size*dpr; cv.height = size*dpr; cv.style.width = cv.style.height = size + "px"; const x = cv.getContext("2d"); x.scale(dpr, dpr);
+    const dark = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    const pr = d3.geoOrthographic().translate([size/2, size/2]).scale(size/2 - 4).clipAngle(90), pa = d3.geoPath(pr, x); try{ initBase(); }catch(e){}
+    let rot = [-20, -10], yr = Y1, timer = null, spin = null;
+    const first = {}; evs.forEach(e=>{ if(!first[e.id] || e.y < first[e.id]) first[e.id] = e.y; });
+    const draw = ()=>{ pr.rotate(rot); x.clearRect(0, 0, size, size);
+      x.beginPath(); pa({type:"Sphere"}); x.fillStyle = dark ? "#12151A" : "#E4E6E2"; x.fill();
+      x.beginPath(); if(LAND110) pa(LAND110); x.fillStyle = dark ? "#2A2E35" : "#C9CCC8"; x.fill();
+      FEATURED.forEach(id=>{ if(first[id] != null && first[id] <= yr && featById[id]){ x.beginPath(); pa(featById[id]); x.fillStyle = mainLayer(C[id]).hex; x.globalAlpha = evs.some(e=>e.id === id && e.y === yr) ? 1 : .55; x.fill(); x.globalAlpha = 1; } }); };
+    const setY = y=>{ yr = +y; $("#frY").textContent = yr; $("#frR").value = yr;
+      const now = evs.filter(e=>e.y === yr);
+      $("#frE").innerHTML = now.length ? now.slice(0, 4).map(e=>`<a class="fritem" href="#pays-${C[e.id].slug}"><b>${esc(C[e.id].short)}</b><span>${esc(e.txt)}</span></a>`).join("") : `<p class="frnone">${t("Rien de marquant cette année dans l'atlas. Fais glisser le curseur.")}</p>`;
+      const lit = now[0]; if(lit){ const c = centroid(lit.id); const to = [-c[0], -Math.max(-50, Math.min(50, c[1]))]; const it = d3.interpolate(rot, to), t0 = performance.now();
+        cancelAnimationFrame(spin); const st = n=>{ const k = Math.min(1, (n - t0)/500); rot = it(d3.easeCubicOut(k)); draw(); if(k < 1) spin = requestAnimationFrame(st); }; spin = requestAnimationFrame(st); } else draw(); };
+    $("#frR").oninput = e=>setY(e.target.value);
+    const stop = ()=>{ clearInterval(timer); timer = null; $("#frP").textContent = "▶"; };
+    $("#frP").onclick = ()=>{ if(timer) return stop(); if(yr >= Y1) setY(Math.max(Y0, 1945)); $("#frP").textContent = "❚❚";
+      timer = setInterval(()=>{ let n = yr + 1; while(n <= Y1 && !evs.some(e=>e.y === n)) n++; if(n > Y1){ stop(); return; } setY(n); }, 1100); };
+    const close = ()=>{ stop(); cancelAnimationFrame(spin); ov.remove(); document.documentElement.classList.remove("skf-lock"); };
+    $("#frX").onclick = close; ov.addEventListener("click", e=>{ if(e.target === ov) close(); });
+    ov.querySelectorAll(".fritem").forEach(a=>a.addEventListener("click", close));
+    $("#frE").addEventListener("click", e=>{ if(e.target.closest(".fritem")) close(); });
+    addEventListener("keydown", function k(e){ if(e.key === "Escape"){ close(); removeEventListener("keydown", k); } });
+    setY(Y1);
+  }
+  window.skfFrise = frise;
+
+  /* ====== Points d'entrée (peu nombreux, bien visibles) ====== */
+  const _rl = renderLearn;
+  renderLearn = function(){
+    _rl.apply(this, arguments);
+    const top = $("#learnTop"); if(!top || $("#todayRow")) return;
+    const n = dueList().length, kept = (state.mist || []).length, best = state.gameBest || 0;
+    top.insertAdjacentHTML("beforebegin", `<div class="today" id="todayRow">
+      <a class="tday" href="#erreurs"><span class="tdi">↺</span><span><b>${t("Mes erreurs")}</b><em>${n ? t("{n} à revoir aujourd'hui", {n}) : kept ? t("Rien à revoir aujourd'hui") : t("Les questions ratées reviennent ici")}</em></span>${n ? `<i class="tdn">${n}</i>` : ""}</a>
+      <a class="tday" href="#jeu"><span class="tdi">◎</span><span><b>${t("Trouve le pays")}</b><em>${best ? t("Record : {n} points", {n:best}) : t("Un jeu de 2 minutes sur le globe")}</em></span></a></div>`);
+  };
+  const _rp = renderPays;
+  renderPays = function(id){
+    _rp.apply(this, arguments);
+    const tags = $("#paysIn .phero .tags"); if(tags && !$("#paysIn .storybtn")) tags.insertAdjacentHTML("afterend", `<button type="button" class="storybtn" id="storyBtn"><span class="sbring"><i></i></span>${t("Voir en story")} <em>${t("1 min")}</em></button>`);
+    const b = $("#storyBtn"); if(b) b.onclick = ()=>countryStory(id);
+    countUp($("#paysIn"));
+  };
+  const _rps = renderPass;
+  renderPass = function(){
+    _rps.apply(this, arguments);
+    const head = $("#passHead"); if(!head || !wrappedOpen() || $("#wrapBan")) return;
+    head.insertAdjacentHTML("beforebegin", `<button type="button" class="wrapban" id="wrapBan"><span>${t("Ton année Sankofa {y}", {y:wrappedYear()})}</span><b>${t("Voir")} →</b></button>`);
+    $("#wrapBan").onclick = wrapped;
+  };
+  const addFriseBtn = ()=>{ const seg = $("#seg"); if(seg && !$("#friseBtn")) seg.insertAdjacentHTML("afterend", `<button type="button" class="frisebtn" id="friseBtn">${t("Frise chronologique")}</button>`); const b = $("#friseBtn"); if(b) b.onclick = frise; };
+  addFriseBtn(); setTimeout(addFriseBtn, 1500);
+
+  /* ====== Routes ====== */
+  const _rn = routeNow;
+  routeNow = function(){
+    const h = location.hash.slice(1);
+    if(h === "erreurs") return renderErreurs();
+    if(h === "jeu") return renderJeu();
+    if(h === "bilan"){ _rn.call(this); location.hash = "passeport"; setTimeout(wrapped, 300); return; }
+    if(h.startsWith("story-")){ const id = bySlug[h.slice(6)]; if(id){ if(!$("#v-pays.on") || !$("#paysIn h1")){ history.replaceState(null, "", "#pays-" + h.slice(6)); _rn.call(this); } setTimeout(()=>countryStory(id), 60); return; } }
+    if(!h.startsWith("story-") && $("#storyOv")) closeStory(true);
+    /* Zoom du globe vers la fiche */
+    const fromGlobe = $("#v-globe.on"), toPays = h.startsWith("pays-");
+    if(fromGlobe && toPays && !reduce() && !routeNow._z){ routeNow._z = 1; const g = $("#stage") || fromGlobe; g.classList.add("zoomout");
+      setTimeout(()=>{ g.classList.remove("zoomout"); routeNow._z = 0; _rn.call(this); const v = $("#v-pays"); if(v){ v.classList.remove("zoomin"); void v.offsetWidth; v.classList.add("zoomin"); } }, 260); return; }
+    return _rn.apply(this, arguments);
+  };
+  if(["erreurs", "jeu"].includes(location.hash.slice(1)) || location.hash.startsWith("#story-")) setTimeout(routeNow, 0);
+
+  /* ====== Animations ====== */
+  /* Chiffres qui défilent jusqu'à leur valeur */
+  function countUp(root){
+    if(!root || reduce()) return;
+    const els = [...root.querySelectorAll(".fig .n")];
+    const io = new IntersectionObserver(es=>es.forEach(en=>{ if(!en.isIntersecting) return; io.unobserve(en.target); run(en.target); }), {threshold:.4});
+    els.forEach(el=>io.observe(el));
+    function run(el){
+      const txt = el.textContent, m = txt.match(/^([^\d]*)(\d[\d\s  .,]*\d|\d)(.*)$/); if(!m) return;
+      const raw = m[2], clean = raw.replace(/[\s  ]/g, ""), isYear = /^(19|20)\d\d$/.test(clean); if(isYear) return;
+      const decSep = LANG === "en" ? "." : ",", parts = clean.split(decSep), dec = parts.length > 1 ? parts[parts.length - 1].length : 0;
+      const val = parseFloat(LANG === "en" ? clean.replace(/,/g, "") : clean.replace(/\./g, "").replace(",", ".")); if(!isFinite(val) || val === 0) return;
+      const fmt = v=>v.toLocaleString(LOC, {minimumFractionDigits:dec, maximumFractionDigits:dec});
+      const t0 = performance.now(), D = 1000;
+      const step = now=>{ const k = Math.min(1, (now - t0)/D), e = 1 - Math.pow(1 - k, 3); el.textContent = m[1] + fmt(val*e) + m[3]; if(k < 1) requestAnimationFrame(step); else el.textContent = txt; };
+      requestAnimationFrame(step);
+    }
+  }
+  /* Chapitres des dossiers qui apparaissent au défilement */
+  const revealCh = ()=>{ if(reduce()) return; const chs = document.querySelectorAll("#v-dossier.on .dch:not(.rv)"); if(!chs.length) return;
+    const io = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("rvin"); io.unobserve(en.target); } }), {threshold:.08, rootMargin:"0px 0px -6% 0px"});
+    chs.forEach((c, i)=>{ c.classList.add("rv"); if(i === 0) c.classList.add("rvin"); else io.observe(c); }); };
+  new MutationObserver(()=>{ if($("#v-dossier.on")) revealCh(); }).observe(document.body, {subtree:true, childList:true});
+})();
+
+Object.assign(EN, {
+ "Apprendre":"Learn","Révision":"Review","Mes erreurs":"My mistakes","Rien à revoir aujourd'hui.":"Nothing to review today.","Aucune erreur pour l'instant.":"No mistakes yet.",
+ "{n} questions reviennent demain.":"{n} questions come back tomorrow.","{n} questions reviennent dans {d} jours.":"{n} questions come back in {d} days.",
+ "Les questions que tu rates dans les quiz reviendront ici, un peu plus tard, pour que tu les retiennes.":"The questions you miss in quizzes will come back here a little later, so they stick.",
+ "Une bonne réponse, et la question revient plus tard. Trois de suite, et elle disparaît.":"One right answer and the question comes back later. Three in a row and it's gone.",
+ "Jeu":"Game","Trouve le pays":"Find the country","10 pays. Touche-les sur le globe, le plus vite possible.":"10 countries. Tap them on the globe, as fast as you can.",
+ "Ton record : {n} points.":"Your best: {n} points.","Fais tourner le globe du doigt, puis touche le pays demandé.":"Spin the globe with your finger, then tap the country asked.",
+ "Jouer":"Play","Globe du jeu":"Game globe","points":"points","Passer":"Skip","Trouve":"Find","Là, c'est : {x}.":"That's {x}.","Pas ici.":"Not here.",
+ "Résultat":"Result","{n} pays trouvés sur 10, en {s} secondes.":"{n} countries found out of 10, in {s} seconds.","Nouveau record.":"New record.","Défier un ami":"Challenge a friend",
+ "J'ai trouvé {n} pays sur 10 en {s} secondes sur Sankofa. À toi :":"I found {n} out of 10 countries in {s} seconds on Sankofa. Your turn:","Lien copié.":"Link copied.",
+ "Fermer":"Close","Précédent":"Previous","Suivant":"Next","Un pays en six cartes. Touche à droite pour avancer.":"A country in six cards. Tap the right side to move on.",
+ "En une phrase":"In one sentence","Un chiffre":"One number","Comment on en est arrivé là":"How it came to this","Aujourd'hui":"Today","À toi":"Your turn",
+ "Tu en sais plus que la plupart des gens.":"You now know more than most people.","Teste-toi en deux minutes, ou lis le dossier complet.":"Test yourself in two minutes, or read the full course.",
+ "Faire le quiz":"Take the quiz","Lire le dossier":"Read the course","Voir la fiche":"See the page",
+ "Ton année Sankofa":"Your Sankofa year","Ce que tu as appris cette année, en cinq cartes.":"What you learned this year, in five cards.","Tu as exploré":"You explored",
+ "pays et peuples. Chacun avec une histoire que peu de gens connaissent.":"countries and peoples. Each with a story few people know.","pays ou peuple. Un début, et c'est déjà beaucoup.":"country or people. A start, and that's already a lot.",
+ "Tu as passé":"You spent","{h} heures":"{h} hours","{m} minutes":"{m} minutes","à comprendre ce que vivent d'autres peuples. Du temps bien utilisé.":"understanding what other peoples live through. Time well spent.",
+ "Ta collection":"Your collection","tampons dans ton passeport.":"stamps in your passport.","Le plus rare : {x}, {r}.":"The rarest: {x}, {r}.","Ta région":"Your region","Ta série record":"Your best streak",
+ "C'est là que tu as gagné le plus de tampons.":"That's where you earned the most stamps.","jours d'affilée.":"days in a row.","Et maintenant":"And now",
+ "Merci d'avoir regardé le monde en face.":"Thank you for looking the world in the face.","Partage ta carte. Peut-être qu'un ami découvrira un peuple grâce à toi.":"Share your card. Maybe a friend will discover a people thanks to you.",
+ "Frise chronologique":"Timeline","Lecture":"Play","Année":"Year","Rien de marquant cette année dans l'atlas. Fais glisser le curseur.":"Nothing major this year in the atlas. Move the slider.",
+ "{n} à revoir aujourd'hui":"{n} to review today","Rien à revoir aujourd'hui":"Nothing to review today","Les questions ratées reviennent ici":"Missed questions come back here",
+ "Record : {n} points":"Best: {n} points","Un jeu de 2 minutes sur le globe":"A 2-minute game on the globe","Voir en story":"View as story","1 min":"1 min",
+ "Ton année Sankofa {y}":"Your Sankofa year {y}","Voir":"See"
 });
 
 /* ---------- Espace fondateur : les statistiques dans le site, visibles par le seul compte fondateur ---------- */
