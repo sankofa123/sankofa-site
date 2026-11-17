@@ -3136,7 +3136,7 @@ function renderQuizView(id){
 function renderLevels(id,sel){
   const r = state.stamps[id]?.r || 0;
   $("#lvls").innerHTML = LEVELS.slice(0, topLv(id)+1).map((lv,i)=>{
-    const open = i===0 || r>=i, rr = RARITY[i+1];
+    const open = i===0 || r>=i || (i===4 && typeof level==="function" && level()>=20), rr = RARITY[i+1];
     return `<button class="lvl ${i===3?"legend":""}${i===4?" master":""}" data-i="${i}" aria-pressed="${i===sel}" ${open?"":"disabled"}>
       <span class="lvn">${open?"":LOCK}${lv.name}${r>=i+1?` <span class="done">✓</span>`:""}</span>
       <span class="lvr" style="color:${rr.col}">${t("Tampon {r}",{r:rr.name})}</span>
@@ -3445,8 +3445,8 @@ function renderPass(){
   stf.querySelectorAll("[data-sf]").forEach(b=>b.onclick=()=>{ window.STAMP_FILTER = b.dataset.sf; renderPass(); });
   $("#stamps").innerHTML = (SF==="won" ? won : SF==="todo" ? todo : won.concat(todo)).map(id=>{
     const c=C[id], s=state.stamps[id];
-    return s?`<div class="slot">${stampSVG(id,s.r,s.d)}<span>${esc(c.short)}</span><button class="slotshare" data-id="${id}">${t("Partager")}</button></div>`
-            :`<a class="slot locked" href="#quiz-${c.slug}">${GHOST(id)}<span>${esc(c.short)} · ${t("à conquérir")}</span></a>`;
+    return s?`<div class="slot" data-id="${id}"><a class="slotlink" href="#pays-${c.slug}" aria-label="${esc(c.short)}">${stampSVG(id,s.r,s.d)}<span>${esc(c.short)}</span></a><button class="slotshare" data-id="${id}">${t("Partager")}</button></div>`
+            :`<a class="slot locked" data-id="${id}" href="#pays-${c.slug}">${GHOST(id)}<span>${esc(c.short)} · ${t("à conquérir")}</span></a>`;
   }).join("") || `<p class="clsmall">${t("Aucun tampon pour l'instant. Réussis un parcours pour gagner le premier.")}</p>`;
   $("#cards").innerHTML = FEATURED.map(id=>{ const f0=(C[id].figs||[]).find(f=>f.n)||(C[id].figs||[])[0]||{}, D=(DEEP[id]&&DEEP[id].fig)?DEEP[id]:{fig:{n:f0.n||C[id].short, d:f0.at?fmtAt(f0.at):"", t:String(f0.d||f0.t||"").replace(/<[^>]+>/g,"")}}, s=state.stamps[id], col = s?RARITY[s.r].col:"#9AA0A6";
     return s?`<div class="mcard" style="--c:${col}"><div class="mtop"><span class="eyebrow">${esc(C[id].short)}</span><span class="mr">${RARITY[s.r].name}</span></div><b>${esc(D.fig.n)}</b><span class="fd">${esc(D.fig.d)}</span><p>${esc(D.fig.t)}</p></div>`
@@ -10157,9 +10157,9 @@ Object.assign(EN, {
     const okLevel = acct && (me.ok || LI.l >= MIN_LV);
     const rules = `<ol class="prrules">
       <li><b>${t("Du 1er au 20 du mois")}</b> ${t("chaque membre peut proposer un pays, une seule fois par mois.")}</li>
-      <li><b>${t("Du 21 à la fin du mois")}</b> ${t("les membres votent : une voix chacun.")}</li>
+      <li><b>${t("Du 21 à la fin du mois")}</b> ${t("les membres votent : une voix chacun, deux à partir du niveau 30.")}</li>
       <li><b>${t("Le 1er du mois suivant")}</b> ${t("le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.")}</li></ol>
-      <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 8 (Curieux IV, 1790 XP).")}</p>`;
+      <p class="prcond">${t("Pour proposer et pour voter, il faut un compte et le niveau 8 (Curieux IV, 1790 XP).")}</p>${me.double ? `<p class="prcond prdouble">${t("Niveau 30 atteint : ta voix compte double.")}</p>` : ""}`;
     let gate = "";
     if(!acct) gate = `<div class="clcard prgate"><b>${t("Crée ton compte pour participer.")}</b><p class="clsmall">${t("C'est gratuit. Tu pourras proposer et voter dès le niveau 8.")}</p><div class="clrow"><button class="cta" id="prUp">${t("Créer mon compte")}</button><button class="cta ghost" id="prLog">${t("Se connecter")}</button></div></div>`;
     else if(!okLevel) gate = `<div class="clcard prgate"><b>${t("Tu es au niveau {n}. Encore {x} XP avant le niveau 8.", {n:LI.l, x:Math.max(0, MIN_XP - xp)})}</b><div class="xpbar prbar"><i style="width:${Math.min(100, xp / MIN_XP * 100)}%"></i></div><p class="clsmall">${t("Chaque quiz réussi et chaque dossier lu te rapprochent du niveau 8.")}</p></div>`;
@@ -10259,7 +10259,7 @@ Object.assign(EN, {
  "Tu as déjà proposé un pays ce mois-ci.":"You have already proposed a country this month.","Le vote ouvre le 21.":"Voting opens on the 21st.","Tu as déjà voté ce mois-ci.":"You have already voted this month.","Choisis un pays dans la liste.":"Choose a country from the list.",
  "Le prochain pays, c'est vous qui le choisissez.":"You choose the next country.",
  "Du 1er au 20 du mois":"From the 1st to the 20th","chaque membre peut proposer un pays, une seule fois par mois.":"each member can propose one country, once a month.",
- "Du 21 à la fin du mois":"From the 21st to the end of the month","les membres votent : une voix chacun.":"members vote: one vote each.",
+ "Du 21 à la fin du mois":"From the 21st to the end of the month","les membres votent : une voix chacun, deux à partir du niveau 30.":"members vote: one vote each, two from level 30.","Niveau 30 atteint : ta voix compte double.":"Level 30 reached: your vote counts double.",
  "Le 1er du mois suivant":"On the 1st of the next month","le pays arrivé en tête est retenu. Sa fiche est ensuite écrite avec des sources vérifiées.":"the country with the most votes is selected. Its page is then written with verified sources.",
  "Pour proposer et pour voter, il faut un compte et le niveau 8 (Curieux IV, 1790 XP).":"To propose and to vote, you need an account and level 8 (Curious IV, 1,790 XP).",
  "Crée ton compte pour participer.":"Create your account to take part.","C'est gratuit. Tu pourras proposer et voter dès le niveau 8.":"It's free. You can propose and vote from level 8.",
@@ -10422,7 +10422,11 @@ stampSVG = function(id, r, date, small){
   let out = _stampSVG.apply(this, arguments), k = "classique";
   try{ k = curInk(); }catch(e){}
   if(k === "classique" || !RARITY[r]) return out;
-  out = out.split(RARITY[r].col).join(INKS[k].c);
+  const R = RARITY[r].col, I = INKS[k].c;
+  out = out.split(R).join(I);
+  /* La rareté reste lisible quelle que soit l'encre : le grand anneau et les points gardent la couleur de la rareté */
+  out = out.replace(`stroke="${I}" stroke-width="3"`, `stroke="${R}" stroke-width="4.5"`).replace(`<g fill="${I}">`, `<g fill="${R}">`);
+  if(r >= 4) out = out.replace('<circle cx="100" cy="100" r="66"', `<circle cx="100" cy="100" r="99" fill="none" stroke="${R}" stroke-width="1.4"/><circle cx="100" cy="100" r="66"`);
   return out.replace('class="stampwrap', 'class="stampwrap ink-'+k);
 };
 function applyCos(){ document.body.classList.toggle("skf-l40", level() >= 40); }
@@ -10431,7 +10435,7 @@ function perkIco(k){
   const p = {icon:'<rect x="4" y="4" width="16" height="16" rx="4"/>', frame:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/>',
     vote:'<path d="M5 12l4 4 10-10"/>', cover:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="11" r="3"/>',
     card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5"/>', globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/>',
-    ink:'<path d="M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z"/>', emb:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', stamp:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2 2"/>'}[k];
+    ink:'<path d="M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z"/>', emb:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>', stamp:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2 2"/>', big:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6-4.5-4.2 6.1-.7z"/>'}[k] || '';
   return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 }
 function perksHTML(){
@@ -10454,10 +10458,10 @@ function cosHTML(){
   return `<div class="cosbox" id="cosBox" role="dialog" aria-modal="true" aria-labelledby="cosH">
     <button type="button" class="mclose cosx" aria-label="${t("Fermer")}">×</button>
     <div class="eyebrow">${t("Personnaliser")}</div><h3 id="cosH">${t("Ce que tu as gagné, à toi de choisir.")}</h3>
-    <div class="cosgrp"><b>${t("Encre des tampons")}</b><div class="cosrow">${Object.entries(INKS).map(([k,o])=>opt("ink",k,o,k===ik,o.sw)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Encre des tampons")}</b><div class="cosrow">${Object.entries(INKS).sort((a,b)=>(isF() ? (b[1].f?1:0)-(a[1].f?1:0) : 0)).map(([k,o])=>opt("ink",k,o,k===ik,o.sw)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Style des tampons")}</b><div class="cosrow">${Object.entries(STYLES).map(([k,o])=>opt("style",k,o,k===((state.cos||{}).style||"net"))).join("")}</div></div>
     <div class="cosgrp"><b>${t("Cadre de l'emblème")}</b><div class="cosrow">${Object.entries(FRAMES).map(([k,o])=>opt("frame",k,o,k===fr)).join("")}</div></div>
-    <div class="cosgrp"><b>${t("Couverture du passeport")}</b><div class="cosrow">${Object.entries(COVERS).map(([k,o])=>opt("cover",k,o,k===cv,o.sw)).join("")}</div></div>
+    <div class="cosgrp"><b>${t("Couverture du passeport")}</b><div class="cosrow">${Object.entries(COVERS).sort((a,b)=>(isF() ? (b[1].f?1:0)-(a[1].f?1:0) : 0)).map(([k,o])=>opt("cover",k,o,k===cv,o.sw)).join("")}</div></div>
     <div class="cosgrp"><b>${t("Couleur de l'emblème")}</b>${p ? `<div class="cosrow">${embs.map((o,i)=>opt("emb",i,o,p.bg===i,o.b)).join("")}</div>` : `<p class="clsmall">${t("Crée ton passeport pour choisir la couleur de ton emblème.")}</p>`}</div>
     <p class="clsmall">${t("Les couleurs de l'icône se choisissent dans les réglages.")}</p>
   </div>`;
@@ -10864,10 +10868,10 @@ Object.assign(EN, {
   function visaHTML(sec){
     const ids = FEATURED.filter(id=>state.stamps[id]).sort((a,b)=>dnum(state.stamps[a].d) - dnum(state.stamps[b].d) || (hash(a) - hash(b)));
     const fr = founder();
-    if(!ids.length && !fr) return "";
+    if(!ids.length) return "";
     const seen = state.visaSeen || {};
     const avail = Math.min((sec && sec.clientWidth) || 340, 520), W = avail - 24, d = avail < 420 ? 64 : 76;
-    const keys = (fr && window.skfMedal ? ["fondateur"] : []).concat(ids), L = layout(keys, W, d);
+    const keys = ids, L = layout(keys, W, d);
     const out = L.pts.map(p=>{ const isNew = p.k === "fondateur" ? !seen.fondateur : seen[p.k] !== state.stamps[p.k].r;
       const inner = p.k === "fondateur" ? `<div class="stampwrap">${window.skfMedal("f", true, "N° " + String(fr).padStart(3, "0"))}</div>` : stampSVG(p.k, state.stamps[p.k].r, state.stamps[p.k].d);
       return `<div class="vst ${isNew?"new":""}" data-k="${p.k}" title="${p.k === "fondateur" ? esc(t("Fondateur")) : esc(C[p.k].short)}" style="left:${(p.x - d/2).toFixed(1)}px;top:${(p.y - d/2).toFixed(1)}px;width:${d}px;height:${d}px;--rot:${p.rot}deg;--f:url(#skfInk${hash(p.k) % 4})">${inner}</div>`; }).join("");
@@ -10966,6 +10970,13 @@ Object.assign(EN, {
     if(!renderPass._f){ renderPass._f = 1; setTimeout(()=>{ if(founder() && location.hash === "#passeport") renderPass(); }, 2600); }
     const fr = founder(), head = $("#passHead");
     if(head && fr && !head.querySelector(".fribbon")){ const lv = head.querySelector(".lvline"); if(lv) lv.insertAdjacentHTML("beforeend", ` <span class="fribbon">${t("Fondateur n° {n}", {n:fr})}</span>`); }
+    const av = head && (head.querySelector(".phid .avwrap") || head.querySelector(".phid > svg, .phid > span, .phid > div:first-child"));
+    if(av && fr && window.skfMedal && !head.querySelector(".fseal")) av.insertAdjacentHTML("afterend", `<span class="fseal" title="${esc(t("Fondateur n° {n}", {n:fr}))}">${window.skfMedal("f", true, "N° " + String(fr).padStart(3, "0"))}</span>`);
+    /* Pages de visas : toucher un tampon mène à ce tampon dans la collection */
+    const vg = document.querySelector("#visaSect .vgrid");
+    if(vg && !vg._cl){ vg._cl = 1; vg.addEventListener("click", e=>{ const v = e.target.closest(".vst"); if(!v) return; const k = v.dataset.k;
+      const go = ()=>{ const el = document.querySelector(`#stamps .slot[data-id="${k}"]`); if(!el) return false; el.scrollIntoView({block:"center", behavior:"smooth"}); el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); return true; };
+      if(!go()){ window.STAMP_FILTER = "all"; window.STAMP_VIEW = "stamps"; renderPass(); setTimeout(go, 120); } }); }
   };
   addEventListener("hashchange", ()=>{ if(location.hash === "#passeport") setTimeout(playNew, 900); });
 })();
@@ -11187,6 +11198,116 @@ async function loadFigs(){
 Object.assign(EN, {
  "Glossaire":"Glossary","Les mots pour comprendre.":"The words to understand.","{n} termes. Les mêmes définitions s'ouvrent dans les fiches quand un mot est souligné.":"{n} terms. The same definitions open in the country pages when a word is underlined.",
  "Chercher un terme":"Search a term","Aucun terme ne correspond.":"No term matches.","Les 10 notions":"The 10 key ideas","Tous les mots du site, de « apatride » à « violations graves »":"Every word on the site, from “ceasefire” to “stateless”"
+});
+
+/* ---------- Les grands paliers : une vraie récompense tous les 10 niveaux ---------- */
+/* 10 : certificat nominatif · 20 : niveau Maître ouvert partout · 30 : voix double au vote · 40 : Mur des Gardiens et certificat d'or */
+(function(){
+  const BIG = [
+    {l:10, k:"cert", fr:"Certificat d'explorateur", en:"Explorer certificate",
+      dfr:"Un certificat à ton nom, à télécharger et à partager : niveau, titre, tampons, date.", den:"A certificate in your name to download and share: level, title, stamps, date."},
+    {l:20, k:"master", fr:"Le niveau Maître, partout", en:"Master level, everywhere",
+      dfr:"Plus besoin du tampon Légendaire : le niveau Maître s'ouvre directement sur tous les cours complets.", den:"No need for the Legendary stamp: the Master level opens straight away on every full course."},
+    {l:30, k:"vote", fr:"Ta voix compte double", en:"Your vote counts double",
+      dfr:"Au vote mensuel pour le prochain pays, ta voix vaut deux voix. Tu pèses sur ce que Sankofa raconte ensuite.", den:"In the monthly vote for the next country, your vote is worth two. You weigh on what Sankofa covers next."},
+    {l:40, k:"wall", fr:"Le Mur des Gardiens", en:"The Guardians' wall",
+      dfr:"Ton nom gravé sur le Mur des Gardiens de Sankofa, visible par tous, et le certificat d'or. Le sommet.", den:"Your name engraved on Sankofa's Guardians' wall, visible to all, and the gold certificate. The summit."}
+  ];
+  const nm = o=>LANG === "en" ? o.en : o.fr, ds = o=>LANG === "en" ? o.den : o.dfr;
+  const ICO = {
+    cert:'<path d="M6 3h12v14l-6-3-6 3z"/><path d="M9 7h6M9 10h6"/>',
+    master:'<path d="M4 18h16M5 18l1.5-9 4 4L12 6l1.5 7 4-4L19 18"/>',
+    vote:'<path d="M5 11l4 4 10-10"/><path d="M5 19h14"/>',
+    wall:'<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 15h18M9 5v5M15 10v5M9 15v4"/>'
+  };
+  const ico = k=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[k]}</svg>`;
+
+  function bigHTML(){
+    const l = level();
+    return `<section class="bigsect" id="bigSect" aria-labelledby="bigT"><div class="eyebrow">${t("Tous les 10 niveaux")}</div><h2 id="bigT">${t("Les grands paliers")}</h2>
+      <div class="bigrow">${BIG.map(b=>{ const ok = l >= b.l;
+        let act = "";
+        if(ok && b.k === "cert") act = `<button type="button" class="bigbtn" data-cert="1">${t("Télécharger mon certificat")}</button>`;
+        if(ok && b.k === "wall") act = `<label class="bigtg"><input type="checkbox" id="wallTg" ${state.wall ? "checked" : ""}> ${t("Apparaître sur le mur")}</label><div class="bigacts"><a class="bigbtn ghost" href="#gardiens">${t("Voir le mur")}</a><button type="button" class="bigbtn" data-cert="gold">${t("Certificat d'or")}</button></div>`;
+        if(ok && b.k === "master") act = `<span class="bigok">${t("Actif")}</span>`;
+        if(ok && b.k === "vote") act = `<span class="bigok">${t("Actif")}</span>`;
+        return `<div class="bigcard ${ok ? "ok" : ""}"><div class="bigtop"><span class="bigico">${ico(b.k)}</span><span class="biglv">${t("Niveau {n}", {n:b.l})}</span></div>
+          <b>${nm(b)}</b><p>${ds(b)}</p>${ok ? act : `<div class="bigbar"><i style="width:${Math.min(100, Math.round(l / b.l * 100))}%"></i></div><span class="bigleft">${t("Encore {n} niveaux", {n:b.l - l})}</span>`}</div>`; }).join("")}</div>
+      ${l < 40 ? "" : ""}<p class="bigwall"><a href="#gardiens">${t("Voir le Mur des Gardiens")}</a></p></section>`;
+  }
+  function bind(){
+    const s = $("#bigSect"); if(!s) return;
+    s.querySelectorAll("[data-cert]").forEach(b=>b.onclick = ()=>certificate(b.dataset.cert === "gold"));
+    const tg = $("#wallTg"); if(tg) tg.onchange = ()=>{ state.wall = tg.checked; store.set(state); try{ cloudSave(); }catch(e){} toast(tg.checked ? t("Ton nom apparaîtra sur le mur.") : t("Ton nom n'apparaîtra pas sur le mur.")); };
+  }
+  const _rp = renderPass;
+  renderPass = function(){
+    _rp.apply(this, arguments);
+    const head = $("#passHead"); if(!head) return;
+    const old = $("#bigSect"); if(old) old.remove();
+    head.insertAdjacentHTML("afterend", bigHTML()); bind();
+  };
+
+  /* Certificat : image 1600 × 1130, à télécharger ou partager */
+  async function certificate(gold){
+    const p = state.profile || {}, name = (p.name || t("Explorateur")).slice(0, 28), L = levelInfo(), lvT = (typeof TITLES !== "undefined" && TITLES[L.l-1]) ? (LANG === "en" && typeof EN_TITLES !== "undefined" ? EN_TITLES[L.l-1] : TITLES[L.l-1]) : "";
+    const W = 1600, H = 1130, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+    try{ await document.fonts.ready; }catch(e){}
+    const ink = gold ? "#7A5A12" : "#15171B", acc = gold ? "#C8962E" : "#B4233A";
+    g.fillStyle = gold ? "#FBF4E2" : "#F7F3EA"; g.fillRect(0, 0, W, H);
+    g.strokeStyle = acc; g.lineWidth = 6; g.strokeRect(40, 40, W - 80, H - 80); g.lineWidth = 1.5; g.strokeRect(62, 62, W - 124, H - 124);
+    g.textAlign = "center"; g.fillStyle = acc; g.font = "500 26px 'Geist Mono', monospace"; g.fillText((gold ? t("CERTIFICAT D'OR") : t("CERTIFICAT D'EXPLORATEUR")).split("").join(" "), W/2, 190);
+    g.fillStyle = ink; g.font = "italic 64px 'Instrument Serif', Georgia, serif"; g.fillText("Sankofa", W/2, 280);
+    g.font = "28px Geist, system-ui, sans-serif"; g.fillStyle = "#4A4F57"; g.fillText(t("Ce certificat est décerné à"), W/2, 400);
+    g.fillStyle = ink; g.font = "104px 'Instrument Serif', Georgia, serif"; g.fillText(name, W/2, 520);
+    g.fillStyle = acc; g.fillRect(W/2 - 160, 556, 320, 3);
+    const n = FEATURED.filter(id=>state.stamps[id]).length;
+    g.fillStyle = "#2A2D33"; g.font = "32px Geist, system-ui, sans-serif";
+    g.fillText(t("pour avoir atteint le niveau {n}", {n:L.l}) + (lvT ? " · " + lvT : ""), W/2, 640);
+    g.fillText(t("{n} tampons obtenus sur {m} pays et peuples", {n, m:FEATURED.length}), W/2, 690);
+    g.font = "24px 'Geist Mono', monospace"; g.fillStyle = "#6B7078";
+    g.fillText(`${t("Passeport")} ${p.num || ""} · ${new Date().toLocaleDateString(LOC, {day:"numeric", month:"long", year:"numeric"})}`, W/2, 800);
+    g.fillText("sankofa-atlas.org", W/2, 1000);
+    /* Sceau */
+    g.save(); g.translate(W - 250, H - 270); g.rotate(-.18); g.strokeStyle = acc; g.fillStyle = acc;
+    g.lineWidth = 4; g.beginPath(); g.arc(0, 0, 92, 0, Math.PI*2); g.stroke(); g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, 72, 0, Math.PI*2); g.stroke();
+    g.font = "600 20px 'Geist Mono', monospace"; g.textAlign = "center"; g.fillText("SANKOFA", 0, -6); g.font = "16px 'Geist Mono', monospace"; g.fillText(t("NIVEAU") + " " + L.l, 0, 22); g.restore();
+    cv.toBlob(async blob=>{ if(!blob) return; const file = new File([blob], "certificat-sankofa.png", {type:"image/png"});
+      try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"Sankofa"}); return; } }catch(e){ if(e && e.name === "AbortError") return; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "certificat-sankofa.png"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); }, "image/png");
+  }
+  window.skfCertificate = certificate;
+
+  /* Mur des Gardiens */
+  if(!$("#v-gardiens")){ const ref = $("#v-apropos") || $(".view:last-of-type"); if(ref) ref.insertAdjacentHTML("afterend", `<section class="view" id="v-gardiens"><div class="wrap sect" id="gdIn"></div></section>`); }
+  async function showWall(){
+    if(location.hash.slice(1) !== "gardiens") return;
+    try{ closeSettings(); }catch(e){}
+    document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id === "v-gardiens"));
+    document.body.classList.remove("focus"); document.querySelectorAll("[data-v]").forEach(a=>a.removeAttribute("aria-current"));
+    const box = $("#gdIn"); box.innerHTML = `<div class="eyebrow">${t("Niveau 40")}</div><h1 class="gdh">${t("Le Mur des Gardiens")}</h1><p class="gdp">${t("Celles et ceux qui ont mené leur passeport jusqu'au sommet. Par ordre alphabétique : ici, personne n'est devant personne.")}</p><div class="gdwall" id="gdWall"><p class="clsmall">${t("Chargement…")}</p></div>`;
+    window.scrollTo(0, 0);
+    let names = []; try{ names = await SB.rpc("sankofa_wall", {}) || []; }catch(e){ names = null; }
+    const w = $("#gdWall"); if(!w) return;
+    w.innerHTML = names === null ? `<p class="clsmall">${t("Impossible pour le moment. Vérifie ta connexion.")}</p>`
+      : names.length ? names.map(n=>`<span class="gdname">${esc(n)}</span>`).join("") : `<p class="clsmall">${t("Personne n'a encore atteint le niveau 40. Le premier nom gravé ici pourrait être le tien.")}</p>`;
+  }
+  const _rn = routeNow;
+  routeNow = function(){ if(location.hash.slice(1) === "gardiens"){ showWall(); return; } return _rn.apply(this, arguments); };
+  if(location.hash.slice(1) === "gardiens") setTimeout(showWall, 0);
+
+  /* Les paliers apparaissent aussi dans la liste « Ce que débloquent les niveaux » */
+  BIG.forEach(b=>PERKS.push({l:b.l, k:"big", fr:b.fr, en:b.en})); PERKS.sort((a, b)=>a.l - b.l || (a.k === "big" ? -1 : b.k === "big" ? 1 : 0));
+})();
+
+Object.assign(EN, {
+ "Tous les 10 niveaux":"Every 10 levels","Les grands paliers":"The big milestones","Télécharger mon certificat":"Download my certificate",
+ "Apparaître sur le mur":"Appear on the wall","Voir le mur":"See the wall","Certificat d'or":"Gold certificate","Actif":"Active","Encore {n} niveaux":"{n} levels to go",
+ "Voir le Mur des Gardiens":"See the Guardians' wall","Ton nom apparaîtra sur le mur.":"Your name will appear on the wall.","Ton nom n'apparaîtra pas sur le mur.":"Your name will not appear on the wall.",
+ "Explorateur":"Explorer","CERTIFICAT D'OR":"GOLD CERTIFICATE","CERTIFICAT D'EXPLORATEUR":"EXPLORER CERTIFICATE","Ce certificat est décerné à":"This certificate is awarded to",
+ "pour avoir atteint le niveau {n}":"for reaching level {n}","{n} tampons obtenus sur {m} pays et peuples":"{n} stamps earned across {m} countries and peoples","Passeport":"Passport","NIVEAU":"LEVEL",
+ "Niveau 40":"Level 40","Le Mur des Gardiens":"The Guardians' wall","Celles et ceux qui ont mené leur passeport jusqu'au sommet. Par ordre alphabétique : ici, personne n'est devant personne.":"Those who took their passport all the way to the top. In alphabetical order: here, no one is ahead of anyone.",
+ "Chargement…":"Loading…","Personne n'a encore atteint le niveau 40. Le premier nom gravé ici pourrait être le tien.":"No one has reached level 40 yet. The first name engraved here could be yours."
 });
 
 /* ---------- Espace fondateur : les statistiques dans le site, visibles par le seul compte fondateur ---------- */

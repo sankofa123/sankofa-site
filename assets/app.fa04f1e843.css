@@ -1679,6 +1679,36 @@ body.skf-l40 .slot .stampwrap svg,body.skf-l40 .reveal .stampwrap svg{animation:
 /* Carte d'identité Sankofa (niveau 11) */
 .idcard.idc.idc-gold{box-shadow:0 0 0 2px #B4233A,0 18px 44px -20px rgba(120,20,30,.55)}
 .idcard.idc.idc-gold .idc-band{background:linear-gradient(90deg,#7E1527,#B4233A,#7E1527);color:#FBEFF1}
+/* Les grands paliers */
+.bigsect{margin:28px 0 8px}
+.bigsect h2{margin:4px 0 14px}
+.bigrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.bigrow{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.bigrow{grid-template-columns:1fr}}
+.bigcard{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow);border:1px solid var(--line);color:var(--ink2)}
+.bigcard b{font-size:16px;color:var(--ink)}
+.bigcard p{margin:0;font-size:14px;line-height:1.45}
+.bigcard.ok{border-color:rgba(200,150,46,.55);box-shadow:0 0 0 1px rgba(200,150,46,.25),var(--shadow)}
+.bigtop{display:flex;align-items:center;justify-content:space-between}
+.bigico{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--surface2);color:var(--ink)}
+.bigcard.ok .bigico{background:linear-gradient(135deg,#8E6A1F,#D2A94B);color:#fff}
+.biglv{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.bigbar{height:6px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-top:auto}
+.bigbar i{display:block;height:100%;background:var(--ink);border-radius:99px}
+.bigleft{font-size:12px;font-family:var(--mono)}
+.bigbtn{margin-top:auto;align-self:flex-start;border:0;border-radius:999px;padding:9px 14px;min-height:40px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-flex;align-items:center}
+.bigbtn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2,var(--line))}
+.bigacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.bigtg{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);min-height:40px}
+.bigok{margin-top:auto;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8E6A1F}
+.bigwall{margin:12px 0 0;font-size:14px}
+.bigwall a{color:var(--ink2)}
+#v-gardiens .gdh{font-family:var(--serif);font-weight:400;margin:6px 0 8px}
+#v-gardiens .gdp{max-width:560px;color:var(--ink2)}
+.gdwall{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;padding:28px;border-radius:20px;background:linear-gradient(180deg,#17181C,#24262C);color:#E9D7A6;min-height:120px}
+.gdname{font-family:var(--serif);font-size:24px;letter-spacing:.01em}
+.gdwall .clsmall{color:#C3C7CE}
+.prdouble{color:#8E6A1F;font-weight:600}
 
 /* ---------- Finitions : date de mise à jour, partage, bienvenue ---------- */
 .cupd{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink2)}
@@ -1865,6 +1895,16 @@ body.st-encre #stamps .slot .stampwrap{filter:none!important}
 
 /* Le navigateur ne dessine les sections du passeport que lorsqu'elles approchent de l'écran */
 #visaSect,#launchSect,#cards,#badges{content-visibility:auto;contain-intrinsic-size:auto 600px}
+/* Visas cliquables, collection reliée aux fiches pays, sceau fondateur discret */
+#visaSect .vst{cursor:pointer}
+#visaSect .vst:hover{filter:brightness(.92)}
+#stamps .slotlink{display:flex;flex-direction:column;align-items:center;gap:inherit;color:inherit;text-decoration:none;width:100%}
+#stamps .slot.hl{animation:slothl 1.6s ease}
+@keyframes slothl{0%,60%{box-shadow:0 0 0 3px var(--gold,#C8962E);border-radius:16px}100%{box-shadow:0 0 0 0 transparent}}
+#passHead .phid{position:relative}
+#passHead .fseal{position:absolute;left:64px;top:62px;width:36px;height:36px;border-radius:50%;background:var(--surface,#fff);transform:rotate(-10deg);filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));z-index:2}
+#passHead .fseal svg{width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:reduce){#stamps .slot.hl{animation:none;box-shadow:0 0 0 3px var(--gold,#C8962E)}}
 
 /* ---------- Intro v3 : animation pilotée en JS, pas d'anciennes animations CSS ---------- */
 .splash.play3 .sbird,.splash.play3 .shead,.splash.play3 .segg,.splash.play3 .scrumb{animation:none!important}

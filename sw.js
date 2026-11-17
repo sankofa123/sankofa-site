@@ -1,6 +1,6 @@
 /* Sankofa : lecture hors ligne. La page et ses bibliothèques sont gardées après la première visite. */
-const V = "sankofa-20261117141946";
-const CORE = ["./", "index.html", "404.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "assets/app.84d11680a5.css", "assets/s1.7d28c4f53c.js", "assets/s2.bc057598e8.js", "assets/s3.7a82afcaa7.js", "assets/s4.93a9abab6f.js", "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"];
+const V = "sankofa-20261117143835";
+const CORE = ["./", "index.html", "404.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "assets/app.023bf0f5a2.css", "assets/s1.7d28c4f53c.js", "assets/s2.bc057598e8.js", "assets/s3.7a82afcaa7.js", "assets/s4.5364b34dd5.js", "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"];
 /* Hors ligne complet : les 42 fiches, les cours et les quiz sont dans ces fichiers ; tout est enregistré dès la première visite. */
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
