@@ -1790,6 +1790,14 @@ html.skf-lock .qpill,html.skf-tuto .qpill{display:none}
 #v-fondateur .fd-h{font-family:var(--serif,inherit);font-weight:400;margin:24px 0 8px}
 #v-fondateur .fd-p{color:var(--ink2,inherit)}
 .setlinks .fd-link{font-weight:600}
+/* Réglages sur téléphone : la fenêtre s'arrête au-dessus de la barre du bas, tous les liens restent accessibles */
+@media (max-width:760px){
+  #setPop.setpop{max-height:calc(100dvh - 56px - 96px - env(safe-area-inset-bottom,0px))}
+}
+#v-fondateur .fd-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px clamp(16px,4vw,40px);border-bottom:1px solid var(--line,rgba(0,0,0,.08));font-size:14px}
+#v-fondateur .fd-tg{border:0;border-radius:999px;padding:6px 14px;font:inherit;font-weight:600;cursor:pointer;background:var(--ink,#111);color:var(--bg,#fff)}
+#v-fondateur .fd-tg[aria-pressed=false]{background:transparent;color:inherit;box-shadow:inset 0 0 0 1px currentColor}
+#v-fondateur .fd-frame{height:calc(100dvh - 64px - 46px)}
 
 /* ---------- Pages de visas ---------- */
 .vpage{position:relative;max-width:100%;box-sizing:border-box;margin:0 auto;border-radius:18px;padding:12px 12px 16px;background:

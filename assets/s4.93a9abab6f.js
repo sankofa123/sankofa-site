@@ -4534,6 +4534,16 @@ function registerSW(){
   const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", ()=>{
     if(!hadCtl || reloaded || /^#quiz-/.test(location.hash)) return; reloaded = true; location.reload(); });
+  /* Auto-réparation : si la page affichée est plus ancienne que la version en ligne, on vide la mémoire du site et on recharge une fois */
+  (async()=>{ try{
+    const mine = [...document.querySelectorAll('script[src*="/assets/"],link[href*="/assets/"]')].map(e=>(e.src||e.href).split("/").pop()).filter(f=>/^(s\d+|app)\.[0-9a-f]+\.(js|css)$/.test(f)).sort().join(" ");
+    const r = await fetch("/version.txt?t=" + Date.now(), {cache:"no-store"}); if(!r.ok) return;
+    const live = (await r.text()).trim(); if(!live || !mine || live === mine) return;
+    if(sessionStorage.getItem("skf-heal") === live) return; sessionStorage.setItem("skf-heal", live);
+    const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(x=>x.unregister()));
+    const ks = await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k)));
+    location.reload();
+  }catch(e){} })();
   navigator.serviceWorker.register("sw.js").then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{});
 }
 addEventListener("offline", ()=>toast(t("Hors ligne : tu lis la version enregistrée.")));
@@ -11183,9 +11193,18 @@ Object.assign(EN, {
 /* Le serveur vérifie l'identité (fonction sankofa_is_admin) : personne d'autre ne voit le lien ni ne peut lire les chiffres. */
 (function(){
   let isAdmin = false;
+  /* Aperçu fondateur : niveau 40 et récompenses Fondateur débloqués pour voir le rendu (activé par défaut, réglable dans l'espace fondateur) */
+  const prev = ()=>{ try{ return localStorage.getItem("skf-fd-prev") !== "0"; }catch(e){ return true; } };
+  const setPrev = v=>{ try{ localStorage.setItem("skf-fd-prev", v ? "1" : "0"); }catch(e){} };
+  const on = ()=> isAdmin && prev();
+  if(typeof levelInfo === "function"){ const _li = levelInfo; levelInfo = function(){ const r = _li.apply(this, arguments); return on() ? Object.assign({}, r, {l: Math.max(r.l, (typeof XP_THR !== "undefined" ? XP_THR.length : 40))}) : r; }; }
+  const _sf = window.skfFounder; window.skfFounder = function(){ const r = _sf ? _sf.apply(this, arguments) : 0; return on() ? (r || 1) : r; };
   const check = async ()=>{
+    const was = isAdmin;
     try{ if(!window.SB || !SB.rpc) return; const r = await SB.rpc("sankofa_is_admin", {}); isAdmin = r === true; }catch(e){ isAdmin = false; }
+    window.skfAdmin = isAdmin;
     addLinks();
+    if(was !== isAdmin){ try{ applyCos && applyCos(); }catch(e){} try{ routeNow(); }catch(e){} }
     if(location.hash.slice(1) === "fondateur") show();
   };
   if(!$("#v-fondateur")){ const ref = $("#v-apropos") || $(".view:last-of-type"); if(ref) ref.insertAdjacentHTML("afterend", `<section class="view" id="v-fondateur"><div class="fd-wrap" id="fdIn"></div></section>`); }
@@ -11196,7 +11215,8 @@ Object.assign(EN, {
     document.body.classList.remove("focus"); document.querySelectorAll("[data-v]").forEach(a=>a.removeAttribute("aria-current"));
     const box = $("#fdIn");
     if(!isAdmin){ box.innerHTML = `<div class="wrap sect"><h1 class="fd-h">${t("Espace fondateur")}</h1><p class="fd-p">${t("Connecte-toi avec le compte fondateur pour voir les statistiques.")}</p></div>`; }
-    else if(!box.querySelector("iframe")){ box.innerHTML = `<iframe class="fd-frame" src="/stats/?in=app" title="${t("Statistiques")}"></iframe>`; }
+    else if(!box.querySelector("iframe")){ box.innerHTML = `<div class="fd-bar"><span>${t("Aperçu fondateur : toutes les récompenses débloquées")}</span><button class="fd-tg" type="button" aria-pressed="${prev()}">${prev() ? t("Activé") : t("Désactivé")}</button></div><iframe class="fd-frame" src="/stats/?in=app" title="${t("Statistiques")}"></iframe>`;
+      box.querySelector(".fd-tg").onclick = e=>{ setPrev(!prev()); e.currentTarget.setAttribute("aria-pressed", prev()); e.currentTarget.textContent = prev() ? t("Activé") : t("Désactivé"); try{ applyCos && applyCos(); }catch(er){} }; }
     window.scrollTo(0, 0);
   };
   const _rn = routeNow;
@@ -11217,7 +11237,8 @@ Object.assign(EN, {
 
 Object.assign(EN, {
  "Espace fondateur":"Founder space","Connecte-toi avec le compte fondateur pour voir les statistiques.":"Sign in with the founder account to see the statistics.",
- "Statistiques":"Statistics","Statistiques (fondateur)":"Statistics (founder)"
+ "Statistiques":"Statistics","Statistiques (fondateur)":"Statistics (founder)",
+ "Aperçu fondateur : toutes les récompenses débloquées":"Founder preview: all rewards unlocked","Activé":"On","Désactivé":"Off"
 });
 
 /* ================= DÉMARRAGE ================= */
