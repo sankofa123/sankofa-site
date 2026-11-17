@@ -8268,6 +8268,7 @@ function gDraw(now){
   }
   gx.fill();
   if(!moving && !autoRot && ring.length){ gx.beginPath(); for(const p of ring){ gx.moveTo(p[0]+3+k*12,p[1]); gx.arc(p[0],p[1],3+k*12,0,6.283); } gx.strokeStyle = hex; gx.globalAlpha = (1-k)*.7; gx.lineWidth = 1.2; gx.stroke(); gx.globalAlpha = 1; }
+  if(!moving && !reduce && typeof themeFx === "function") themeFx(now||0, center, hex);
   }
   for(let i=ripples.length-1;i>=0;i--){
     const rp = ripples[i], age = (now-rp.t)/1600;
@@ -8393,6 +8394,38 @@ function drawLocator(id){
 /* ---------- Un seul écouteur de défilement, calé sur l'affichage ---------- */
 var SCROLL_FNS = [], scrollRaf = 0;
 addEventListener("scroll", ()=>{ if(scrollRaf) return; scrollRaf = requestAnimationFrame(()=>{ scrollRaf = 0; for(const fn of SCROLL_FNS) fn(); }); }, {passive:true});
+
+
+/* ---------- Une animation très discrète par thème, sur les pays concernés ---------- */
+/* Crimes de masse : un battement lent · Déplacements : de petits points qui s'éloignent · Faim : une respiration · Enfants : deux lueurs qui scintillent
+   Esclavage : un contour en pointillés qui avance lentement · Journalistes : un éclair bref · Apatridie : un contour qui s'efface et revient */
+function themeFx(now, center, hex){
+  const ids = []; for(const id in C){ if(C[id].layers[active] && featById[id] && d3.geoDistance(centroid(id), center) < 1.45) ids.push(id); }
+  if(!ids.length) return;
+  const T = now/1000, geo = id=>F110D[id] || featById[id], ph = id=>((+id || id.length)*0.618) % 1;
+  gx.save();
+  if(active === "crime"){
+    const c = (T % 2.6)/2.6, beat = Math.max(Math.exp(-Math.pow((c - .1)/.05, 2)), .7*Math.exp(-Math.pow((c - .26)/.05, 2)));
+    gx.globalAlpha = .16*beat; gx.fillStyle = hex; gx.beginPath(); for(const id of ids) gpath(geo(id)); gx.fill();
+  } else if(active === "hunger"){
+    gx.fillStyle = hex; for(const id of ids){ const a = .5 + .5*Math.sin(T*1.4 + ph(id)*6.283); gx.globalAlpha = .12*a; gx.beginPath(); gpath(geo(id)); gx.fill(); }
+  } else if(active === "exil"){
+    gx.fillStyle = hex; for(const id of ids){ const p = proj(centroid(id)); if(!p) continue;
+      for(let j = 0; j < 3; j++){ const u = ((T*.35 + j/3 + ph(id)) % 1), ang = ph(id)*6.283 + j*2.1, r = 4 + u*18;
+        gx.globalAlpha = .55*(1 - u); gx.beginPath(); gx.arc(p[0] + Math.cos(ang)*r, p[1] + Math.sin(ang)*r, 1.3, 0, 6.283); gx.fill(); } }
+  } else if(active === "enfants"){
+    gx.fillStyle = "#fff"; for(const id of ids){ const p = proj(centroid(id)); if(!p) continue;
+      for(let j = 0; j < 2; j++){ const a = Math.max(0, Math.sin(T*2.2 + ph(id)*9 + j*2.6)); if(a < .05) continue;
+        gx.globalAlpha = .7*a*a; gx.beginPath(); gx.arc(p[0] + (j ? 7 : -6), p[1] + (j ? -5 : 4), 1.4, 0, 6.283); gx.fill(); } }
+  } else if(active === "slave"){
+    gx.strokeStyle = hex; gx.lineWidth = 1.1; gx.setLineDash([3, 4]); gx.lineDashOffset = -T*6; gx.globalAlpha = .6; gx.beginPath(); for(const id of ids) gpath(geo(id)); gx.stroke(); gx.setLineDash([]);
+  } else if(active === "presse"){
+    for(const id of ids){ const c = ((T + ph(id)*7) % 5)/5; if(c > .06) continue; gx.globalAlpha = .22*(1 - c/.06); gx.fillStyle = "#fff"; gx.beginPath(); gpath(geo(id)); gx.fill(); }
+  } else if(active === "apatride"){
+    gx.strokeStyle = hex; gx.lineWidth = 1.2; gx.globalAlpha = .25 + .35*(.5 + .5*Math.sin(T*1.1)); gx.beginPath(); for(const id of ids) gpath(geo(id)); gx.stroke();
+  }
+  gx.restore();
+}
 
 /* ================= Idées gardées du Labo (v10) ================= */
 Object.assign(EN,{"Et toi, ça va ?":"And you, are you okay?","Ce que tu viens de lire est dur. Comment te sens-tu ?":"What you just read is hard. How do you feel?","Ça va":"I'm okay","Un peu secoué":"A bit shaken","C'est lourd":"It's heavy",
@@ -11376,7 +11409,8 @@ Object.assign(EN, {
     const ids = d3.shuffle(gameIds().slice()).slice(0, 10);
     G = {ids, i:0, score:0, found:0, t0:0, total:0, rot:[-(Math.random()*360 - 180), -15], busy:false};
     $("#jeuIn").innerHTML = `<div class="gtop"><span class="gq" id="gQ"></span><span class="gmeta"><b id="gN">1/10</b> · <span id="gT">0,0 s</span></span></div>
-      <div class="gstage"><canvas id="gCv" aria-label="${esc(t("Globe du jeu"))}"></canvas><div class="gfb" id="gFb" aria-live="polite"></div></div>
+      <div class="gstage"><canvas id="gCv" aria-label="${esc(t("Globe du jeu"))}"></canvas><div class="gfb" id="gFb" aria-live="polite"></div>
+        <div class="gzoom"><button type="button" id="gZin" aria-label="${t("Zoomer")}">+</button><span id="gZoom"></span><button type="button" id="gZout" aria-label="${t("Dézoomer")}">−</button></div></div>
       <div class="gbot"><span id="gS">0 ${t("points")}</span><button class="gskip" id="gSkip">${t("Passer")}</button></div>`;
     const cv = $("#gCv"), box = cv.parentElement, size = Math.min(box.clientWidth || 340, 560), dpr = Math.min(devicePixelRatio || 1, 2);
     cv.width = size*dpr; cv.height = size*dpr; cv.style.width = cv.style.height = size + "px";
@@ -11391,6 +11425,7 @@ Object.assign(EN, {
       x.beginPath(); pa({type:"Sphere"}); x.fillStyle = COL.sea; x.fill();
       x.beginPath(); if(LAND110) pa(LAND110); else F110.forEach(f=>pa(f)); x.fillStyle = COL.land; x.fill();
       x.beginPath(); if(MESH110) pa(MESH110); x.strokeStyle = COL.line; x.lineWidth = .6; x.stroke();
+      if(G.zoom && G.zoom() > 1.8){ x.beginPath(); for(const id of gameIds()) pa(featById[id]); x.strokeStyle = COL.line; x.lineWidth = .8; x.stroke(); }
       if(flash){ x.beginPath(); pa(featById[flash.id]); x.fillStyle = flash.c; x.fill(); }
       x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = COL.line; x.lineWidth = 1; x.stroke();
     };
@@ -11411,14 +11446,24 @@ Object.assign(EN, {
         turnTo(id, ()=>{ flash = {id, c:"#D1343B"}; G.draw(); setTimeout(()=>{ fb.innerHTML = ""; next(); }, 1100); }); }
       $("#gS").textContent = G.score + " " + t("points");
     };
-    /* Glisser pour tourner, toucher pour répondre */
-    let down = null;
-    cv.addEventListener("pointerdown", e=>{ cv.setPointerCapture(e.pointerId); down = {x:e.clientX, y:e.clientY, r:G.rot.slice(), moved:false}; });
-    cv.addEventListener("pointermove", e=>{ if(!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if(Math.abs(dx) + Math.abs(dy) > 6) down.moved = true;
-      if(down.moved){ const k = 180 / (size*.9); G.rot = [down.r[0] + dx*k, Math.max(-75, Math.min(75, down.r[1] - dy*k))]; G.draw(); } });
-    cv.addEventListener("pointerup", e=>{ if(!down) return; const m = down.moved; down = null; if(m) return;
+    /* Glisser pour tourner, pincer ou molette pour zoomer, toucher pour répondre */
+    const S0 = size/2 - 6; let zoom = 1; G.zoom = ()=>zoom;
+    const setZoom = z=>{ zoom = Math.max(1, Math.min(8, z)); pr.scale(S0*zoom); G.draw(); const zb = $("#gZoom"); if(zb) zb.textContent = zoom > 1.05 ? "×" + zoom.toFixed(1).replace(".", LANG === "en" ? "." : ",") : ""; };
+    const pts = new Map(); let down = null, pinch = null;
+    cv.addEventListener("pointerdown", e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if(pts.size === 2){ const [a, b] = [...pts.values()]; pinch = {d:Math.hypot(a[0] - b[0], a[1] - b[1]), z:zoom}; down = null; }
+      else if(pts.size === 1) down = {x:e.clientX, y:e.clientY, r:G.rot.slice(), moved:false}; });
+    cv.addEventListener("pointermove", e=>{ if(!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if(pinch && pts.size === 2){ const [a, b] = [...pts.values()]; setZoom(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d); return; }
+      if(!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if(Math.abs(dx) + Math.abs(dy) > 6) down.moved = true;
+      if(down.moved){ const k = 180 / (size*.9*zoom); G.rot = [down.r[0] + dx*k, Math.max(-85, Math.min(85, down.r[1] - dy*k))]; G.draw(); } });
+    const up = e=>{ pts.delete(e.pointerId); if(pinch){ if(pts.size < 2) pinch = null; down = null; return; }
+      if(!down || e.type === "pointercancel"){ down = null; return; } const m = down.moved; down = null; if(m) return;
       const r = cv.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top], ll = pr.invert(p);
-      const inside = (p[0] - size/2)**2 + (p[1] - size/2)**2 <= (size/2 - 6)**2; guess(inside ? ll : null); });
+      const inside = (p[0] - size/2)**2 + (p[1] - size/2)**2 <= (S0*zoom)**2; guess(inside ? ll : null); };
+    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    cv.addEventListener("wheel", e=>{ e.preventDefault(); setZoom(zoom * Math.exp(-e.deltaY*0.0015)); }, {passive:false});
+    $("#gZin").onclick = ()=>setZoom(zoom*1.5); $("#gZout").onclick = ()=>setZoom(zoom/1.5);
     $("#gSkip").onclick = ()=>guess(null);
     G.t0 = performance.now(); ask(); tick(); window.skfGame = ()=>G;
   }
@@ -11428,7 +11473,8 @@ Object.assign(EN, {
     const tt = Math.round(G.total);
     $("#jeuIn").innerHTML = `<div class="card fxempty"><div class="eyebrow">${t("Résultat")}</div><div class="fxscore">${s}</div><p><b>${t("{n} pays trouvés sur 10, en {s} secondes.", {n:G.found, s:tt})}</b></p>
       <p class="fxsub">${rec ? t("Nouveau record.") : t("Ton record : {n} points.", {n:best})} +${G.found*2} XP</p>
-      <div class="fxrow"><button class="cta" id="gAgain">${t("Rejouer")}</button><button class="cta ghost" id="gShare">${t("Défier un ami")}</button></div></div>`;
+      <div class="fxrow"><button class="cta" id="gAgain">${t("Rejouer")}</button><button class="cta ghost" id="gShare">${t("Défier un ami")}</button></div>
+      <a class="fxback" href="#apprendre">← ${t("Retour")}</a></div>`;
     $("#gAgain").onclick = startGame;
     $("#gShare").onclick = async ()=>{ const txt = t("J'ai trouvé {n} pays sur 10 en {s} secondes sur Sankofa. À toi :", {n:G.found, s:tt}) + " " + SITE_URL + "/#jeu";
       try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){ if(e && e.name === "AbortError") return; }
@@ -11656,7 +11702,7 @@ Object.assign(EN, {
  "Une bonne réponse, et la question revient plus tard. Trois de suite, et elle disparaît.":"One right answer and the question comes back later. Three in a row and it's gone.",
  "Jeu":"Game","Trouve le pays":"Find the country","10 pays. Touche-les sur le globe, le plus vite possible.":"10 countries. Tap them on the globe, as fast as you can.",
  "Ton record : {n} points.":"Your best: {n} points.","Fais tourner le globe du doigt, puis touche le pays demandé.":"Spin the globe with your finger, then tap the country asked.",
- "Jouer":"Play","Globe du jeu":"Game globe","points":"points","Passer":"Skip","Trouve":"Find","Là, c'est : {x}.":"That's {x}.","Pas ici.":"Not here.",
+ "Jouer":"Play","Zoomer":"Zoom in","Dézoomer":"Zoom out","Globe du jeu":"Game globe","points":"points","Passer":"Skip","Trouve":"Find","Là, c'est : {x}.":"That's {x}.","Pas ici.":"Not here.",
  "Résultat":"Result","{n} pays trouvés sur 10, en {s} secondes.":"{n} countries found out of 10, in {s} seconds.","Nouveau record.":"New record.","Défier un ami":"Challenge a friend",
  "J'ai trouvé {n} pays sur 10 en {s} secondes sur Sankofa. À toi :":"I found {n} out of 10 countries in {s} seconds on Sankofa. Your turn:","Lien copié.":"Link copied.",
  "Fermer":"Close","Précédent":"Previous","Suivant":"Next","Un pays en six cartes. Touche à droite pour avancer.":"A country in six cards. Tap the right side to move on.",
