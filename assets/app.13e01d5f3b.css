@@ -1709,6 +1709,17 @@ body.skf-l40 .slot .stampwrap svg,body.skf-l40 .reveal .stampwrap svg{animation:
 .gdname{font-family:var(--serif);font-size:24px;letter-spacing:.01em}
 .gdwall .clsmall{color:#C3C7CE}
 .prdouble{color:#8E6A1F;font-weight:600}
+/* Fondateur, parrainage, certificat : une seule ligne discrète */
+.lmore{margin:18px 0 6px;border-top:1px solid var(--line);padding-top:6px}
+.lmore>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;font-size:13px;color:var(--ink2);font-family:var(--mono);letter-spacing:.04em}
+.lmore>summary::-webkit-details-marker{display:none}
+.lmore>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-left:4px;transition:transform .2s}
+.lmore[open]>summary::after{transform:rotate(-135deg)}
+.lmore .lgrid{margin-top:8px}
+.bigacts2{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:12px;font-size:14px}
+.lmbtn{border:0;border-radius:999px;padding:8px 14px;min-height:40px;font:inherit;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--ink)}
+.lmtg{display:flex;align-items:center;gap:8px;min-height:40px;color:var(--ink)}
+.lmlink{color:var(--ink2)}
 
 /* ---------- Finitions : date de mise à jour, partage, bienvenue ---------- */
 .cupd{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink2)}

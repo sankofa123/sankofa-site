@@ -9286,7 +9286,12 @@ if(window.SB && SB.launch){
     if(acc && ns >= NEED) cc = `<div class="card lcard lcert on"><div class="lcertic">${certIcon()}</div><div><div class="eyebrow">${t("Certificat")}</div><h3>${t("Ton certificat Sankofa est prêt")}</h3><p>${t("{n} pays compris, à ton nom. Garde-le, ou montre-le à ton prof.", {n:ns})}</p><div class="lbtns"><button class="cta" data-l="certdl">${t("Télécharger")}</button><button class="cta ghost" data-l="certsh">${t("Partager")}</button></div></div></div>`;
     else if(acc) cc = `<div class="card lcard lcert"><div class="lcertic off">${certIcon()}</div><div><div class="eyebrow">${t("Certificat")}</div><h3>${t("Encore {k} pays pour ton certificat", {k:NEED - ns})}</h3><p>${t("Tamponne 5 pays pour recevoir un certificat Sankofa à ton nom.")}</p><div class="lbar"><i style="width:${ns / NEED * 100}%;background:var(--ink)"></i></div><p class="lsmall">${t("{n} sur {k}", {n:ns, k:NEED})}</p></div></div>`;
     else if(ns >= NEED) cc = `<div class="card lcard lcert"><div class="lcertic">${certIcon()}</div><div><div class="eyebrow">${t("Certificat")}</div><h3>${t("Ton certificat t'attend")}</h3><p>${t("Tu as tamponné {n} pays. Crée un compte pour recevoir ton certificat à ton nom.", {n:ns})}</p><button class="cta" data-l="signup">${t("Créer mon compte")}</button></div></div>`;
-    sec.innerHTML = `<div class="lgrid">${fc}${rc}${cc}</div>`;
+    /* Discret : tout est replié dans une seule ligne en bas du passeport */
+    const opened = sessionStorage.getItem("skf-lmore") === "1";
+    const sum = [acc && F ? t("Fondateur n° {n}", {n:d.me.rank}) : "", t("Parrainage"), t("Certificat")].filter(Boolean).join(" · ");
+    sec.innerHTML = `<details class="lmore"${opened ? " open" : ""}><summary>${sum}</summary><div class="lgrid">${fc}${rc}${cc}</div>${window.skfBigActs ? window.skfBigActs() : ""}</details>`;
+    const dt = sec.querySelector("details"); dt.addEventListener("toggle", ()=>{ try{ sessionStorage.setItem("skf-lmore", dt.open ? "1" : "0"); }catch(e){} });
+    if(window.skfBigBind) window.skfBigBind(sec);
     sec.querySelectorAll("[data-l]").forEach(b=>b.onclick = ()=>act(b.dataset.l, d));
   }
   async function act(a, d){
@@ -11204,13 +11209,13 @@ Object.assign(EN, {
 /* 10 : certificat nominatif · 20 : niveau Maître ouvert partout · 30 : voix double au vote · 40 : Mur des Gardiens et certificat d'or */
 (function(){
   const BIG = [
-    {l:10, k:"cert", fr:"Certificat d'explorateur", en:"Explorer certificate",
+    {l:10, k:"cert", fr:"Certificat de niveau à ton nom", en:"Level certificate in your name",
       dfr:"Un certificat à ton nom, à télécharger et à partager : niveau, titre, tampons, date.", den:"A certificate in your name to download and share: level, title, stamps, date."},
-    {l:20, k:"master", fr:"Le niveau Maître, partout", en:"Master level, everywhere",
+    {l:20, k:"master", fr:"Niveau Maître ouvert sur tous les cours complets", en:"Master level open on every full course",
       dfr:"Plus besoin du tampon Légendaire : le niveau Maître s'ouvre directement sur tous les cours complets.", den:"No need for the Legendary stamp: the Master level opens straight away on every full course."},
-    {l:30, k:"vote", fr:"Ta voix compte double", en:"Your vote counts double",
+    {l:30, k:"vote", fr:"Ta voix compte double au vote du mois", en:"Your vote counts double in the monthly vote",
       dfr:"Au vote mensuel pour le prochain pays, ta voix vaut deux voix. Tu pèses sur ce que Sankofa raconte ensuite.", den:"In the monthly vote for the next country, your vote is worth two. You weigh on what Sankofa covers next."},
-    {l:40, k:"wall", fr:"Le Mur des Gardiens", en:"The Guardians' wall",
+    {l:40, k:"wall", fr:"Ton nom sur le Mur des Gardiens et le certificat d'or", en:"Your name on the Guardians' wall and the gold certificate",
       dfr:"Ton nom gravé sur le Mur des Gardiens de Sankofa, visible par tous, et le certificat d'or. Le sommet.", den:"Your name engraved on Sankofa's Guardians' wall, visible to all, and the gold certificate. The summit."}
   ];
   const nm = o=>LANG === "en" ? o.en : o.fr, ds = o=>LANG === "en" ? o.den : o.dfr;
@@ -11222,30 +11227,16 @@ Object.assign(EN, {
   };
   const ico = k=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[k]}</svg>`;
 
-  function bigHTML(){
-    const l = level();
-    return `<section class="bigsect" id="bigSect" aria-labelledby="bigT"><div class="eyebrow">${t("Tous les 10 niveaux")}</div><h2 id="bigT">${t("Les grands paliers")}</h2>
-      <div class="bigrow">${BIG.map(b=>{ const ok = l >= b.l;
-        let act = "";
-        if(ok && b.k === "cert") act = `<button type="button" class="bigbtn" data-cert="1">${t("Télécharger mon certificat")}</button>`;
-        if(ok && b.k === "wall") act = `<label class="bigtg"><input type="checkbox" id="wallTg" ${state.wall ? "checked" : ""}> ${t("Apparaître sur le mur")}</label><div class="bigacts"><a class="bigbtn ghost" href="#gardiens">${t("Voir le mur")}</a><button type="button" class="bigbtn" data-cert="gold">${t("Certificat d'or")}</button></div>`;
-        if(ok && b.k === "master") act = `<span class="bigok">${t("Actif")}</span>`;
-        if(ok && b.k === "vote") act = `<span class="bigok">${t("Actif")}</span>`;
-        return `<div class="bigcard ${ok ? "ok" : ""}"><div class="bigtop"><span class="bigico">${ico(b.k)}</span><span class="biglv">${t("Niveau {n}", {n:b.l})}</span></div>
-          <b>${nm(b)}</b><p>${ds(b)}</p>${ok ? act : `<div class="bigbar"><i style="width:${Math.min(100, Math.round(l / b.l * 100))}%"></i></div><span class="bigleft">${t("Encore {n} niveaux", {n:b.l - l})}</span>`}</div>`; }).join("")}</div>
-      ${l < 40 ? "" : ""}<p class="bigwall"><a href="#gardiens">${t("Voir le Mur des Gardiens")}</a></p></section>`;
-  }
-  function bind(){
-    const s = $("#bigSect"); if(!s) return;
-    s.querySelectorAll("[data-cert]").forEach(b=>b.onclick = ()=>certificate(b.dataset.cert === "gold"));
-    const tg = $("#wallTg"); if(tg) tg.onchange = ()=>{ state.wall = tg.checked; store.set(state); try{ cloudSave(); }catch(e){} toast(tg.checked ? t("Ton nom apparaîtra sur le mur.") : t("Ton nom n'apparaîtra pas sur le mur.")); };
-  }
-  const _rp = renderPass;
-  renderPass = function(){
-    _rp.apply(this, arguments);
-    const head = $("#passHead"); if(!head) return;
-    const old = $("#bigSect"); if(old) old.remove();
-    head.insertAdjacentHTML("afterend", bigHTML()); bind();
+  /* Plus de bloc dédié : les paliers sont dans « Ce que débloquent les niveaux », et leurs actions dans la ligne repliée du bas */
+  window.skfBigActs = function(){
+    const l = level(); if(l < 10) return "";
+    return `<div class="bigacts2">${l >= 10 ? `<button type="button" class="lmbtn" data-cert="1">${t("Certificat de niveau {n}", {n:l})}</button>` : ""}
+      ${l >= 40 ? `<button type="button" class="lmbtn" data-cert="gold">${t("Certificat d'or")}</button><label class="lmtg"><input type="checkbox" id="wallTg" ${state.wall ? "checked" : ""}> ${t("Apparaître sur le Mur des Gardiens")}</label>` : ""}
+      <a class="lmlink" href="#gardiens">${t("Le Mur des Gardiens")}</a></div>`;
+  };
+  window.skfBigBind = function(root){
+    root.querySelectorAll("[data-cert]").forEach(b=>b.onclick = ()=>certificate(b.dataset.cert === "gold"));
+    const tg = root.querySelector("#wallTg"); if(tg) tg.onchange = ()=>{ state.wall = tg.checked; store.set(state); try{ cloudSave(); }catch(e){} toast(tg.checked ? t("Ton nom apparaîtra sur le mur.") : t("Ton nom n'apparaîtra pas sur le mur.")); };
   };
 
   /* Certificat : image 1600 × 1130, à télécharger ou partager */
@@ -11304,7 +11295,7 @@ Object.assign(EN, {
  "Tous les 10 niveaux":"Every 10 levels","Les grands paliers":"The big milestones","Télécharger mon certificat":"Download my certificate",
  "Apparaître sur le mur":"Appear on the wall","Voir le mur":"See the wall","Certificat d'or":"Gold certificate","Actif":"Active","Encore {n} niveaux":"{n} levels to go",
  "Voir le Mur des Gardiens":"See the Guardians' wall","Ton nom apparaîtra sur le mur.":"Your name will appear on the wall.","Ton nom n'apparaîtra pas sur le mur.":"Your name will not appear on the wall.",
- "Explorateur":"Explorer","CERTIFICAT D'OR":"GOLD CERTIFICATE","CERTIFICAT D'EXPLORATEUR":"EXPLORER CERTIFICATE","Ce certificat est décerné à":"This certificate is awarded to",
+ "Explorateur":"Explorer","Certificat de niveau {n}":"Level {n} certificate","Apparaître sur le Mur des Gardiens":"Appear on the Guardians' wall","CERTIFICAT D'OR":"GOLD CERTIFICATE","CERTIFICAT D'EXPLORATEUR":"EXPLORER CERTIFICATE","Ce certificat est décerné à":"This certificate is awarded to",
  "pour avoir atteint le niveau {n}":"for reaching level {n}","{n} tampons obtenus sur {m} pays et peuples":"{n} stamps earned across {m} countries and peoples","Passeport":"Passport","NIVEAU":"LEVEL",
  "Niveau 40":"Level 40","Le Mur des Gardiens":"The Guardians' wall","Celles et ceux qui ont mené leur passeport jusqu'au sommet. Par ordre alphabétique : ici, personne n'est devant personne.":"Those who took their passport all the way to the top. In alphabetical order: here, no one is ahead of anyone.",
  "Chargement…":"Loading…","Personne n'a encore atteint le niveau 40. Le premier nom gravé ici pourrait être le tien.":"No one has reached level 40 yet. The first name engraved here could be yours."
