@@ -4530,7 +4530,11 @@ function openInstall(){
 }
 function registerSW(){
   if(!("serviceWorker" in navigator) || isFramed() || location.protocol!=="https:") return;
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
+  /* Nouvelle version du site : on recharge une fois pour l'afficher tout de suite (sauf en plein quiz) */
+  const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+    if(!hadCtl || reloaded || /^#quiz-/.test(location.hash)) return; reloaded = true; location.reload(); });
+  navigator.serviceWorker.register("sw.js").then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{});
 }
 addEventListener("offline", ()=>toast(t("Hors ligne : tu lis la version enregistrée.")));
 addEventListener("online", ()=>{ toast(t("De retour en ligne.")); flushReports(); });
