@@ -11175,6 +11175,47 @@ Object.assign(EN, {
  "Chercher un terme":"Search a term","Aucun terme ne correspond.":"No term matches.","Les 10 notions":"The 10 key ideas","Tous les mots du site, de « apatride » à « violations graves »":"Every word on the site, from “ceasefire” to “stateless”"
 });
 
+/* ---------- Espace fondateur : les statistiques dans le site, visibles par le seul compte fondateur ---------- */
+/* Le serveur vérifie l'identité (fonction sankofa_is_admin) : personne d'autre ne voit le lien ni ne peut lire les chiffres. */
+(function(){
+  let isAdmin = false;
+  const check = async ()=>{
+    try{ if(!window.SB || !SB.rpc) return; const r = await SB.rpc("sankofa_is_admin", {}); isAdmin = r === true; }catch(e){ isAdmin = false; }
+    addLinks();
+    if(location.hash.slice(1) === "fondateur") show();
+  };
+  if(!$("#v-fondateur")){ const ref = $("#v-apropos") || $(".view:last-of-type"); if(ref) ref.insertAdjacentHTML("afterend", `<section class="view" id="v-fondateur"><div class="fd-wrap" id="fdIn"></div></section>`); }
+  const show = ()=>{
+    if(location.hash.slice(1) !== "fondateur") return;
+    try{ closeSettings(); }catch(e){}
+    document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id === "v-fondateur"));
+    document.body.classList.remove("focus"); document.querySelectorAll("[data-v]").forEach(a=>a.removeAttribute("aria-current"));
+    const box = $("#fdIn");
+    if(!isAdmin){ box.innerHTML = `<div class="wrap sect"><h1 class="fd-h">${t("Espace fondateur")}</h1><p class="fd-p">${t("Connecte-toi avec le compte fondateur pour voir les statistiques.")}</p></div>`; }
+    else if(!box.querySelector("iframe")){ box.innerHTML = `<iframe class="fd-frame" src="/stats/?in=app" title="${t("Statistiques")}"></iframe>`; }
+    window.scrollTo(0, 0);
+  };
+  const _rn = routeNow;
+  routeNow = function(){ if(location.hash.slice(1) === "fondateur"){ show(); return; } return _rn.apply(this, arguments); };
+  const addLinks = ()=>{
+    const p = document.getElementById("setPop"), links = p && p.querySelector(".setlinks");
+    if(!links) return;
+    const has = links.querySelector('[href="#fondateur"]');
+    if(isAdmin && !has) links.insertAdjacentHTML("afterbegin", `<a href="#fondateur" class="fd-link">${t("Statistiques (fondateur)")}</a>`);
+    if(!isAdmin && has) has.remove();
+  };
+  const pop = document.getElementById("setPop"); if(pop) new MutationObserver(addLinks).observe(pop, {childList:true});
+  setTimeout(check, 1200);
+  /* Après une connexion ou une déconnexion, on revérifie */
+  addEventListener("storage", e=>{ if(e.key === "sankofa-sb") check(); });
+  setInterval(()=>{ const k = (()=>{ try{ return (JSON.parse(localStorage.getItem("sankofa-sb")||"null")||{}).uid||""; }catch(e){ return ""; } })(); if(k !== check.k){ check.k = k; check(); } }, 4000);
+})();
+
+Object.assign(EN, {
+ "Espace fondateur":"Founder space","Connecte-toi avec le compte fondateur pour voir les statistiques.":"Sign in with the founder account to see the statistics.",
+ "Statistiques":"Statistics","Statistiques (fondateur)":"Statistics (founder)"
+});
+
 /* ================= DÉMARRAGE ================= */
 if(LANG==="en") applyContentEN2();
 translateStatic();

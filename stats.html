@@ -635,6 +635,10 @@ const io = new IntersectionObserver(en => en.forEach(x => { if(x.isIntersecting)
 document.querySelectorAll("section").forEach(s => io.observe(s));
 let lw = innerWidth; addEventListener("resize", () => { clearTimeout(window._rz); window._rz = setTimeout(() => { if(LAST && innerWidth !== lw){ lw = innerWidth; render(LAST); } }, 200); });
 const saved = localStorage.getItem("skf-stats"); if(saved) open_(saved);
+/* Ouvert depuis le site par le compte fondateur : pas besoin de taper le code */
+(async()=>{ try{ if(localStorage.getItem("skf-stats")) return; const ss = JSON.parse(localStorage.getItem("sankofa-sb")||"null"); if(!ss || !ss.at) return;
+  const r = await fetch(URL_ + "/rest/v1/rpc/sankofa_admin_code", {method:"POST", headers:{apikey:KEY, Authorization:"Bearer " + ss.at, "Content-Type":"application/json"}, body:"{}"});
+  if(!r.ok) return; const c = await r.json(); if(c) open_(c); }catch(e){} })();
 </script>
 </body>
 </html>
