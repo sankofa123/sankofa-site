@@ -1935,6 +1935,7 @@ html.skf-lock .qpill,html.skf-tuto .qpill{display:none}
 .gzoom button{width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);box-shadow:var(--shadow);font-size:22px;line-height:1;color:var(--ink);cursor:pointer}
 .gzoom span{font-family:var(--mono);font-size:11px;color:var(--ink2);min-height:12px}
 .fxback{margin-top:14px;color:var(--ink2);font-size:15px;min-height:44px;display:inline-flex;align-items:center}
+.gq em{font-style:normal;font-family:var(--sans,inherit);font-size:.6em;color:var(--ink2)}
 
 /* ---------- Pages de visas ---------- */
 .vpage{position:relative;max-width:100%;box-sizing:border-box;margin:0 auto;border-radius:18px;padding:12px 12px 16px;background:

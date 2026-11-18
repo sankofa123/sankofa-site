@@ -11400,8 +11400,14 @@ Object.assign(EN, {
   }
 
   /* ====== 3. Jeu : trouve le pays sur le globe ====== */
-  const PEOPLES = new Set(["104","156","368","732","076","360","586"]);
-  const gameIds = ()=>FEATURED.filter(id=>!PEOPLES.has(id) && featById[id]);
+  /* Peuples : on cherche le pays où ils vivent */
+  const HOST = {"104":["Birmanie","Myanmar"],"156":["Chine","China"],"368":["Irak","Iraq"],"732":["Sahara occidental","Western Sahara"],"076":["Brésil","Brazil"],"360":["Indonésie","Indonesia"],"586":["Pakistan","Pakistan"]};
+  const gameIds = ()=>FEATURED.filter(id=>featById[id]);
+  const gName = id=>HOST[id] ? `${esc(C[id].short)} <em>(${HOST[id][LANG === "en" ? 1 : 0]})</em>` : esc(C[id].short);
+  /* Pioche : tous les pays du site passent avant qu'un pays revienne */
+  const drawIds = n=>{ const all = gameIds(); let deck = (state.gameDeck || []).filter(id=>all.includes(id));
+    const out = []; while(out.length < n){ if(!deck.length){ deck = d3.shuffle(all.filter(id=>!out.includes(id))); } const id = deck.shift(); if(!out.includes(id)) out.push(id); }
+    state.gameDeck = deck; store.set(state); return out; };
   addView("v-jeu", `<div class="wrap sect narrow" id="jeuIn"></div>`);
   let G = null;
   function renderJeu(){
@@ -11414,7 +11420,7 @@ Object.assign(EN, {
     $("#jeuGo").onclick = startGame;
   }
   function startGame(){
-    const ids = d3.shuffle(gameIds().slice()).slice(0, 10);
+    const ids = drawIds(10);
     G = {ids, i:0, score:0, found:0, t0:0, total:0, rot:[-(Math.random()*360 - 180), -15], busy:false};
     $("#jeuIn").innerHTML = `<div class="gtop"><span class="gq" id="gQ"></span><span class="gmeta"><b id="gN">1/10</b> · <span id="gT">0,0 s</span></span></div>
       <div class="gstage"><canvas id="gCv" aria-label="${esc(t("Globe du jeu"))}"></canvas><div class="gfb" id="gFb" aria-live="polite"></div>
@@ -11437,7 +11443,7 @@ Object.assign(EN, {
       if(flash){ x.beginPath(); pa(featById[flash.id]); x.fillStyle = flash.c; x.fill(); }
       x.beginPath(); pa({type:"Sphere"}); x.strokeStyle = COL.line; x.lineWidth = 1; x.stroke();
     };
-    const ask = ()=>{ const id = G.ids[G.i]; $("#gQ").innerHTML = `${t("Trouve")} <b>${esc(C[id].short)}</b>`; $("#gN").textContent = (G.i + 1) + "/10"; G.qt = performance.now(); G.busy = false; flash = null; G.draw(); };
+    const ask = ()=>{ const id = G.ids[G.i]; $("#gQ").innerHTML = `${t("Trouve")} <b>${gName(id)}</b>`; $("#gN").textContent = (G.i + 1) + "/10"; G.qt = performance.now(); G.busy = false; flash = null; G.draw(); };
     const tick = ()=>{ if(!G || !document.body.contains(cv)) return; if(!G.busy){ $("#gT").textContent = ((performance.now() - G.qt)/1000).toLocaleString(LOC, {minimumFractionDigits:1, maximumFractionDigits:1}) + " s"; } G.raf = requestAnimationFrame(tick); };
     const turnTo = (id, done)=>{ const c = centroid(id), from = G.rot.slice(), to = [-c[0], -Math.max(-60, Math.min(60, c[1]))];
       if(reduce()){ G.rot = to; G.draw(); return done && done(); }
