@@ -10908,7 +10908,14 @@ Object.assign(EN, {
   function visaHTML(sec){
     const ids = FEATURED.filter(id=>state.stamps[id]).sort((a,b)=>dnum(state.stamps[a].d) - dnum(state.stamps[b].d) || (hash(a) - hash(b)));
     const fr = founder();
-    if(!ids.length) return "";
+    if(!ids.length){
+      const avail0 = Math.min((sec && sec.clientWidth) || 340, 520);
+      return `<div class="secthead"><div><div class="eyebrow">${t("Pages de visas")}</div><h2>${t("Tamponné au fil de tes escales.")}</h2></div></div>
+      <div class="vpage vempty" style="width:${avail0}px"><div class="vhead"><span>SANKOFA · VISAS</span><span>0 / ${FEATURED.length}</span></div>
+        <div class="vemptyin"><span class="vghost" aria-hidden="true"></span><span class="vghost g2" aria-hidden="true"></span><span class="vghost g3" aria-hidden="true"></span>
+        <p><b>${t("Tes pages sont encore vierges.")}</b><br>${t("Chaque quiz réussi y appose un tampon, à l'encre de sa rareté.")}</p>
+        <a class="cta" href="#quiz-${C[FEATURED[0]].slug}">${t("Gagner mon premier tampon")}</a></div></div>`;
+    }
     const seen = state.visaSeen || {};
     const avail = Math.min((sec && sec.clientWidth) || 340, 520), W = avail - 24, d = avail < 420 ? 64 : 76;
     const keys = ids, L = layout(keys, W, d);
@@ -11022,6 +11029,7 @@ Object.assign(EN, {
 })();
 
 Object.assign(EN, {
+ "Tes pages sont encore vierges.":"Your pages are still blank.","Chaque quiz réussi y appose un tampon, à l'encre de sa rareté.":"Every quiz you pass stamps them, in the ink of its rarity.","Gagner mon premier tampon":"Earn my first stamp",
  "Pages de visas":"Visa pages","Tamponné au fil de tes escales.":"Stamped along your journey.","Globe de ta collection":"Your collection globe",
  "Ici, la couleur indique la rareté de ton tampon, pas le type de crise. Fais glisser pour tourner, touche un pays pour voir son nom.":"Here, colour shows the rarity of your stamp, not the type of crisis. Drag to spin, tap a country to see its name.","Aucun tampon pour l'instant. Réussis un parcours pour colorer ton premier pays.":"No stamps yet. Pass a course to colour your first country.",
  "Affichage":"View","Tampons":"Stamps","Globe":"Globe","Style des tampons":"Stamp style","Réservé aux Fondateurs.":"Founders only.","Fondateur":"Founder"
@@ -11449,19 +11457,28 @@ Object.assign(EN, {
     /* Glisser pour tourner, pincer ou molette pour zoomer, toucher pour répondre */
     const S0 = size/2 - 6; let zoom = 1; G.zoom = ()=>zoom;
     const setZoom = z=>{ zoom = Math.max(1, Math.min(8, z)); pr.scale(S0*zoom); G.draw(); const zb = $("#gZoom"); if(zb) zb.textContent = zoom > 1.05 ? "×" + zoom.toFixed(1).replace(".", LANG === "en" ? "." : ",") : ""; };
-    const pts = new Map(); let down = null, pinch = null;
-    cv.addEventListener("pointerdown", e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
-      if(pts.size === 2){ const [a, b] = [...pts.values()]; pinch = {d:Math.hypot(a[0] - b[0], a[1] - b[1]), z:zoom}; down = null; }
-      else if(pts.size === 1) down = {x:e.clientX, y:e.clientY, r:G.rot.slice(), moved:false}; });
-    cv.addEventListener("pointermove", e=>{ if(!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
-      if(pinch && pts.size === 2){ const [a, b] = [...pts.values()]; setZoom(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d); return; }
-      if(!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if(Math.abs(dx) + Math.abs(dy) > 6) down.moved = true;
-      if(down.moved){ const k = 180 / (size*.9*zoom); G.rot = [down.r[0] + dx*k, Math.max(-85, Math.min(85, down.r[1] - dy*k))]; G.draw(); } });
-    const up = e=>{ pts.delete(e.pointerId); if(pinch){ if(pts.size < 2) pinch = null; down = null; return; }
-      if(!down || e.type === "pointercancel"){ down = null; return; } const m = down.moved; down = null; if(m) return;
-      const r = cv.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top], ll = pr.invert(p);
+    /* Doigts : événements tactiles (les plus fiables sur iPhone et dans les navigateurs de Snapchat, Instagram, TikTok). Souris : événements souris. */
+    let down = null, pinch = null;
+    const tapAt = (cx, cy)=>{ const r = cv.getBoundingClientRect(), p = [cx - r.left, cy - r.top], ll = pr.invert(p);
       const inside = (p[0] - size/2)**2 + (p[1] - size/2)**2 <= (S0*zoom)**2; guess(inside ? ll : null); };
-    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    const startDrag = (x0, y0)=>{ down = {x:x0, y:y0, r:G.rot.slice(), moved:false}; };
+    const moveDrag = (x1, y1)=>{ if(!down) return; const dx = x1 - down.x, dy = y1 - down.y; if(Math.abs(dx) + Math.abs(dy) > 8) down.moved = true;
+      if(down.moved){ const k = 180 / (size*.9*zoom); G.rot = [down.r[0] + dx*k, Math.max(-85, Math.min(85, down.r[1] - dy*k))]; G.draw(); } };
+    const dist = tl=>Math.hypot(tl[0].clientX - tl[1].clientX, tl[0].clientY - tl[1].clientY);
+    cv.addEventListener("touchstart", e=>{ e.preventDefault();
+      if(e.touches.length >= 2){ pinch = {d:dist(e.touches), z:zoom}; down = null; }
+      else if(!pinch){ startDrag(e.touches[0].clientX, e.touches[0].clientY); } }, {passive:false});
+    cv.addEventListener("touchmove", e=>{ e.preventDefault();
+      if(pinch && e.touches.length >= 2){ setZoom(pinch.z * dist(e.touches) / pinch.d); return; }
+      if(e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+    cv.addEventListener("touchend", e=>{ e.preventDefault();
+      if(pinch){ if(e.touches.length === 0) pinch = null; down = null; return; }
+      if(!down) return; const m = down.moved, t0 = e.changedTouches[0]; down = null; if(!m && t0) tapAt(t0.clientX, t0.clientY); }, {passive:false});
+    cv.addEventListener("touchcancel", ()=>{ down = null; pinch = null; });
+    let mdown = false;
+    cv.addEventListener("mousedown", e=>{ mdown = true; startDrag(e.clientX, e.clientY); });
+    addEventListener("mousemove", e=>{ if(mdown) moveDrag(e.clientX, e.clientY); });
+    addEventListener("mouseup", e=>{ if(!mdown) return; mdown = false; if(!down) return; const m = down.moved; down = null; if(!m && e.target === cv) tapAt(e.clientX, e.clientY); });
     cv.addEventListener("wheel", e=>{ e.preventDefault(); setZoom(zoom * Math.exp(-e.deltaY*0.0015)); }, {passive:false});
     $("#gZin").onclick = ()=>setZoom(zoom*1.5); $("#gZout").onclick = ()=>setZoom(zoom/1.5);
     $("#gSkip").onclick = ()=>guess(null);
@@ -11724,7 +11741,10 @@ Object.assign(EN, {
 /* ---------- Espace fondateur : les statistiques dans le site, visibles par le seul compte fondateur ---------- */
 /* Le serveur vérifie l'identité (fonction sankofa_is_admin) : personne d'autre ne voit le lien ni ne peut lire les chiffres. */
 (function(){
-  let isAdmin = false;
+  /* Mémoire locale : si ce compte a déjà été reconnu comme fondateur sur cet appareil, l'aperçu s'applique tout de suite (le serveur reste seul juge pour les statistiques) */
+  const curUid = ()=>{ try{ return (JSON.parse(localStorage.getItem("sankofa-sb")||"null")||{}).uid || ""; }catch(e){ return ""; } };
+  let isAdmin = (()=>{ try{ const u = curUid(); return !!u && localStorage.getItem("skf-admin-uid") === u; }catch(e){ return false; } })();
+  window.skfAdmin = isAdmin;
   /* Aperçu fondateur : niveau 40 et récompenses Fondateur débloqués pour voir le rendu (activé par défaut, réglable dans l'espace fondateur) */
   const prev = ()=>{ try{ return localStorage.getItem("skf-fd-prev") !== "0"; }catch(e){ return true; } };
   const setPrev = v=>{ try{ localStorage.setItem("skf-fd-prev", v ? "1" : "0"); }catch(e){} };
@@ -11733,7 +11753,10 @@ Object.assign(EN, {
   const _sf = window.skfFounder; window.skfFounder = function(){ const r = _sf ? _sf.apply(this, arguments) : 0; return on() ? (r || 1) : r; };
   const check = async ()=>{
     const was = isAdmin;
-    try{ if(!window.SB || !SB.rpc) return; const r = await SB.rpc("sankofa_is_admin", {}); isAdmin = r === true; }catch(e){ isAdmin = false; }
+    let r = null;
+    try{ if(!window.SB || !SB.rpc) return; r = await SB.rpc("sankofa_is_admin", {}); }catch(e){ r = null; }
+    if(r === true){ isAdmin = true; try{ localStorage.setItem("skf-admin-uid", curUid()); }catch(e){} }
+    else if(r === false){ isAdmin = false; try{ if(localStorage.getItem("skf-admin-uid") === curUid()) localStorage.removeItem("skf-admin-uid"); }catch(e){} if(state.account && (check.n = (check.n || 0) + 1) <= 2 && curUid()) setTimeout(check, 4000*check.n); }
     window.skfAdmin = isAdmin;
     addLinks();
     if(was !== isAdmin){ try{ applyCos && applyCos(); }catch(e){} try{ routeNow(); }catch(e){} }

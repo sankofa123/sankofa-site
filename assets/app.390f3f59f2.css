@@ -2012,6 +2012,14 @@ body.st-encre #stamps .slot .stampwrap{filter:none!important}
 #passHead .fseal{position:absolute;left:64px;top:62px;width:36px;height:36px;border-radius:50%;background:var(--surface,#fff);transform:rotate(-10deg);filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));z-index:2}
 #passHead .fseal svg{width:100%;height:100%;display:block}
 @media (prefers-reduced-motion:reduce){#stamps .slot.hl{animation:none;box-shadow:0 0 0 3px var(--gold,#C8962E)}}
+/* Pages de visas vierges : elles existent dès le début et donnent envie d'être remplies */
+.vempty .vemptyin{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;padding:30px 22px;text-align:center}
+.vempty .vemptyin p{margin:0;max-width:320px;line-height:1.5;color:var(--ink2);font-size:15px;position:relative;z-index:1}
+.vempty .vemptyin p b{color:var(--ink)}
+.vempty .vemptyin .cta{position:relative;z-index:1}
+.vghost{position:absolute;width:76px;height:76px;border-radius:50%;border:2px dashed rgba(120,110,90,.28);left:14%;top:16%;transform:rotate(-12deg)}
+.vghost.g2{left:auto;right:12%;top:12%;width:64px;height:64px;transform:rotate(9deg)}
+.vghost.g3{left:auto;right:22%;top:auto;bottom:10%;width:58px;height:58px;transform:rotate(-4deg)}
 
 /* ---------- Intro v3 : animation pilotée en JS, pas d'anciennes animations CSS ---------- */
 .splash.play3 .sbird,.splash.play3 .shead,.splash.play3 .segg,.splash.play3 .scrumb{animation:none!important}
