@@ -9601,6 +9601,13 @@ Object.assign(EN, {
   }
   addLinks(); new MutationObserver(addLinks).observe(document.body, {childList:true, subtree:true});
   document.addEventListener("click", e=>{ const a = e.target.closest('a[href="#classe"]'); if(a){ e.preventDefault(); try{ closeSettings(); }catch(x){} openClasses(); } });
+  /* Lien direct #classe : ouvre l'espace enseignant au lieu de rester sur le globe */
+  const hashCl = ()=>{ if(location.hash === "#classe"){ try{ history.replaceState(null, "", location.pathname + location.search + "#globe"); }catch(x){} openClasses(); } };
+  window.addEventListener("hashchange", hashCl); setTimeout(hashCl, 900);
+  /* Recherche : texte court sur téléphone pour qu'il ne soit pas coupé */
+  const phQ = ()=>{ const q = document.getElementById("q"); if(!q) return; const narrow = innerWidth < 440;
+    q.placeholder = LANG === "en" ? (narrow ? "Search…" : "Search a country, a people…") : (narrow ? "Rechercher…" : "Rechercher un pays, un peuple…"); };
+  phQ(); addEventListener("resize", phQ);
 
   const ERR = {"compte requis":"Il faut un compte pour cela.", "code inconnu":"Ce code ne correspond à aucune classe.", "classe pleine":"Cette classe est complète.", "nom invalide":"Donne un nom à ta classe (2 à 60 caractères).", "trop de classes":"Tu as déjà 20 classes."};
   const errText = e=>{ const m = String((e && e.message) || ""); const k = Object.keys(ERR).find(x=>m.includes(x)); return t(k ? ERR[k] : "Impossible pour le moment. Réessaie plus tard."); };
